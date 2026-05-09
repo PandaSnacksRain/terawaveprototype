@@ -1,0 +1,3178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terawave Operator Interface - Station 3</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --border-color: #334155;
+        }
+
+        body.light-mode {
+            --bg-dark: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-card-hover: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 18px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.6rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .site-badge {
+            background: var(--bg-dark);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .station-badge {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .wo-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .wo-number {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .wo-part {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pulse-timer-small {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-dark);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+        }
+
+        .pulse-timer-small.warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--accent-amber);
+        }
+
+        .pulse-icon {
+            font-size: 1.4rem;
+        }
+
+        .pulse-time {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pulse-timer-small.warning .pulse-time {
+            color: var(--accent-amber);
+        }
+
+        .pulse-label-small {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.35rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .theme-icon-light {
+            display: none;
+        }
+
+        body.light-mode .theme-icon-dark {
+            display: none;
+        }
+
+        body.light-mode .theme-icon-light {
+            display: inline;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .user-profile:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .profile-arrow {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            background: var(--accent-blue);
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            margin-right: -0.5rem;
+        }
+
+        .logout-btn:hover {
+            background: #2563eb;
+        }
+
+        .logout-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 24px;
+        }
+
+        .logout-door {
+            width: 12px;
+            height: 22px;
+            border: 3px solid white;
+            border-right: none;
+            border-radius: 4px 0 0 4px;
+            flex-shrink: 0;
+        }
+
+        .logout-arrow {
+            width: 12px;
+            height: 0;
+            border-top: 3px solid white;
+            position: relative;
+            margin-left: -2px;
+            flex-shrink: 0;
+        }
+
+        .logout-arrow::after {
+            content: '';
+            position: absolute;
+            right: -1px;
+            top: -6px;
+            width: 8px;
+            height: 8px;
+            border-top: 3px solid white;
+            border-right: 3px solid white;
+            transform: rotate(45deg);
+        }
+
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            min-width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .profile-menu.active {
+            display: block;
+        }
+
+        .profile-menu-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .profile-avatar-lg {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-fullname {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .profile-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .profile-menu-item {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .profile-menu-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .profile-menu-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .operator-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .operator-role {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        /* Work Instructions Panel */
+        .instructions-panel {
+            padding: 0.75rem 1.25rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .step-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+            flex-shrink: 0;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .step-dot.completed {
+            background: var(--accent-green);
+        }
+
+        .step-dot.current {
+            background: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+
+        .step-dot.upcoming {
+            background: var(--bg-card);
+            border: 2px solid var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .step-connector {
+            width: 24px;
+            height: 3px;
+            background: var(--text-muted);
+            border-radius: 2px;
+        }
+
+        .step-connector.completed {
+            background: var(--accent-green);
+        }
+
+        .step-label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        .step-label strong {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+        }
+
+        /* Current Step Card */
+        .current-step-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            flex: 1;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .step-left-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .step-right-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .step-number-large {
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.3rem;
+        }
+
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .step-time-estimate {
+            background: var(--bg-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .step-time-estimate .time {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .step-time-estimate .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .step-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            flex-shrink: 0;
+        }
+
+
+
+        /* Media/Image Area */
+        .media-area {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .media-controls {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .media-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .media-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            color: var(--text-primary);
+        }
+
+        .rotatable-image {
+            transition: transform 0.3s ease;
+        }
+
+        .media-placeholder {
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .media-placeholder .icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+
+        /* Right Sidebar */
+        .sidebar {
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Andon Section */
+        .andon-section {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .andon-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .andon-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .andon-btn .icon {
+            font-size: 1.5rem;
+        }
+
+        /* Andon Active State */
+        .andon-active-panel {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid var(--accent-red);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: none;
+        }
+
+        .andon-active-panel.visible {
+            display: block;
+        }
+
+        .andon-active-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .andon-pulse {
+            width: 12px;
+            height: 12px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            animation: andonPulse 1s infinite;
+        }
+
+        @keyframes andonPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .andon-active-title {
+            font-weight: 600;
+            color: var(--accent-red);
+        }
+
+        .andon-active-time {
+            margin-left: auto;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+        }
+
+        .andon-active-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .andon-cancel-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            border: 2px solid var(--accent-red);
+            border-radius: 8px;
+            color: var(--accent-red);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .andon-cancel-btn:hover {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        /* Parts & Tools Bar */
+        .parts-tools-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .pt-group {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .pt-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            width: 45px;
+            flex-shrink: 0;
+        }
+
+        .pt-tag {
+            background: var(--bg-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+        }
+
+        .pt-tag b {
+            color: var(--accent-blue);
+            margin-right: 0.15rem;
+        }
+
+        .pt-tag em {
+            color: var(--text-muted);
+            font-style: normal;
+            font-size: 0.7rem;
+            margin-left: 0.2rem;
+        }
+
+        /* Scan-enabled parts section */
+        .scan-parts-section {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow-y: auto;
+        }
+
+        .scan-parts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .scan-parts-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .scan-status-badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .scan-status-badge.complete {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .scan-part-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.4rem 0.6rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            margin-bottom: 0.35rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .scan-part-row.pending {
+            border-color: var(--border-color);
+        }
+
+        .scan-part-row.scanning {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .scan-part-row.scanned {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .scan-part-row.auto {
+            opacity: 0.7;
+        }
+
+        .scan-type-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            min-width: 32px;
+            text-align: center;
+        }
+
+        .scan-type-badge.sn {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .scan-type-badge.lot {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .scan-type-badge.bulk {
+            background: var(--text-muted);
+            color: var(--bg-dark);
+        }
+
+        .scan-part-info {
+            flex: 1;
+        }
+
+        .scan-part-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .scan-part-qty {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .scan-part-bin {
+            font-size: 0.75rem;
+            color: var(--accent-blue);
+        }
+
+        .scan-input-area {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 180px;
+        }
+
+        .scan-input {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            font-family: monospace;
+        }
+
+        .scan-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .scan-input.valid {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .scan-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .scan-status-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .scan-status-icon.pending {
+            background: var(--bg-dark);
+            border: 2px dashed var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .scan-status-icon.scanned {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .scan-status-icon.auto {
+            background: var(--text-muted);
+            color: var(--bg-dark);
+        }
+
+
+        /* Tools section box */
+        .tools-section-box {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 0.6rem 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .tools-section-header {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .tools-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .tool-icon {
+            font-size: 0.9rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Torque Verification Section */
+        .torque-section {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 0.6rem 0.75rem;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Test Equipment Section */
+        .test-section {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .test-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .test-status-badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .test-status-badge.connecting {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .test-status-badge.running {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+            animation: pulse 1.5s infinite;
+        }
+
+        .test-status-badge.complete {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .test-status-badge.failed {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .test-equipment-box {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.6rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .test-equipment-icon {
+            font-size: 1.1rem;
+        }
+
+        .test-equipment-name {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .test-equipment-status {
+            margin-left: auto;
+            font-size: 0.7rem;
+            color: var(--accent-green);
+        }
+
+        .test-channels {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .test-channel {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.5rem;
+            background: var(--bg-dark);
+            border-radius: 5px;
+            font-size: 0.8rem;
+            border: 1px solid transparent;
+        }
+
+        .test-channel.pass {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .test-channel.fail {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .test-channel-name {
+            font-weight: 500;
+            color: var(--text-primary);
+            min-width: 70px;
+        }
+
+        .test-channel-value {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .test-channel-result {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .test-channel-result.pass {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .test-channel-result.fail {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .test-channel-result.pending {
+            background: var(--text-muted);
+            color: var(--bg-dark);
+        }
+
+        .test-progress {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .test-progress-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 0.4rem;
+        }
+
+        .test-progress-fill {
+            height: 100%;
+            background: var(--accent-blue);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .test-progress-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Error Recovery */
+        .error-recovery-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .error-recovery-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-recovery-icon {
+            font-size: 1.1rem;
+        }
+
+        .error-recovery-title {
+            font-weight: 600;
+            color: var(--accent-red);
+            font-size: 0.85rem;
+        }
+
+        .error-recovery-message {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .error-recovery-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-retry {
+            flex: 1;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid var(--accent-amber);
+            border-radius: 6px;
+            color: var(--accent-amber);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-retry:hover {
+            background: var(--accent-amber);
+            color: var(--bg-dark);
+        }
+
+        .btn-escalate {
+            flex: 1;
+            padding: 0.5rem;
+            background: var(--accent-red);
+            border: 1px solid var(--accent-red);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-escalate:hover {
+            background: #dc2626;
+        }
+
+        .torque-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .torque-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .torque-status-badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .torque-status-badge.complete {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .torque-tool-connected {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.6rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .torque-tool-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .torque-tool-name {
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+
+        .torque-tool-status {
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+
+        .torque-instruction {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 0.3rem;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            margin-bottom: 0.4rem;
+        }
+
+        .torque-instruction.armed {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+        }
+
+        .torque-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .torque-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.5rem;
+            background: var(--bg-dark);
+            border-radius: 5px;
+            font-size: 0.8rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .torque-item.armed {
+            border-color: var(--accent-amber);
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.1);
+            cursor: default;
+        }
+
+        .torque-item.armed .torque-fastener::before {
+            content: '▶ ';
+            color: var(--accent-amber);
+        }
+
+        .torque-item:not(.pass):not(.fail):not(.armed) {
+            cursor: pointer;
+        }
+
+        .torque-item:not(.pass):not(.fail):not(.armed):hover {
+            border-color: var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .torque-item.pass {
+            border-color: var(--accent-green);
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .torque-item.fail {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .torque-fastener {
+            font-weight: 500;
+            color: var(--text-primary);
+            min-width: 80px;
+        }
+
+        .torque-spec {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            flex: 1;
+        }
+
+        .torque-actual {
+            font-family: monospace;
+            font-size: 0.75rem;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .torque-actual.pass {
+            color: var(--accent-green);
+        }
+
+        .torque-actual.fail {
+            color: var(--accent-red);
+        }
+
+        .torque-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .torque-icon.pending {
+            background: var(--bg-card);
+            border: 2px dashed var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        .torque-icon.pass {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .torque-icon.fail {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-next-step:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-next-step:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-simulate-scan {
+            margin-top: auto;
+            padding: 0.6rem 1rem;
+            background: transparent;
+            border: 1px dashed var(--text-muted);
+            border-radius: 6px;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-simulate-scan:hover {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .simulate-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: auto;
+            padding-top: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .simulate-buttons .btn-simulate-scan {
+            flex: 1;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        /* Procedure Section */
+        .procedure-section {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+            min-height: 0;
+        }
+
+        .procedure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.6rem;
+        }
+
+        .procedure-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .view-details-link {
+            font-size: 0.75rem;
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .view-details-link:hover {
+            text-decoration: underline;
+        }
+
+        .procedure-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .procedure-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            line-height: 1.35;
+        }
+
+        .procedure-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            margin-top: 1px;
+        }
+
+        /* Next Step Section */
+        .next-step-section {
+            padding: 1.25rem 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .btn-next-step {
+            width: 100%;
+            padding: 2.5rem 1rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-next-step:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-next-step:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* Pulse Modal */
+        .pulse-modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2.5rem;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .pulse-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: white;
+            margin: 0 auto 1.5rem;
+        }
+
+        .pulse-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .pulse-modal-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .pulse-modal-status {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--accent-amber);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pulse-status-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.25rem;
+        }
+
+        .pulse-status-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-amber);
+        }
+
+        .pulse-modal-next {
+            background: var(--bg-dark);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .next-unit-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .next-unit-info {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .next-unit-sn {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .next-unit-wo {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .pulse-modal-btn {
+            width: 100%;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pulse-modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Pulse Notification */
+        .pulse-notification {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--accent-blue);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+            z-index: 3000;
+            transition: transform 0.3s ease;
+        }
+
+        .pulse-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="site-badge">ATX-01</div>
+            <div class="station-badge">Station 3</div>
+            <div class="wo-info">
+                <div class="wo-number">WO-2024-0847</div>
+                <div class="wo-part">PN: ANT-RF-4200 | SN-2856</div>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="pulse-timer-small warning">
+                <div class="pulse-icon">&#9201;</div>
+                <div>
+                    <div class="pulse-time" id="pulseTime">27:14</div>
+                    <div class="pulse-label-small">Pulse Remaining</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                <span class="theme-icon-dark">🌙</span>
+                <span class="theme-icon-light">☀️</span>
+            </button>
+            <div class="user-profile" onclick="toggleProfileMenu()">
+                <div class="profile-avatar">IJ</div>
+                <span class="profile-name">Isabella J.</span>
+                <span class="profile-arrow">▼</span>
+                <div class="profile-menu" id="profileMenu">
+                    <div class="profile-menu-header">
+                        <div class="profile-avatar-lg">IJ</div>
+                        <div class="profile-info">
+                            <div class="profile-fullname">Isabella Johnson</div>
+                            <div class="profile-role">RF Assembly Certified</div>
+                        </div>
+                    </div>
+                    <div class="profile-menu-divider"></div>
+                    <div class="profile-menu-item">My Statistics</div>
+                    <div class="profile-menu-item">Training</div>
+                    <div class="profile-menu-item">Language</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="signOut()" title="Sign Out">
+                <span class="logout-icon">
+                    <span class="logout-door"></span>
+                    <span class="logout-arrow"></span>
+                </span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Work Instructions Panel -->
+        <div class="instructions-panel">
+            <!-- Step Progress -->
+            <div class="step-progress">
+                <div class="step-indicator">
+                    <div class="step-dot completed">1</div>
+                    <div class="step-connector completed"></div>
+                    <div class="step-dot completed">2</div>
+                    <div class="step-connector completed"></div>
+                    <div class="step-dot current">3</div>
+                    <div class="step-connector"></div>
+                    <div class="step-dot upcoming">4</div>
+                    <div class="step-connector"></div>
+                    <div class="step-dot upcoming">5</div>
+                </div>
+                <div class="step-label">
+                    Step <strong>3</strong> of 5
+                </div>
+            </div>
+
+            <!-- Current Step Card -->
+            <div class="current-step-card">
+                <!-- Left Panel: Instructions + Image -->
+                <div class="step-left-panel">
+                    <div class="step-header">
+                        <div>
+                            <div class="step-number-large">Step 3</div>
+                            <h1 class="step-title">Connect Antenna Array</h1>
+                        </div>
+                        <div class="step-time-estimate">
+                            <div class="time">12 min</div>
+                            <div class="label">Est. Time</div>
+                        </div>
+                    </div>
+
+                    <p class="step-description">
+                        Connect the main antenna array to the RF panel using the precision connector tool.
+                        Ensure proper alignment before engaging the locking mechanism.
+                    </p>
+
+                    <!-- Media Area -->
+                    <div class="media-area">
+                        <div class="media-placeholder" style="background: transparent; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 0;">
+                            <img id="assemblyImage" class="rotatable-image" src="solar-panel-cropped.png" alt="Solar Panel Assembly" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                        </div>
+                        <div class="media-controls">
+                            <button class="media-btn" onclick="rotateImage()" title="Rotate">↻</button>
+                            <button class="media-btn" onclick="enlargeImage()" title="Enlarge">⛶</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Parts Scan -->
+                <div class="step-right-panel">
+                    <div class="scan-parts-section">
+                        <!-- Parts Content (dynamically updated) -->
+                        <div id="scanPartsContent"></div>
+
+                        <!-- Torque Verification -->
+                        <div class="torque-section" id="torqueSection" style="display: none;"></div>
+
+                        <!-- Test Equipment -->
+                        <div class="test-section" id="testSection" style="display: none;"></div>
+
+                        <!-- Error Recovery -->
+                        <div class="error-recovery-box" id="errorRecovery" style="display: none;"></div>
+
+                        <!-- Simulate Buttons -->
+                        <div class="simulate-buttons" id="simulateButtons">
+                            <button class="btn-simulate-scan" onclick="simulateAllScans()" id="btnSimulateScans">⚡ Scans</button>
+                            <button class="btn-simulate-scan" onclick="simulateAllTorque()" id="btnSimulateTorque" style="display: none;">🔧 Torque</button>
+                            <button class="btn-simulate-scan" onclick="simulateTorqueFail()" id="btnSimulateTorqueFail" style="display: none; border-color: var(--accent-red); color: var(--accent-red);">⚠️ Fail</button>
+                            <button class="btn-simulate-scan" onclick="runTest()" id="btnRunTest" style="display: none;">📡 Test</button>
+                            <button class="btn-simulate-scan" onclick="runTestFail()" id="btnRunTestFail" style="display: none; border-color: var(--accent-red); color: var(--accent-red);">⚠️ Test Fail</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar">
+            <!-- Andon Section - Top -->
+            <div class="andon-section">
+                <button class="andon-btn" id="andonBtn" onclick="pullAndon()">
+                    <span class="icon">!</span>
+                    PULL ANDON
+                </button>
+
+                <div class="andon-active-panel" id="andonPanel">
+                    <div class="andon-active-header">
+                        <div class="andon-pulse"></div>
+                        <span class="andon-active-title">ANDON ACTIVE</span>
+                        <span class="andon-active-time" id="andonTime">00:00</span>
+                    </div>
+                    <div class="andon-active-info">
+                        Team lead has been notified and is responding.
+                    </div>
+                    <button class="andon-cancel-btn" onclick="cancelAndon()">
+                        Cancel Andon
+                    </button>
+                </div>
+            </div>
+
+            <!-- Procedure List -->
+            <div class="procedure-section">
+                <div class="procedure-header">
+                    <div class="procedure-title">Procedure</div>
+                    <a href="#" class="view-details-link" onclick="viewDetailedProcedure()">View Details →</a>
+                </div>
+
+                <div class="procedure-list">
+                    <div class="procedure-item">
+                        <div class="procedure-num">1</div>
+                        <span>Position antenna array using alignment jig</span>
+                    </div>
+                    <div class="procedure-item">
+                        <div class="procedure-num">2</div>
+                        <span>Install shielding gasket on connector interface</span>
+                    </div>
+                    <div class="procedure-item">
+                        <div class="procedure-num">3</div>
+                        <span>Connect RF connectors (4x) — star pattern</span>
+                    </div>
+                    <div class="procedure-item">
+                        <div class="procedure-num">4</div>
+                        <span>Torque all connections to 2.5 N-m</span>
+                    </div>
+                    <div class="procedure-item">
+                        <div class="procedure-num">5</div>
+                        <span>Verify connection with continuity check</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Step Button - Bottom -->
+            <div class="next-step-section">
+                <button class="btn-next-step" onclick="completeStep()">
+                    Complete Step &#8594;
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Awaiting Pulse Modal -->
+    <div class="modal-overlay" id="awaitingPulseModal">
+        <div class="pulse-modal">
+            <div class="pulse-modal-icon">&#10003;</div>
+            <div class="pulse-modal-title">All Steps Complete</div>
+            <div class="pulse-modal-subtitle">SN-2856 ready for next station</div>
+
+            <div class="pulse-modal-status">
+                <div class="pulse-status-label">STATUS</div>
+                <div class="pulse-status-value">Awaiting Pulse</div>
+            </div>
+
+            <div class="pulse-modal-next">
+                <div class="next-unit-label">NEXT UNIT</div>
+                <div class="next-unit-info">
+                    <span class="next-unit-sn">SN-2857</span>
+                    <span class="next-unit-wo">WO-2024-0848</span>
+                </div>
+            </div>
+
+            <button class="pulse-modal-btn" onclick="simulateNextPulse()">
+                Simulate Next Pulse
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Scan tracking
+        const scanRequirements = {
+            1: { type: 'sn', name: 'Antenna Array', scanned: false, value: null },
+            2: { type: 'lot', name: 'RF Connector', scanned: false, value: null },
+            3: { type: 'bulk', name: 'Shielding Gasket', scanned: true, value: 'auto' } // auto-consumed
+        };
+
+        let scanBuffer = '';
+        let scanTimeout = null;
+        let activeScanField = null;
+
+        // Scanner input handler (HID keyboard mode - rapid keystrokes ending in Enter)
+        document.addEventListener('keypress', function(e) {
+            // If focused on a scan input, let it handle naturally
+            if (document.activeElement.classList.contains('scan-input')) {
+                return;
+            }
+
+            // Build scan buffer from rapid input
+            if (e.key === 'Enter' && scanBuffer.length > 3) {
+                processScan(scanBuffer);
+                scanBuffer = '';
+                return;
+            }
+
+            scanBuffer += e.key;
+
+            // Clear buffer after 100ms of no input (scanner sends rapidly)
+            clearTimeout(scanTimeout);
+            scanTimeout = setTimeout(() => { scanBuffer = ''; }, 100);
+        });
+
+        // Handle manual input in scan fields
+        document.querySelectorAll('.scan-input').forEach(input => {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.length > 3) {
+                    const partId = this.dataset.partId;
+                    validateAndRecordScan(partId, this.value);
+                }
+            });
+
+            input.addEventListener('focus', function() {
+                const partId = this.dataset.partId;
+                highlightScanRow(partId);
+            });
+
+            input.addEventListener('blur', function() {
+                document.querySelectorAll('.scan-part-row').forEach(row => {
+                    row.classList.remove('scanning');
+                });
+            });
+        });
+
+        function processScan(scanData) {
+            // Find first unscanned required part and apply scan
+            for (let partId in scanRequirements) {
+                const req = scanRequirements[partId];
+                if (!req.scanned && req.type !== 'bulk') {
+                    validateAndRecordScan(partId, scanData);
+                    return;
+                }
+            }
+        }
+
+        function validateAndRecordScan(partId, scanValue) {
+            const req = scanRequirements[partId];
+            if (!req || req.scanned) return;
+
+            // Simulate Jules validation (in production: API call)
+            const isValid = simulateJulesValidation(partId, scanValue, req.type);
+
+            if (isValid) {
+                // Record successful scan
+                req.scanned = true;
+                req.value = scanValue;
+
+                // Update UI
+                const row = document.getElementById(`partRow${partId}`);
+                const input = document.getElementById(`scanInput${partId}`);
+                const icon = document.getElementById(`scanIcon${partId}`);
+
+                row.classList.remove('pending', 'scanning');
+                row.classList.add('scanned');
+                input.value = scanValue;
+                input.classList.add('valid');
+                input.disabled = true;
+                icon.classList.remove('pending');
+                icon.classList.add('scanned');
+                icon.textContent = '✓';
+
+                // Update scan status
+                updateScanStatus();
+
+                // Show toast
+                showScanToast(`${req.name} verified`, scanValue, 'success');
+
+                // Move focus to next unscanned field
+                focusNextScanField(partId);
+            } else {
+                showScanToast('Invalid scan', `${scanValue} not recognized`, 'error');
+            }
+        }
+
+        function simulateJulesValidation(partId, scanValue, type) {
+            // Simulate validation - in production this calls Jules API
+            // Jules would verify: correct part for this step, valid SN/lot, not already used
+            if (type === 'sn') {
+                return scanValue.match(/^SN-?\d{4,}/i) || scanValue.length > 5;
+            } else if (type === 'lot') {
+                return scanValue.match(/^LOT-?\d{4,}/i) || scanValue.match(/^L\d{6}/i) || scanValue.length > 4;
+            }
+            return true;
+        }
+
+        function highlightScanRow(partId) {
+            document.querySelectorAll('.scan-part-row').forEach(row => {
+                row.classList.remove('scanning');
+            });
+            const row = document.getElementById(`partRow${partId}`);
+            if (row && !row.classList.contains('scanned')) {
+                row.classList.add('scanning');
+            }
+        }
+
+        function focusNextScanField(completedPartId) {
+            for (let partId in scanRequirements) {
+                if (partId > completedPartId) {
+                    const req = scanRequirements[partId];
+                    if (!req.scanned && req.type !== 'bulk') {
+                        const input = document.getElementById(`scanInput${partId}`);
+                        if (input) {
+                            input.focus();
+                        }
+                        return;
+                    }
+                }
+            }
+        }
+
+        function updateScanStatus() {
+            const required = Object.values(scanRequirements).filter(r => r.type !== 'bulk');
+            const scanned = required.filter(r => r.scanned).length;
+            const total = required.length;
+
+            const badge = document.getElementById('scanStatusBadge');
+            badge.textContent = `${scanned}/${total} Scanned`;
+
+            if (scanned === total) {
+                badge.classList.add('complete');
+                checkAllVerificationsComplete();
+            }
+        }
+
+        function enableCompleteStep() {
+            const btn = document.querySelector('.btn-next-step');
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            showScanToast('All parts verified', 'Ready to complete step', 'success');
+        }
+
+        function simulateAllScans() {
+            // Simulate scanning all required parts
+            for (let partId in scanRequirements) {
+                const req = scanRequirements[partId];
+                if (!req.scanned && req.type !== 'bulk') {
+                    const fakeValue = req.type === 'sn' ? `SN-${Math.floor(10000 + Math.random() * 90000)}` : `LOT-${Math.floor(100000 + Math.random() * 900000)}`;
+                    validateAndRecordScan(partId, fakeValue);
+                }
+            }
+        }
+
+        // Torque verification tracking
+        const torqueRequirements = {
+            1: { fastener: 'J1 Connector', target: 2.5, tolerance: 0.1, verified: false, actual: null },
+            2: { fastener: 'J2 Connector', target: 2.5, tolerance: 0.1, verified: false, actual: null },
+            3: { fastener: 'J3 Connector', target: 2.5, tolerance: 0.1, verified: false, actual: null },
+            4: { fastener: 'J4 Connector', target: 2.5, tolerance: 0.1, verified: false, actual: null }
+        };
+
+        let armedFastenerId = null;
+
+        function armTorqueFastener(torqueId) {
+            const req = torqueRequirements[torqueId];
+            if (!req || req.verified) return; // Can't arm completed fasteners
+
+            // Clear previous armed state
+            document.querySelectorAll('.torque-item.armed').forEach(item => {
+                item.classList.remove('armed');
+            });
+
+            // Arm this fastener
+            armedFastenerId = torqueId;
+            const item = document.getElementById(`torqueItem${torqueId}`);
+            item.classList.add('armed');
+
+            // Update instruction
+            const instruction = document.getElementById('torqueInstruction');
+            instruction.textContent = `Ready: Torque ${req.fastener} now`;
+            instruction.classList.add('armed');
+
+            showScanToast(`${req.fastener} armed`, `Target: ${req.target} ± ${req.tolerance} N-m`, 'success');
+        }
+
+        function receiveTorqueReading(torqueId, actualValue) {
+            const req = torqueRequirements[torqueId];
+            if (!req || req.verified) return;
+
+            const min = req.target - req.tolerance;
+            const max = req.target + req.tolerance;
+            const pass = actualValue >= min && actualValue <= max;
+
+            req.verified = true;
+            req.actual = actualValue;
+            req.pass = pass;
+
+            // Update UI
+            const item = document.getElementById(`torqueItem${torqueId}`);
+            const actual = document.getElementById(`torqueActual${torqueId}`);
+            const icon = document.getElementById(`torqueIcon${torqueId}`);
+
+            item.classList.remove('active');
+            item.classList.add(pass ? 'pass' : 'fail');
+            actual.textContent = `${actualValue.toFixed(2)} N-m`;
+            actual.classList.add(pass ? 'pass' : 'fail');
+            icon.classList.remove('pending');
+            icon.classList.add(pass ? 'pass' : 'fail');
+            icon.textContent = pass ? '✓' : '✕';
+
+            // Update status badge
+            updateTorqueStatus();
+
+            // Clear armed state
+            item.classList.remove('armed');
+            armedFastenerId = null;
+
+            // Update instruction
+            const instruction = document.getElementById('torqueInstruction');
+            const remaining = Object.values(torqueRequirements).filter(r => !r.verified).length;
+            if (remaining > 0) {
+                instruction.textContent = 'Tap next fastener to arm';
+                instruction.classList.remove('armed');
+            } else {
+                instruction.textContent = 'All fasteners verified ✓';
+                instruction.classList.remove('armed');
+            }
+
+            // Show toast and handle failure
+            if (pass) {
+                showScanToast(`${req.fastener} torque verified`, `${actualValue.toFixed(2)} N-m`, 'success');
+            } else {
+                showScanToast(`${req.fastener} OUT OF SPEC`, `${actualValue.toFixed(2)} N-m (req: ${req.target} ± ${req.tolerance})`, 'error');
+                showTorqueFailure(torqueId, actualValue);
+                updateSimulateButtons(); // Keep buttons visible for retry
+            }
+
+            // Check if all complete
+            checkAllVerificationsComplete();
+        }
+
+        function updateTorqueStatus() {
+            const total = Object.keys(torqueRequirements).length;
+            const verified = Object.values(torqueRequirements).filter(r => r.verified && r.pass).length;
+            const failed = Object.values(torqueRequirements).filter(r => r.verified && !r.pass).length;
+
+            const badge = document.getElementById('torqueStatusBadge');
+            if (badge) {
+                badge.textContent = `${verified}/${total} Verified`;
+                if (verified === total) {
+                    badge.classList.add('complete');
+                }
+                if (failed > 0) {
+                    badge.style.background = 'rgba(239, 68, 68, 0.2)';
+                    badge.style.color = 'var(--accent-red)';
+                    badge.textContent = `${failed} Failed`;
+                }
+            }
+        }
+
+        function checkAllVerificationsComplete() {
+            const requiredScans = Object.values(scanRequirements).filter(r => r.type !== 'bulk');
+            const scansComplete = requiredScans.length === 0 || requiredScans.every(r => r.scanned);
+
+            const torqueItems = Object.values(torqueRequirements);
+            const torqueComplete = torqueItems.length === 0 || torqueItems.every(r => r.verified && r.pass);
+
+            // Test is complete only if: no test required, OR test was run and all passed
+            const testItems = Object.values(testResults);
+            const hasTestRequirement = testRequirements !== null;
+            const testComplete = !hasTestRequirement || (testItems.length > 0 && testItems.every(r => r.status === 'complete' && r.pass));
+
+            if (scansComplete && torqueComplete && testComplete) {
+                enableCompleteStep();
+            } else {
+                disableCompleteStep();
+            }
+        }
+
+        function simulateTorqueReading() {
+            // Simulate a single torque reading for the armed fastener
+            if (!armedFastenerId) {
+                showScanToast('No fastener armed', 'Tap a fastener to arm it first', 'error');
+                return;
+            }
+
+            const req = torqueRequirements[armedFastenerId];
+            const target = req.target;
+            const variation = (Math.random() - 0.5) * 0.15; // ±0.075 variation
+            const reading = target + variation;
+            receiveTorqueReading(armedFastenerId, reading);
+        }
+
+        function simulateAllTorque() {
+            // Simulate all remaining torque readings in sequence
+            let delay = 0;
+            for (let id in torqueRequirements) {
+                if (!torqueRequirements[id].verified) {
+                    setTimeout(() => {
+                        armTorqueFastener(parseInt(id));
+                        setTimeout(() => {
+                            const target = torqueRequirements[id].target;
+                            const variation = (Math.random() - 0.5) * 0.15;
+                            const reading = target + variation;
+                            receiveTorqueReading(id, reading);
+                        }, 300);
+                    }, delay);
+                    delay += 600; // Stagger readings
+                }
+            }
+        }
+
+        // Test Equipment Integration
+        let testRequirements = null;
+        let testResults = {};
+        let testRunning = false;
+
+        function resetTestState(stepTest) {
+            testRequirements = stepTest || null;
+            testResults = {};
+            testRunning = false;
+
+            if (stepTest) {
+                stepTest.channels.forEach(ch => {
+                    testResults[ch.id] = { status: 'pending', value: null, pass: null };
+                });
+            }
+        }
+
+        function renderTestSection(stepTest) {
+            const section = document.getElementById('testSection');
+            if (!section) return;
+
+            if (!stepTest) {
+                section.style.display = 'none';
+                section.innerHTML = '';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            let html = `
+                <div class="test-header">
+                    <span class="test-title">Test Equipment</span>
+                    <span class="test-status-badge connecting" id="testStatusBadge">Connecting...</span>
+                </div>
+
+                <div class="test-equipment-box">
+                    <span class="test-equipment-icon">📡</span>
+                    <span class="test-equipment-name">${stepTest.equipment}</span>
+                    <span class="test-equipment-status" id="testEquipmentStatus">●</span>
+                </div>
+
+                <div class="test-channels" id="testChannels">
+            `;
+
+            stepTest.channels.forEach(ch => {
+                html += `
+                    <div class="test-channel" id="testChannel${ch.id}">
+                        <span class="test-channel-name">${ch.name}</span>
+                        <span class="test-channel-value" id="testValue${ch.id}">${ch.spec}</span>
+                        <span class="test-channel-result pending" id="testResult${ch.id}">—</span>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="test-progress" id="testProgress">
+                    <div class="test-progress-bar">
+                        <div class="test-progress-fill" id="testProgressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="test-progress-text" id="testProgressText">Connect test cable to port T1</div>
+                </div>
+            `;
+
+            section.innerHTML = html;
+
+            // Simulate equipment connection after brief delay
+            setTimeout(() => {
+                const badge = document.getElementById('testStatusBadge');
+                if (badge) {
+                    badge.textContent = 'Connected';
+                    badge.classList.remove('connecting');
+                    badge.classList.add('complete');
+                }
+                document.getElementById('testProgressText').textContent = 'Ready - Click "Run Test" to begin';
+            }, 1500);
+
+            // Ensure complete button is disabled until test passes
+            checkAllVerificationsComplete();
+        }
+
+        function runTest() {
+            if (!testRequirements || testRunning) return;
+
+            testRunning = true;
+            const badge = document.getElementById('testStatusBadge');
+            badge.textContent = 'Running...';
+            badge.classList.remove('complete', 'connecting');
+            badge.classList.add('running');
+
+            document.getElementById('testProgressText').textContent = 'Running automated test sequence...';
+
+            const channels = testRequirements.channels;
+            let completed = 0;
+
+            channels.forEach((ch, index) => {
+                setTimeout(() => {
+                    // Simulate test result (90% pass rate for demo)
+                    const pass = Math.random() > 0.1;
+                    const value = pass ? (Math.random() * 0.3 + 0.1).toFixed(2) : (Math.random() * 0.5 + 0.6).toFixed(2);
+
+                    testResults[ch.id] = { status: 'complete', value: `${value} dB`, pass };
+
+                    // Update UI
+                    const channelEl = document.getElementById(`testChannel${ch.id}`);
+                    const valueEl = document.getElementById(`testValue${ch.id}`);
+                    const resultEl = document.getElementById(`testResult${ch.id}`);
+
+                    channelEl.classList.add(pass ? 'pass' : 'fail');
+                    valueEl.textContent = `${value} dB`;
+                    resultEl.textContent = pass ? 'PASS' : 'FAIL';
+                    resultEl.classList.remove('pending');
+                    resultEl.classList.add(pass ? 'pass' : 'fail');
+
+                    completed++;
+                    const progress = (completed / channels.length) * 100;
+                    document.getElementById('testProgressFill').style.width = `${progress}%`;
+
+                    if (completed === channels.length) {
+                        finishTest();
+                    }
+                }, (index + 1) * 800);
+            });
+        }
+
+        function runTestFail() {
+            if (!testRequirements || testRunning) return;
+
+            testRunning = true;
+            const badge = document.getElementById('testStatusBadge');
+            badge.textContent = 'Running...';
+            badge.classList.remove('complete', 'connecting', 'failed');
+            badge.classList.add('running');
+
+            document.getElementById('testProgressText').textContent = 'Running automated test sequence...';
+
+            const channels = testRequirements.channels;
+            let completed = 0;
+            const failIndex = Math.floor(Math.random() * channels.length); // Random channel to fail
+
+            channels.forEach((ch, index) => {
+                setTimeout(() => {
+                    // Force one channel to fail
+                    const pass = index !== failIndex;
+                    const value = pass ? (Math.random() * 0.3 + 0.1).toFixed(2) : (Math.random() * 0.3 + 0.7).toFixed(2);
+
+                    testResults[ch.id] = { status: 'complete', value: `${value} dB`, pass };
+
+                    // Update UI
+                    const channelEl = document.getElementById(`testChannel${ch.id}`);
+                    const valueEl = document.getElementById(`testValue${ch.id}`);
+                    const resultEl = document.getElementById(`testResult${ch.id}`);
+
+                    channelEl.classList.add(pass ? 'pass' : 'fail');
+                    valueEl.textContent = `${value} dB`;
+                    resultEl.textContent = pass ? 'PASS' : 'FAIL';
+                    resultEl.classList.remove('pending');
+                    resultEl.classList.add(pass ? 'pass' : 'fail');
+
+                    completed++;
+                    const progress = (completed / channels.length) * 100;
+                    document.getElementById('testProgressFill').style.width = `${progress}%`;
+
+                    if (completed === channels.length) {
+                        finishTest();
+                    }
+                }, (index + 1) * 800);
+            });
+        }
+
+        function finishTest() {
+            testRunning = false;
+            const allPass = Object.values(testResults).every(r => r.pass);
+            const badge = document.getElementById('testStatusBadge');
+
+            badge.classList.remove('running');
+
+            if (allPass) {
+                badge.textContent = 'PASS';
+                badge.classList.add('complete');
+                document.getElementById('testProgressText').textContent = 'All channels passed ✓';
+                showScanToast('Test Complete', 'All channels within specification', 'success');
+                updateSimulateButtons(); // Hide test buttons after pass
+                checkAllVerificationsComplete();
+            } else {
+                badge.textContent = 'FAIL';
+                badge.classList.add('failed');
+                document.getElementById('testProgressText').textContent = 'Test failed - see results';
+                showTestFailure();
+                updateSimulateButtons(); // Keep test buttons visible for retry
+            }
+        }
+
+        function showTestFailure() {
+            const failedChannels = Object.entries(testResults)
+                .filter(([id, r]) => !r.pass)
+                .map(([id, r]) => `Channel ${id}: ${r.value}`);
+
+            showErrorRecovery(
+                'Test Failed',
+                `${failedChannels.length} channel(s) out of specification:\n${failedChannels.join(', ')}`,
+                () => retryTest(),
+                () => escalateIssue('Test failure')
+            );
+        }
+
+        function retryTest() {
+            hideErrorRecovery();
+
+            // Reset test results
+            testRequirements.channels.forEach(ch => {
+                testResults[ch.id] = { status: 'pending', value: null, pass: null };
+
+                const channelEl = document.getElementById(`testChannel${ch.id}`);
+                const valueEl = document.getElementById(`testValue${ch.id}`);
+                const resultEl = document.getElementById(`testResult${ch.id}`);
+
+                channelEl.classList.remove('pass', 'fail');
+                valueEl.textContent = ch.spec;
+                resultEl.textContent = '—';
+                resultEl.classList.remove('pass', 'fail');
+                resultEl.classList.add('pending');
+            });
+
+            document.getElementById('testProgressFill').style.width = '0%';
+            document.getElementById('testProgressText').textContent = 'Ready to retry...';
+
+            const badge = document.getElementById('testStatusBadge');
+            badge.textContent = 'Connected';
+            badge.classList.remove('failed');
+            badge.classList.add('complete');
+
+            // Auto-run after brief delay
+            setTimeout(() => runTest(), 500);
+        }
+
+        // Error Recovery
+        function showErrorRecovery(title, message, onRetry, onEscalate) {
+            const section = document.getElementById('errorRecovery');
+            section.style.display = 'block';
+            section.innerHTML = `
+                <div class="error-recovery-header">
+                    <span class="error-recovery-icon">⚠️</span>
+                    <span class="error-recovery-title">${title}</span>
+                </div>
+                <div class="error-recovery-message">${message}</div>
+                <div class="error-recovery-actions">
+                    <button class="btn-retry" id="btnRetry">↻ Retry</button>
+                    <button class="btn-escalate" id="btnEscalate">⚡ Escalate to Quality</button>
+                </div>
+            `;
+
+            document.getElementById('btnRetry').onclick = onRetry;
+            document.getElementById('btnEscalate').onclick = onEscalate;
+        }
+
+        function hideErrorRecovery() {
+            const section = document.getElementById('errorRecovery');
+            section.style.display = 'none';
+            section.innerHTML = '';
+        }
+
+        function escalateIssue(reason) {
+            hideErrorRecovery();
+            showScanToast('Escalated', `Quality team notified: ${reason}`, 'error');
+            // In production: create NC, notify quality, potentially pull andon
+        }
+
+        function showTorqueFailure(torqueId, actualValue) {
+            const req = torqueRequirements[torqueId];
+            showErrorRecovery(
+                'Torque Out of Spec',
+                `${req.fastener}: ${actualValue.toFixed(2)} N-m\nRequired: ${req.target} ± ${req.tolerance} N-m`,
+                () => retryTorque(torqueId),
+                () => escalateIssue(`Torque failure on ${req.fastener}`)
+            );
+        }
+
+        function simulateTorqueFail() {
+            // Find first unverified fastener and arm it
+            for (let id in torqueRequirements) {
+                if (!torqueRequirements[id].verified) {
+                    armTorqueFastener(parseInt(id));
+                    setTimeout(() => {
+                        // Simulate out-of-spec reading
+                        const target = torqueRequirements[id].target;
+                        const badReading = target + 0.3 + (Math.random() * 0.2); // Well over tolerance
+                        receiveTorqueReading(id, badReading);
+                    }, 300);
+                    return;
+                }
+            }
+            showScanToast('No pending fasteners', 'All fasteners already verified', 'error');
+        }
+
+        function retryTorque(torqueId) {
+            hideErrorRecovery();
+
+            // Reset this fastener's state
+            const req = torqueRequirements[torqueId];
+            req.verified = false;
+            req.actual = null;
+            req.pass = false;
+
+            // Reset UI
+            const item = document.getElementById(`torqueItem${torqueId}`);
+            const actual = document.getElementById(`torqueActual${torqueId}`);
+            const icon = document.getElementById(`torqueIcon${torqueId}`);
+
+            item.classList.remove('pass', 'fail');
+            actual.textContent = '—';
+            actual.classList.remove('pass', 'fail');
+            icon.classList.remove('pass', 'fail');
+            icon.classList.add('pending');
+            icon.textContent = '○';
+
+            // Update status badge
+            updateTorqueStatus();
+
+            // Auto-arm for retry
+            armTorqueFastener(torqueId);
+            showScanToast('Ready to Retry', `${req.fastener} - apply torque again`, 'success');
+        }
+
+        function disableCompleteStep() {
+            const btn = document.querySelector('.btn-next-step');
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+        }
+
+        function showScanToast(title, message, type) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 2rem;
+                left: 50%;
+                transform: translateX(-50%) translateY(100px);
+                background: ${type === 'success' ? 'var(--accent-green)' : 'var(--accent-red)'};
+                color: white;
+                padding: 0.75rem 1.5rem;
+                border-radius: 8px;
+                font-size: 0.9rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 3000;
+                transition: transform 0.3s ease;
+            `;
+            toast.innerHTML = `
+                <span style="font-size: 1.2rem;">${type === 'success' ? '✓' : '✕'}</span>
+                <div>
+                    <div style="font-weight: 600;">${title}</div>
+                    <div style="font-size: 0.8rem; opacity: 0.9;">${message}</div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.style.transform = 'translateX(-50%) translateY(0)', 50);
+            setTimeout(() => {
+                toast.style.transform = 'translateX(-50%) translateY(100px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Initialize - disable complete button until scans done
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize current step (step 3)
+            const stepData = steps[currentStep - 1];
+            resetScanState(stepData.parts);
+            renderPartsSection(stepData.parts, stepData.tools);
+            resetTorqueState(stepData.torque);
+            renderTorqueSection(stepData.torque);
+            resetTestState(stepData.test);
+            renderTestSection(stepData.test);
+            updateSimulateButtons();
+            disableCompleteStep();
+            // Focus first scan field
+            const firstInput = document.getElementById('scanInput1');
+            if (firstInput) firstInput.focus();
+        });
+
+        // Pulse countdown
+        let pulseSeconds = 27 * 60 + 14;
+        function updatePulse() {
+            pulseSeconds--;
+            if (pulseSeconds < 0) pulseSeconds = 90 * 60;
+            const mins = Math.floor(pulseSeconds / 60);
+            const secs = pulseSeconds % 60;
+            document.getElementById('pulseTime').textContent =
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        setInterval(updatePulse, 1000);
+
+        // Andon functionality
+        let andonActive = false;
+        let andonSeconds = 0;
+        let andonInterval = null;
+
+        function pullAndon() {
+            andonActive = true;
+            document.getElementById('andonBtn').style.display = 'none';
+            document.getElementById('andonPanel').classList.add('visible');
+
+            andonInterval = setInterval(() => {
+                andonSeconds++;
+                const mins = Math.floor(andonSeconds / 60);
+                const secs = andonSeconds % 60;
+                document.getElementById('andonTime').textContent =
+                    `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function cancelAndon() {
+            andonActive = false;
+            clearInterval(andonInterval);
+            andonSeconds = 0;
+            document.getElementById('andonBtn').style.display = 'flex';
+            document.getElementById('andonPanel').classList.remove('visible');
+        }
+
+        // Complete step - advance to next step
+        let currentStep = 3;
+        const steps = [
+            {
+                title: 'Install RF Panel Mounting Brackets',
+                desc: 'Secure the RF panel mounting brackets to the chassis using the provided hardware.',
+                procedures: [
+                    'Locate bracket mounting holes on chassis',
+                    'Align RF panel bracket with mounting holes',
+                    'Insert M4 bolts through bracket',
+                    'Hand-tighten all 4 bolts first',
+                    'Torque to 3.5 N-m in cross pattern'
+                ],
+                parts: [
+                    { id: 1, type: 'sn', name: 'RF Panel Bracket', qty: 1, bin: 'A-1' },
+                    { id: 2, type: 'bulk', name: 'M4 Bolts', qty: 4, bin: 'C-2' }
+                ],
+                tools: ['Socket Wrench (10mm)', 'Torque Wrench (3.5 N-m)'],
+                torque: []
+            },
+            {
+                title: 'Route RF Cables Through Chassis',
+                desc: 'Route all RF cables through the designated cable channels in the chassis.',
+                procedures: [
+                    'Identify cable entry points A1, A2, B1',
+                    'Feed primary RF cable through channel A1',
+                    'Feed secondary RF cable through channel A2',
+                    'Secure cables with tie wraps at 6" intervals',
+                    'Verify no cable pinch points'
+                ],
+                parts: [
+                    { id: 1, type: 'lot', name: 'RF Cable Assembly', qty: 2, bin: 'A-2' },
+                    { id: 2, type: 'bulk', name: 'Cable Tie Wraps', qty: 8, bin: 'C-5' }
+                ],
+                tools: ['Cable Pulling Tool', 'Wire Cutters'],
+                torque: []
+            },
+            {
+                title: 'Connect Antenna Array',
+                desc: 'Connect the main antenna array to the RF panel using the precision connector tool.',
+                procedures: [
+                    'Position antenna array using alignment jig',
+                    'Install shielding gasket on connector interface',
+                    'Connect RF connectors (4x) — star pattern',
+                    'Torque all connections to 2.5 N-m',
+                    'Verify connection with continuity check'
+                ],
+                parts: [
+                    { id: 1, type: 'sn', name: 'Antenna Array', qty: 1, bin: 'A-3' },
+                    { id: 2, type: 'lot', name: 'RF Connector', qty: 4, bin: 'A-7' },
+                    { id: 3, type: 'bulk', name: 'Shielding Gasket', qty: 1, bin: 'B-2' }
+                ],
+                tools: ['Precision Connector Tool', 'Torque Wrench (2.5 N-m)', 'Alignment Jig'],
+                torque: [
+                    { id: 1, fastener: 'J1 Connector', target: 2.5, tolerance: 0.1 },
+                    { id: 2, fastener: 'J2 Connector', target: 2.5, tolerance: 0.1 },
+                    { id: 3, fastener: 'J3 Connector', target: 2.5, tolerance: 0.1 },
+                    { id: 4, fastener: 'J4 Connector', target: 2.5, tolerance: 0.1 }
+                ]
+            },
+            {
+                title: 'Torque All RF Connections',
+                desc: 'Apply specified torque to all RF connections using calibrated torque wrench.',
+                procedures: [
+                    'Verify torque wrench calibration sticker',
+                    'Set torque wrench to 2.5 N-m',
+                    'Torque connector J1 until click',
+                    'Torque connectors J2, J3, J4 in sequence',
+                    'Apply torque seal marking to each connector'
+                ],
+                parts: [
+                    { id: 1, type: 'bulk', name: 'Torque Seal Paint', qty: 1, bin: 'D-1' }
+                ],
+                tools: ['Calibrated Torque Wrench (2.5 N-m)', 'Torque Seal Marker'],
+                torque: []
+            },
+            {
+                title: 'RF Continuity Test',
+                desc: 'Perform continuity test on all RF connections to verify proper assembly.',
+                procedures: [
+                    'Connect test equipment to port T1',
+                    'Run automated continuity sequence',
+                    'Verify all 4 channels show green',
+                    'Record test results in system',
+                    'Disconnect test equipment'
+                ],
+                parts: [],
+                tools: ['RF Continuity Tester', 'Test Cable Assembly'],
+                torque: [],
+                test: {
+                    equipment: 'Keysight N9020B',
+                    type: 'RF Continuity',
+                    channels: [
+                        { id: 1, name: 'Channel 1', spec: '< 0.5 dB loss' },
+                        { id: 2, name: 'Channel 2', spec: '< 0.5 dB loss' },
+                        { id: 3, name: 'Channel 3', spec: '< 0.5 dB loss' },
+                        { id: 4, name: 'Channel 4', spec: '< 0.5 dB loss' }
+                    ]
+                }
+            }
+        ];
+
+        function resetTorqueState(stepTorque) {
+            for (let key in torqueRequirements) {
+                delete torqueRequirements[key];
+            }
+
+            if (stepTorque) {
+                stepTorque.forEach(t => {
+                    torqueRequirements[t.id] = {
+                        fastener: t.fastener,
+                        target: t.target,
+                        tolerance: t.tolerance,
+                        verified: false,
+                        actual: null,
+                        pass: false
+                    };
+                });
+            }
+        }
+
+        function renderTorqueSection(stepTorque) {
+            const section = document.getElementById('torqueSection');
+            if (!section) return;
+
+            if (!stepTorque || stepTorque.length === 0) {
+                section.style.display = 'none';
+                section.innerHTML = '';
+                return;
+            }
+
+            section.style.display = 'block';
+
+            armedFastenerId = null; // Reset armed state
+
+            let html = `
+                <div class="torque-header">
+                    <span class="torque-title">Torque Verification</span>
+                    <span class="torque-status-badge" id="torqueStatusBadge">0/${stepTorque.length} Verified</span>
+                </div>
+
+                <div class="torque-tool-connected">
+                    <div class="torque-tool-dot"></div>
+                    <span class="torque-tool-name">Atlas Copco STR-48</span>
+                    <span class="torque-tool-status">Connected</span>
+                </div>
+
+                <div class="torque-instruction" id="torqueInstruction">Tap fastener to arm, then torque</div>
+
+                <div class="torque-list" id="torqueList">
+            `;
+
+            stepTorque.forEach((t) => {
+                html += `
+                    <div class="torque-item" id="torqueItem${t.id}" data-torque-id="${t.id}" onclick="armTorqueFastener(${t.id})">
+                        <span class="torque-fastener">${t.fastener}</span>
+                        <span class="torque-spec">${t.target} ± ${t.tolerance} N-m</span>
+                        <span class="torque-actual" id="torqueActual${t.id}">—</span>
+                        <div class="torque-icon pending" id="torqueIcon${t.id}">○</div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            section.innerHTML = html;
+        }
+
+        function updateSimulateButtons() {
+            const btnScans = document.getElementById('btnSimulateScans');
+            const btnTorque = document.getElementById('btnSimulateTorque');
+            const btnTest = document.getElementById('btnRunTest');
+
+            // Check if there are required scans
+            const requiredScans = Object.values(scanRequirements).filter(r => r.type !== 'bulk');
+            const hasScans = requiredScans.length > 0 && requiredScans.some(r => !r.scanned);
+
+            // Check if there are required torque verifications (unverified OR failed)
+            const torqueItems = Object.values(torqueRequirements);
+            const hasTorque = torqueItems.length > 0 && torqueItems.some(r => !r.verified || !r.pass);
+
+            // Check if there are test requirements (not yet passed)
+            const testItems = Object.values(testResults);
+            const hasTest = testRequirements !== null && (testItems.length === 0 || testItems.some(r => r.status !== 'complete' || !r.pass));
+
+            if (btnScans) {
+                btnScans.style.display = hasScans ? 'block' : 'none';
+            }
+            if (btnTorque) {
+                btnTorque.style.display = hasTorque ? 'block' : 'none';
+            }
+            const btnTorqueFail = document.getElementById('btnSimulateTorqueFail');
+            if (btnTorqueFail) {
+                btnTorqueFail.style.display = hasTorque ? 'block' : 'none';
+            }
+            if (btnTest) {
+                btnTest.style.display = hasTest ? 'block' : 'none';
+            }
+            const btnTestFail = document.getElementById('btnRunTestFail');
+            if (btnTestFail) {
+                btnTestFail.style.display = hasTest ? 'block' : 'none';
+            }
+        }
+
+        function resetScanState(stepParts) {
+            // Clear and rebuild scan requirements for new step
+            for (let key in scanRequirements) {
+                delete scanRequirements[key];
+            }
+
+            stepParts.forEach(part => {
+                scanRequirements[part.id] = {
+                    type: part.type,
+                    name: part.name,
+                    scanned: part.type === 'bulk', // bulk auto-consumed
+                    value: part.type === 'bulk' ? 'auto' : null
+                };
+            });
+        }
+
+        function renderPartsSection(stepParts, stepTools) {
+            const section = document.getElementById('scanPartsContent');
+            const requiredParts = stepParts.filter(p => p.type !== 'bulk');
+
+            let html = `
+                <div class="scan-parts-header">
+                    <span class="scan-parts-title">Parts — Scan to Verify</span>
+                    <span class="scan-status-badge" id="scanStatusBadge">0/${requiredParts.length} Scanned</span>
+                </div>
+            `;
+
+            stepParts.forEach(part => {
+                const typeClass = part.type === 'sn' ? 'sn' : part.type === 'lot' ? 'lot' : 'bulk';
+                const typeLabel = part.type === 'sn' ? 'SN' : part.type === 'lot' ? 'LOT' : '—';
+                const isAuto = part.type === 'bulk';
+
+                html += `
+                    <div class="scan-part-row ${isAuto ? 'auto' : 'pending'}" id="partRow${part.id}" data-part-id="${part.id}" data-scan-type="${part.type}">
+                        <span class="scan-type-badge ${typeClass}">${typeLabel}</span>
+                        <div class="scan-part-info">
+                            <div class="scan-part-name">${part.name}</div>
+                            <div class="scan-part-qty">Qty: ${part.qty} · <span class="scan-part-bin">Bin ${part.bin}</span></div>
+                        </div>
+                        <div class="scan-input-area">
+                            ${isAuto
+                                ? '<span style="font-size: 0.75rem; color: var(--text-muted);">Auto-consumed</span>'
+                                : `<input type="text" class="scan-input" id="scanInput${part.id}" placeholder="Scan ${part.type === 'sn' ? 'SN' : 'lot'}..." data-part-id="${part.id}">`
+                            }
+                        </div>
+                        <div class="scan-status-icon ${isAuto ? 'auto' : 'pending'}" id="scanIcon${part.id}">${isAuto ? '✓' : '○'}</div>
+                    </div>
+                `;
+            });
+
+            section.innerHTML = html;
+
+            // Re-attach event listeners to new inputs
+            document.querySelectorAll('.scan-input').forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter' && this.value.length > 3) {
+                        const partId = this.dataset.partId;
+                        validateAndRecordScan(partId, this.value);
+                    }
+                });
+                input.addEventListener('focus', function() {
+                    highlightScanRow(this.dataset.partId);
+                });
+                input.addEventListener('blur', function() {
+                    document.querySelectorAll('.scan-part-row').forEach(row => {
+                        row.classList.remove('scanning');
+                    });
+                });
+            });
+
+            // Focus first input if exists
+            const firstInput = document.querySelector('.scan-input');
+            if (firstInput) firstInput.focus();
+
+            // Update complete button state
+            if (requiredParts.length === 0) {
+                enableCompleteStep();
+                const badge = document.getElementById('scanStatusBadge');
+                if (badge) {
+                    badge.textContent = 'No scans required';
+                    badge.classList.add('complete');
+                }
+            } else {
+                disableCompleteStep();
+            }
+        }
+
+        function completeStep() {
+            // Check if scans are complete
+            const required = Object.values(scanRequirements).filter(r => r.type !== 'bulk');
+            const allScanned = required.every(r => r.scanned);
+
+            if (!allScanned) {
+                showScanToast('Scans required', 'Complete all part scans before proceeding', 'error');
+                return;
+            }
+
+            // Check if torque verifications are complete
+            const torqueComplete = Object.values(torqueRequirements).every(r => r.verified && r.pass);
+            if (Object.keys(torqueRequirements).length > 0 && !torqueComplete) {
+                showScanToast('Torque verification required', 'Complete all torque verifications before proceeding', 'error');
+                return;
+            }
+
+            // Check if test is complete
+            const testComplete = Object.values(testResults).every(r => r.status === 'complete' && r.pass);
+            if (Object.keys(testResults).length > 0 && !testComplete) {
+                showScanToast('Test required', 'Complete test with passing results before proceeding', 'error');
+                return;
+            }
+
+            if (currentStep < 5) {
+                // Update step dots
+                document.querySelectorAll('.step-dot')[currentStep - 1].classList.remove('current');
+                document.querySelectorAll('.step-dot')[currentStep - 1].classList.add('completed');
+                document.querySelectorAll('.step-dot')[currentStep - 1].textContent = '✓';
+
+                currentStep++;
+
+                document.querySelectorAll('.step-dot')[currentStep - 1].classList.remove('upcoming');
+                document.querySelectorAll('.step-dot')[currentStep - 1].classList.add('current');
+
+                // Update step content
+                document.querySelector('.step-label').innerHTML = `Step <strong>${currentStep}</strong> of 5`;
+                document.querySelector('.step-number-large').textContent = `Step ${currentStep}`;
+                document.querySelector('.step-title').textContent = steps[currentStep - 1].title;
+                document.querySelector('.step-description').textContent = steps[currentStep - 1].desc;
+
+                // Update procedure list
+                const procedureList = document.querySelector('.procedure-list');
+                procedureList.innerHTML = steps[currentStep - 1].procedures.map((proc, i) => `
+                    <div class="procedure-item">
+                        <div class="procedure-num">${i + 1}</div>
+                        <span>${proc}</span>
+                    </div>
+                `).join('');
+
+                // Reset scan, torque, and test state for new step
+                const stepData = steps[currentStep - 1];
+                resetScanState(stepData.parts);
+                renderPartsSection(stepData.parts, stepData.tools);
+                resetTorqueState(stepData.torque);
+                renderTorqueSection(stepData.torque);
+                resetTestState(stepData.test);
+                renderTestSection(stepData.test);
+                hideErrorRecovery();
+                updateSimulateButtons();
+
+            } else if (currentStep === 5) {
+                // Last step - mark complete and show awaiting pulse
+                document.querySelectorAll('.step-dot')[currentStep - 1].classList.remove('current');
+                document.querySelectorAll('.step-dot')[currentStep - 1].classList.add('completed');
+                document.querySelectorAll('.step-dot')[currentStep - 1].textContent = '✓';
+
+                showAwaitingPulseModal();
+            }
+        }
+
+        function showAwaitingPulseModal() {
+            document.getElementById('awaitingPulseModal').classList.add('active');
+        }
+
+        function closeAwaitingPulseModal() {
+            document.getElementById('awaitingPulseModal').classList.remove('active');
+        }
+
+        function simulateNextPulse() {
+            closeAwaitingPulseModal();
+
+            // Show transition notification
+            showPulseNotification('Pulse Complete - Loading Next Unit');
+
+            // Simulate loading next unit after brief delay
+            setTimeout(() => {
+                loadNextUnit();
+            }, 1000);
+        }
+
+        function showPulseNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'pulse-notification';
+            notification.innerHTML = `<span class="notification-icon">&#8635;</span>${message}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        function loadNextUnit() {
+            // Reset step progress
+            currentStep = 1;
+            document.querySelectorAll('.step-dot').forEach((dot, i) => {
+                dot.classList.remove('completed', 'current', 'upcoming');
+                dot.textContent = i + 1;
+                if (i === 0) dot.classList.add('current');
+                else dot.classList.add('upcoming');
+            });
+
+            // Update header with new unit info
+            document.querySelector('.wo-number').textContent = 'WO-2024-0848';
+            document.querySelector('.wo-part').textContent = 'PN: ANT-RF-4200 | SN-2857';
+
+            // Reset step content to step 1
+            document.querySelector('.step-label').innerHTML = `Step <strong>1</strong> of 5`;
+            document.querySelector('.step-number-large').textContent = 'Step 1';
+            document.querySelector('.step-title').textContent = steps[0].title;
+            document.querySelector('.step-description').textContent = steps[0].desc;
+
+            // Reset procedure list
+            const procedureList = document.querySelector('.procedure-list');
+            procedureList.innerHTML = steps[0].procedures.map((proc, i) => `
+                <div class="procedure-item">
+                    <div class="procedure-num">${i + 1}</div>
+                    <span>${proc}</span>
+                </div>
+            `).join('');
+
+            // Reset scan, torque, and test state for step 1
+            const stepData = steps[0];
+            resetScanState(stepData.parts);
+            renderPartsSection(stepData.parts, stepData.tools);
+            resetTorqueState(stepData.torque);
+            renderTorqueSection(stepData.torque);
+            resetTestState(stepData.test);
+            renderTestSection(stepData.test);
+            hideErrorRecovery();
+            updateSimulateButtons();
+
+            // Reset pulse timer
+            pulseSeconds = 45 * 60;
+            document.getElementById('pulseTime').textContent = '45:00';
+
+            // Show loaded notification
+            showPulseNotification('SN-2857 Ready');
+        }
+
+        // Image controls
+        let currentRotation = 0;
+
+        function rotateImage() {
+            currentRotation += 90;
+            document.getElementById('assemblyImage').style.transform = `rotate(${currentRotation}deg)`;
+        }
+
+        function enlargeImage() {
+            const overlay = document.createElement('div');
+            overlay.id = 'imageOverlay';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            const popup = document.createElement('div');
+            popup.style.cssText = 'background: var(--bg-card, #1e2432); border-radius: 12px; padding: 1rem; position: relative; max-width: 80%; max-height: 85%;';
+
+            const header = document.createElement('div');
+            header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1);';
+            header.innerHTML = '<span style="color: #fff; font-weight: 500;">Solar Panel Assembly</span>';
+
+            const closeBtn = document.createElement('button');
+            closeBtn.innerHTML = '✕';
+            closeBtn.style.cssText = 'background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer; padding: 0.25rem 0.5rem;';
+            closeBtn.onclick = () => overlay.remove();
+            header.appendChild(closeBtn);
+
+            const img = document.createElement('img');
+            img.src = 'solar-panel-assembly.webp';
+            img.style.cssText = `max-width: 100%; max-height: 70vh; display: block; margin: 0 auto; transform: rotate(${currentRotation}deg);`;
+
+            popup.appendChild(header);
+            popup.appendChild(img);
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+        }
+
+        // View detailed procedure
+        function viewDetailedProcedure() {
+            const step = steps[currentStep - 1];
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+            const popup = document.createElement('div');
+            popup.style.cssText = 'background: #1e293b; border-radius: 12px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto;';
+
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <span style="color: #fff; font-weight: 600; font-size: 1.1rem;">Step ${currentStep}: ${step.title}</span>
+                    <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">✕</button>
+                </div>
+                <p style="color: #94a3b8; margin-bottom: 1.25rem; line-height: 1.5;">${step.desc}</p>
+                <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Detailed Procedure</div>
+                ${step.procedures.map((proc, i) => `
+                    <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; padding: 0.75rem; background: #0f172a; border-radius: 8px;">
+                        <div style="width: 24px; height: 24px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; flex-shrink: 0;">${i + 1}</div>
+                        <div>
+                            <div style="color: #f8fafc; margin-bottom: 0.25rem;">${proc}</div>
+                            <div style="color: #64748b; font-size: 0.85rem;">Ensure proper technique and verify before proceeding.</div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
+        }
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
+        // Profile menu toggle
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Close profile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const profile = document.querySelector('.user-profile');
+            const menu = document.getElementById('profileMenu');
+            if (profile && !profile.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // Sign out
+        function signOut() {
+            if (confirm('Sign out?')) {
+                alert('Signed out successfully');
+                // In production: redirect to login page
+            }
+        }
+    </script>
+</body>
+</html>

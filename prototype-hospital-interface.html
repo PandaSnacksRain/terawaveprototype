@@ -1,0 +1,2776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terawave Hospital Lane Interface</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --border-color: #334155;
+        }
+
+        body.light-mode {
+            --bg-dark: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-card-hover: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.1));
+            border-bottom: 2px solid var(--accent-amber);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-amber);
+            letter-spacing: 0.05em;
+        }
+
+        .site-code {
+            background: var(--bg-card);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .hospital-icon {
+            font-size: 1.25rem;
+        }
+
+        .unit-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .unit-serial {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .unit-source {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .header-andon {
+            margin-left: auto;
+            margin-right: 1.5rem;
+        }
+
+        .andon-btn-header {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-red), #dc2626);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .andon-btn-header:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .header-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .time-in-hospital {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+        }
+
+        .time-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--accent-amber);
+        }
+
+        .time-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.35rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .theme-icon-light {
+            display: none;
+        }
+
+        body.light-mode .theme-icon-dark {
+            display: none;
+        }
+
+        body.light-mode .theme-icon-light {
+            display: inline;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .user-profile:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .profile-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .profile-arrow {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .profile-menu.active {
+            display: block;
+        }
+
+        .profile-menu-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .profile-avatar-lg {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-fullname {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .profile-role {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .profile-menu-item {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .profile-menu-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .profile-menu-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+
+        .tech-role {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Layout */
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 340px 1fr 300px;
+            gap: 0;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Left Panel - NC Info */
+        .nc-panel {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .nc-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .nc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--accent-red);
+            margin-bottom: 1rem;
+        }
+
+        .nc-number {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .nc-title {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .jules-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .jules-link:hover {
+            color: #60a5fa;
+            text-decoration: underline;
+        }
+
+        .jules-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .nc-status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-indicator.in-repair {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .status-indicator.awaiting {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .status-indicator.resolved {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .nc-details {
+            padding: 0.75rem 1rem;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .detail-section {
+            margin-bottom: 1rem;
+        }
+
+        .detail-section-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-content {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .disposition-card {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 0.75rem;
+            border-left: 4px solid var(--accent-blue);
+        }
+
+        .disposition-title {
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            font-size: 0.95rem;
+        }
+
+        .disposition-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .disposition-instructions {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .disposition-instructions ul {
+            margin-left: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .disposition-instructions li {
+            margin-bottom: 0.35rem;
+        }
+
+        .attachments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .attachment-link {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .attachment-link:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .parts-needed {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .part-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .part-pn {
+            font-family: monospace;
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .part-desc {
+            color: var(--text-secondary);
+        }
+
+        .nc-age-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .nc-age-badge.green {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .nc-age-badge.amber {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .nc-age-badge.red {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* NC Notes */
+        .nc-notes {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .nc-notes-btn {
+            flex: 1;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .nc-notes-btn:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        /* NC Actions */
+        .nc-actions {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .resolve-btn {
+            width: 100%;
+            padding: 1.5rem 1rem;
+            background: linear-gradient(135deg, var(--accent-green), #16a34a);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .resolve-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .resolve-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Center - Work Instructions */
+        .instructions-panel {
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .ops-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-shrink: 0;
+        }
+
+        .ops-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .ops-progress {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-text strong {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .progress-bar-wrapper {
+            width: 200px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* Operation Cards */
+        .ops-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .op-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .op-card.completed {
+            opacity: 0.5;
+        }
+
+        .op-card.current {
+            border: 2px solid var(--accent-blue);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .op-card.current .op-header {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .op-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+        }
+
+        .op-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--text-muted);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .op-card.completed .op-checkbox {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .op-card.completed .op-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .op-info {
+            flex: 1;
+        }
+
+        .op-station {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .op-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .op-card.completed .op-name {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .op-status-badge {
+            padding: 0.2rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .op-status-badge.done {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .op-status-badge.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .op-status-badge.pending {
+            background: rgba(100, 116, 139, 0.2);
+            color: var(--text-muted);
+        }
+
+        .op-expand {
+            color: var(--text-muted);
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .op-card.expanded .op-expand {
+            transform: rotate(180deg);
+        }
+
+        .op-details {
+            display: none;
+            padding: 0 1rem 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .op-card.expanded .op-details {
+            display: block;
+        }
+
+        .op-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .op-substeps {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 0.5rem;
+        }
+
+        .op-substep {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem;
+        }
+
+        .op-substep-bullet {
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .op-substep-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .op-action-row {
+            margin-top: 0.75rem;
+        }
+
+        .op-complete-btn {
+            width: 100%;
+            padding: 1.5rem 1rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .op-complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Right Sidebar */
+        .sidebar {
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Backlog Section */
+        .backlog-section {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .backlog-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .backlog-title .time-in-hospital {
+            margin-left: auto;
+        }
+
+        .backlog-count {
+            background: var(--accent-amber);
+            color: var(--bg-dark);
+            padding: 0.15rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+
+        .backlog-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            padding: 0.6rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .backlog-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .backlog-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .backlog-item.active {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .backlog-priority {
+            width: 4px;
+            height: 32px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .backlog-priority {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .backlog-priority.high {
+            background: var(--accent-red);
+            box-shadow: 0 0 6px var(--accent-red);
+        }
+
+        .backlog-row-top {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .backlog-row-top .backlog-status {
+            margin-left: auto;
+        }
+
+        .backlog-sn {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .backlog-nc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .backlog-time {
+            font-size: 0.65rem;
+            font-weight: 600;
+            flex-shrink: 0;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .backlog-time.red {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .backlog-time.amber {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .backlog-time.normal {
+            color: var(--text-muted);
+        }
+
+        .backlog-time.green {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .backlog-status {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .backlog-status.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .backlog-status.waiting-disposition {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .backlog-status.waiting-parts {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .backlog-status.waiting-tool {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .backlog-status.ready {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .backlog-status.blocked {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        /* Repair Status Banner */
+        .repair-status-banner {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .repair-status-banner.in-progress {
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .repair-status-banner.waiting-disposition {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--accent-amber);
+            color: var(--accent-amber);
+        }
+
+        .repair-status-banner.waiting-parts {
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
+        }
+
+        .repair-status-banner.waiting-tool {
+            background: rgba(168, 85, 247, 0.15);
+            border: 1px solid var(--accent-purple);
+            color: var(--accent-purple);
+        }
+
+        .repair-status-banner.ready {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .repair-status-banner.blocked {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .repair-status-banner .status-icon {
+            font-size: 1rem;
+        }
+
+        .repair-status-banner .status-action {
+            margin-left: auto;
+            background: rgba(255,255,255,0.1);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .repair-status-banner .status-action:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* History Section */
+        .history-section {
+            padding: 1rem;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        .history-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .history-item {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .history-icon.entry {
+            color: var(--accent-amber);
+        }
+
+        .history-icon.diagnosis {
+            color: var(--accent-blue);
+        }
+
+        .history-icon.repair {
+            color: var(--accent-green);
+        }
+
+        .history-content {
+            flex: 1;
+        }
+
+        .history-text {
+            font-size: 0.85rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .history-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Return Options */
+        .return-section {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .return-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .return-option {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .return-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .return-option:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .return-option.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .return-radio {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--text-muted);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .return-option.selected .return-radio {
+            border-color: var(--accent-blue);
+        }
+
+        .return-option.selected .return-radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+        }
+
+        .return-info h4 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.15rem;
+        }
+
+        .return-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .return-option.recommended::after {
+            content: 'Rec';
+            font-size: 0.65rem;
+            background: var(--accent-green);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            margin-left: auto;
+        }
+
+        /* Status Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .status-modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .status-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .status-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem;
+            background: var(--bg-dark);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .status-option:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .status-option.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .status-option-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .status-option-icon.progress { background: rgba(59, 130, 246, 0.2); color: var(--accent-blue); }
+        .status-option-icon.parts { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); }
+        .status-option-icon.tool { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); }
+        .status-option-icon.disposition { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+        .status-option-icon.blocked { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+
+        .status-option-text {
+            flex: 1;
+        }
+
+        .status-option-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .status-option-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-input {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .modal-input.active {
+            display: block;
+        }
+
+        .modal-input label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-input input, .modal-input textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .modal-input textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-cancel {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn-cancel:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Completion notification */
+        .completion-notification {
+            position: fixed;
+            top: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--accent-green);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+            z-index: 2000;
+            transition: transform 0.3s ease;
+        }
+
+        .completion-notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification-icon {
+            font-size: 1.5rem;
+        }
+
+        /* Verify checklist */
+        .verify-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .verify-check {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .verify-check:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .verify-check input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        .verify-check span {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        /* Notes list */
+        .notes-list {
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .note-item {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .note-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .note-text {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-title">HOSPITAL</div>
+            <div class="site-code">ATX-01</div>
+            <div class="unit-info">
+                <div class="unit-serial">SN-2847</div>
+                <div class="unit-source">From Station 3 - RF Assembly</div>
+            </div>
+        </div>
+
+        <div class="header-center">
+            <div class="time-in-hospital">
+                <div class="time-value" id="hospitalTime">02:34:15</div>
+                <div class="time-label">Time in Hospital</div>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                <span class="theme-icon-dark">🌙</span>
+                <span class="theme-icon-light">☀️</span>
+            </button>
+            <div class="user-profile" onclick="toggleProfileMenu()">
+                <div class="profile-avatar">RK</div>
+                <span class="profile-name">Robert K.</span>
+                <span class="profile-arrow">▼</span>
+                <div class="profile-menu" id="profileMenu">
+                    <div class="profile-menu-header">
+                        <div class="profile-avatar-lg">RK</div>
+                        <div class="profile-info">
+                            <div class="profile-fullname">Robert Kim</div>
+                            <div class="profile-role">Maintenance Engineer</div>
+                        </div>
+                    </div>
+                    <div class="profile-menu-divider"></div>
+                    <div class="profile-menu-item">My Repairs</div>
+                    <div class="profile-menu-item">Settings</div>
+                    <div class="profile-menu-item">Sign Out</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Left Panel - NC Information -->
+        <aside class="nc-panel">
+            <div class="nc-header">
+                <div class="nc-number">NC-4521 <span class="nc-age-badge amber" id="ncAgeBadge">3 days</span></div>
+                <div class="nc-title">Antenna Array Misalignment</div>
+                <div class="jules-links">
+                    <a class="jules-link" onclick="openJules('NC-4521')">&#8599; View NC in Jules</a>
+                    <a class="jules-link" onclick="openJules('WO-7823')">&#8599; View WO in Jules</a>
+                </div>
+            </div>
+
+            <div class="nc-details">
+                <div class="detail-section">
+                    <div class="detail-section-title">What's Wrong</div>
+                    <div class="detail-content">
+                        <p class="nc-description" style="color: var(--text-primary); font-size: 0.9rem; line-height: 1.5;">
+                            Antenna array alignment pins not fully engaged. 2mm gap on connector interface.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">What To Do</div>
+                    <div class="disposition-card">
+                        <div class="disposition-title">Rework - Realign and Reinstall</div>
+                        <div class="disposition-instructions">
+                            <ul>
+                                <li>Verify alignment jig calibration before reinstall</li>
+                                <li>Document pin condition with photos</li>
+                                <li>Use new shielding gasket <strong>P/N 472-185-9922-001</strong> (do not reuse)</li>
+                                <li>Perform continuity test per <strong>TP-3847</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Parts Needed</div>
+                    <div class="parts-needed">
+                        <div class="part-item">
+                            <span class="part-pn">472-185-9922-001</span>
+                            <span class="part-desc">Shielding Gasket</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nc-actions">
+                <button class="resolve-btn" id="resolveBtn">
+                    Submit for Verification
+                </button>
+            </div>
+        </aside>
+
+        <!-- Center - Operations -->
+        <main class="instructions-panel">
+            <div class="repair-status-banner in-progress" id="statusBanner">
+                <span class="status-icon">&#9654;</span>
+                <span class="status-text">In Progress</span>
+                <span class="status-action" onclick="updateStatus()">Update Status</span>
+            </div>
+
+            <div class="ops-header">
+                <div class="ops-title">Remaining Operations</div>
+                <div class="ops-progress">
+                    <span class="progress-text"><strong>2</strong> of 9 complete</span>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 22%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ops-list">
+                <!-- Completed Operations (collapsed) -->
+                <div class="op-card completed">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 3 - Step 1</div>
+                            <div class="op-name">Install RF panel mounting brackets</div>
+                        </div>
+                        <span class="op-status-badge done">Done</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                </div>
+
+                <div class="op-card completed">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 3 - Step 2</div>
+                            <div class="op-name">Route RF cables through chassis</div>
+                        </div>
+                        <span class="op-status-badge done">Done</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                </div>
+
+                <!-- Current Operation (expanded) -->
+                <div class="op-card current expanded">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 3 - Step 3 (Rework)</div>
+                            <div class="op-name">Connect antenna array</div>
+                        </div>
+                        <span class="op-status-badge in-progress">In Progress</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Connect the main antenna array to the RF panel using the precision connector tool.
+                            Ensure proper alignment before engaging the locking mechanism.
+                            <br><br>
+                            <strong style="color: var(--accent-amber);">&#9888; NC Rework:</strong>
+                            Follow disposition instructions - verify alignment jig calibration and use new shielding gasket.
+                        </p>
+                        <div class="op-substeps">
+                            <div class="op-substep">
+                                <div class="op-substep-bullet"></div>
+                                <span class="op-substep-text">Position antenna array using alignment jig</span>
+                            </div>
+                            <div class="op-substep">
+                                <div class="op-substep-bullet"></div>
+                                <span class="op-substep-text">Install NEW shielding gasket on connector interface</span>
+                            </div>
+                            <div class="op-substep">
+                                <div class="op-substep-bullet"></div>
+                                <span class="op-substep-text">Connect RF connectors (4x) using precision tool</span>
+                            </div>
+                            <div class="op-substep">
+                                <div class="op-substep-bullet"></div>
+                                <span class="op-substep-text">Torque all connections to 2.5 N-m</span>
+                            </div>
+                            <div class="op-substep">
+                                <div class="op-substep-bullet"></div>
+                                <span class="op-substep-text">Verify connection with continuity check</span>
+                            </div>
+                        </div>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remaining Operations -->
+                <div class="op-card">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 3 - Step 4</div>
+                            <div class="op-name">Torque all RF connections</div>
+                        </div>
+                        <span class="op-status-badge pending">Pending</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Verify all RF connections are torqued to specification using calibrated torque wrench.
+                        </p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="op-card">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 3 - Step 5</div>
+                            <div class="op-name">RF continuity test</div>
+                        </div>
+                        <span class="op-status-badge pending">Pending</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Perform RF continuity test on all antenna connections. All 4 connectors must show green.
+                        </p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="op-card">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 4 - Step 1</div>
+                            <div class="op-name">Install thermal interface panels</div>
+                        </div>
+                        <span class="op-status-badge pending">Pending</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Install thermal interface panels on chassis mounting points.
+                        </p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="op-card">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 4 - Step 2</div>
+                            <div class="op-name">Route propulsion lines</div>
+                        </div>
+                        <span class="op-status-badge pending">Pending</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Route propulsion lines through designated channels and secure with clamps.
+                        </p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="op-card">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 5 - Step 1</div>
+                            <div class="op-name">Final integration check</div>
+                        </div>
+                        <span class="op-status-badge pending">Pending</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Perform final integration check on all subsystems. Verify all connections and alignments.
+                        </p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="op-card">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">Station 5 - Step 2</div>
+                            <div class="op-name">System functional test</div>
+                        </div>
+                        <span class="op-status-badge pending">Pending</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    <div class="op-details">
+                        <p class="op-description">
+                            Execute system functional test sequence. All indicators must show green before release.
+                        </p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="sidebar">
+            <!-- Repair Backlog -->
+            <div class="backlog-section">
+                <div class="backlog-title">
+                    My Repair Queue
+                    <span class="backlog-count">3</span>
+                </div>
+
+                <div class="backlog-item active" onclick="selectBacklog(this)" data-sn="SN-2847">
+                    <div class="backlog-row-top">
+                        <div class="backlog-sn">SN-2847</div>
+                        <span class="backlog-time green">45m</span>
+                        <span class="backlog-status in-progress">In Progress</span>
+                    </div>
+                    <div class="backlog-nc">NC-4521 · Antenna Misalign</div>
+                </div>
+
+                <div class="backlog-item" onclick="selectBacklog(this)" data-sn="SN-2831">
+                    <div class="backlog-row-top">
+                        <div class="backlog-sn">SN-2831</div>
+                        <span class="backlog-time red">6h 45m</span>
+                        <span class="backlog-status ready">Ready</span>
+                    </div>
+                    <div class="backlog-nc">NC-4518 · Power Bus Short</div>
+                </div>
+
+                <div class="backlog-item" onclick="selectBacklog(this)" data-sn="SN-2856">
+                    <div class="backlog-row-top">
+                        <div class="backlog-sn">SN-2856</div>
+                        <span class="backlog-time amber">2h 34m</span>
+                        <span class="backlog-status blocked">Awaiting Disp</span>
+                    </div>
+                    <div class="backlog-nc">NC-4525 · Label Defect</div>
+                </div>
+            </div>
+
+            <!-- History -->
+            <div class="history-section">
+                <div class="history-title">Unit History</div>
+
+                <div class="history-item">
+                    <div class="history-icon entry">&#9888;</div>
+                    <div class="history-content">
+                        <div class="history-text">Entered hospital lane</div>
+                        <div class="history-meta">11:28 AM - Station 3 kick-out</div>
+                    </div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon diagnosis">&#128269;</div>
+                    <div class="history-content">
+                        <div class="history-text">NC-4521 created</div>
+                        <div class="history-meta">11:35 AM - Isabella Johnson</div>
+                    </div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon diagnosis">&#128269;</div>
+                    <div class="history-content">
+                        <div class="history-text">Disposition assigned: Rework</div>
+                        <div class="history-meta">12:15 PM - Quality Engineering</div>
+                    </div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon repair">&#128295;</div>
+                    <div class="history-content">
+                        <div class="history-text">Repair started</div>
+                        <div class="history-meta">1:45 PM - Robert Kim</div>
+                    </div>
+                </div>
+
+                <div class="history-item">
+                    <div class="history-icon repair">&#128295;</div>
+                    <div class="history-content">
+                        <div class="history-text">Antenna removed for inspection</div>
+                        <div class="history-meta">1:52 PM - Robert Kim</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Return Options -->
+            <div class="return-section">
+                <div class="return-title">After NC Resolved</div>
+
+                <div class="return-option selected recommended" onclick="selectReturn(this)">
+                    <div class="return-radio"></div>
+                    <div class="return-info">
+                        <h4>Complete at Hospital</h4>
+                        <p>Finish remaining ops here</p>
+                    </div>
+                </div>
+
+                <div class="return-option" onclick="selectReturn(this)">
+                    <div class="return-radio"></div>
+                    <div class="return-info">
+                        <h4>Rejoin Main Line</h4>
+                        <p>Return to next station</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Submit for Verification Modal -->
+    <div class="modal-overlay" id="verifyModal">
+        <div class="status-modal">
+            <div class="modal-header">
+                <span class="modal-title">Submit for Verification</span>
+                <button class="modal-close" onclick="closeVerifyModal()">&times;</button>
+            </div>
+            <div class="verify-content">
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+                    Notify QE to inspect and verify the repair for <strong id="verifyNC">NC-4521</strong>.
+                </p>
+                <div class="modal-input active">
+                    <label>Comment (optional)</label>
+                    <input type="text" id="verifyComment" placeholder="Any notes for QE...">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeVerifyModal()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmVerification()">Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Note Modal -->
+    <div class="modal-overlay" id="addNoteModal">
+        <div class="status-modal">
+            <div class="modal-header">
+                <span class="modal-title">Add Note</span>
+                <button class="modal-close" onclick="closeAddNoteModal()">&times;</button>
+            </div>
+            <div class="modal-input active">
+                <label>Note for <span id="addNoteNC">NC-4521</span></label>
+                <textarea id="noteTextInput" placeholder="Enter your note..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeAddNoteModal()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="submitNote()">Add Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Notes Modal -->
+    <div class="modal-overlay" id="viewNotesModal">
+        <div class="status-modal">
+            <div class="modal-header">
+                <span class="modal-title">Notes</span>
+                <button class="modal-close" onclick="closeViewNotesModal()">&times;</button>
+            </div>
+            <div class="notes-list" id="notesList">
+                <div class="note-item">
+                    <div class="note-meta">Robert Kim · 1:45 PM</div>
+                    <div class="note-text">Started repair, removing antenna array</div>
+                </div>
+                <div class="note-item">
+                    <div class="note-meta">Robert Kim · 1:52 PM</div>
+                    <div class="note-text">Antenna removed. Inspecting alignment pins - found 2 pins with minor damage</div>
+                </div>
+                <div class="note-item">
+                    <div class="note-meta">Robert Kim · 2:15 PM</div>
+                    <div class="note-text">Pins cleaned and realigned. Installing new gasket</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeViewNotesModal()">Close</button>
+                <button class="modal-btn modal-btn-confirm" onclick="closeViewNotesModal(); addNote();">Add Note</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Update Modal -->
+    <div class="modal-overlay" id="statusModal">
+        <div class="status-modal">
+            <div class="modal-header">
+                <span class="modal-title">Update Repair Status</span>
+                <button class="modal-close" onclick="closeStatusModal()">&times;</button>
+            </div>
+            <div class="status-options">
+                <div class="status-option" onclick="selectStatus(this, 'in-progress')">
+                    <div class="status-option-icon progress">&#9654;</div>
+                    <div class="status-option-text">
+                        <div class="status-option-title">In Progress</div>
+                        <div class="status-option-desc">Actively working on this repair</div>
+                    </div>
+                </div>
+                <div class="status-option" onclick="selectStatus(this, 'waiting-parts')">
+                    <div class="status-option-icon parts">&#128230;</div>
+                    <div class="status-option-text">
+                        <div class="status-option-title">Waiting on Parts</div>
+                        <div class="status-option-desc">Need parts before I can continue</div>
+                    </div>
+                </div>
+                <div class="status-option" onclick="selectStatus(this, 'waiting-tool')">
+                    <div class="status-option-icon tool">&#128295;</div>
+                    <div class="status-option-text">
+                        <div class="status-option-title">Waiting on Tool</div>
+                        <div class="status-option-desc">Need specialized tool or equipment</div>
+                    </div>
+                </div>
+                <div class="status-option" onclick="selectStatus(this, 'blocked')">
+                    <div class="status-option-icon blocked">&#9888;</div>
+                    <div class="status-option-text">
+                        <div class="status-option-title">Blocked</div>
+                        <div class="status-option-desc">Other issue preventing progress</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-input" id="statusDetailInput">
+                <label id="statusDetailLabel">Details (optional)</label>
+                <input type="text" id="statusDetailText" placeholder="e.g., P/N needed, tool name...">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeStatusModal()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="confirmStatus()">Update Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QC Final Signoff Modal -->
+    <div class="modal-overlay" id="qcSignoffModal">
+        <div class="status-modal">
+            <div class="modal-header">
+                <span class="modal-title">All Steps Complete</span>
+                <button class="modal-close" onclick="closeQCSignoffModal()">&times;</button>
+            </div>
+            <div class="verify-content">
+                <div style="text-align: center; padding: 1rem 0;">
+                    <div style="font-size: 3rem; color: var(--accent-green); margin-bottom: 0.5rem;">&#10003;</div>
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Repair Complete</div>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;">
+                        All operations finished. Request QC final inspection to close this repair.
+                    </p>
+                </div>
+                <div class="modal-input active">
+                    <label>Notes for QC (optional)</label>
+                    <input type="text" id="qcSignoffComment" placeholder="Any notes for final inspection...">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeQCSignoffModal()">Cancel</button>
+                <button class="modal-btn modal-btn-confirm" onclick="submitQCSignoff()">Request QC Signoff</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hospital time counter
+        let hospitalSeconds = 2 * 3600 + 34 * 60 + 15;
+        function updateHospitalTime() {
+            hospitalSeconds++;
+            const hours = Math.floor(hospitalSeconds / 3600);
+            const mins = Math.floor((hospitalSeconds % 3600) / 60);
+            const secs = hospitalSeconds % 60;
+            document.getElementById('hospitalTime').textContent =
+                `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        setInterval(updateHospitalTime, 1000);
+
+        // Toggle operation card
+        function toggleOp(header) {
+            const card = header.parentElement;
+            card.classList.toggle('expanded');
+        }
+
+        // Complete operation
+        function completeOp(btn) {
+            if (!ncResolved) {
+                alert('Please resolve the NC first before completing operations.');
+                return;
+            }
+            const card = btn.closest('.op-card');
+            card.classList.remove('current', 'expanded');
+            card.classList.add('completed');
+
+            const statusBadge = card.querySelector('.op-status-badge');
+            statusBadge.textContent = 'Done';
+            statusBadge.classList.remove('in-progress');
+            statusBadge.classList.add('done');
+
+            // Find next visible pending card and make it current
+            let nextCard = card.nextElementSibling;
+            while (nextCard) {
+                if (!nextCard.classList.contains('completed') && nextCard.style.display !== 'none') {
+                    nextCard.classList.add('current', 'expanded');
+                    const nextBadge = nextCard.querySelector('.op-status-badge');
+                    nextBadge.textContent = 'In Progress';
+                    nextBadge.classList.remove('pending');
+                    nextBadge.classList.add('in-progress');
+                    break;
+                }
+                nextCard = nextCard.nextElementSibling;
+            }
+
+            // Check if all visible ops complete
+            checkAllComplete();
+        }
+
+        // Select return option
+        function selectReturn(option) {
+            document.querySelectorAll('.return-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            option.classList.add('selected');
+
+            // Check which option was selected
+            const optionTitle = option.querySelector('h4').textContent;
+            if (optionTitle === 'Rejoin Main Line') {
+                // Hide Station 4 & 5 operations (unit will do those on main line)
+                const ops = document.querySelectorAll('.op-card');
+                ops.forEach(op => {
+                    const station = op.querySelector('.op-station');
+                    if (station && (station.textContent.includes('Station 4') || station.textContent.includes('Station 5'))) {
+                        op.style.display = 'none';
+                    }
+                });
+                // Check if all visible ops are complete
+                checkAllComplete();
+            } else {
+                // Show all operations
+                document.querySelectorAll('.op-card').forEach(op => {
+                    op.style.display = '';
+                });
+                checkAllComplete();
+            }
+        }
+
+        // Update progress display
+        function checkAllComplete() {
+            const allVisible = document.querySelectorAll('.op-card:not([style*="display: none"])');
+            const completedVisible = document.querySelectorAll('.op-card.completed:not([style*="display: none"])');
+
+            // Update progress text and bar
+            const total = allVisible.length;
+            const done = completedVisible.length;
+            const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.querySelector('.progress-text').innerHTML = `<strong>${done}</strong> of ${total} complete`;
+            document.querySelector('.progress-fill').style.width = `${percent}%`;
+
+            // Check if all steps are complete
+            if (done === total && total > 0) {
+                const selectedOption = document.querySelector('.return-option.selected h4');
+                const isCompleteAtHospital = selectedOption && selectedOption.textContent === 'Complete at Hospital';
+
+                if (isCompleteAtHospital) {
+                    // Requires QC signoff
+                    showQCSignoffModal();
+                } else {
+                    // Auto-update to Ready to Rejoin
+                    autoUpdateReadyToRejoin();
+                }
+            }
+        }
+
+        function showQCSignoffModal() {
+            document.getElementById('qcSignoffModal').classList.add('active');
+        }
+
+        function closeQCSignoffModal() {
+            document.getElementById('qcSignoffModal').classList.remove('active');
+        }
+
+        function submitQCSignoff() {
+            // Update status banner with simulate button
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'repair-status-banner blocked';
+            banner.innerHTML = `<span class="status-icon">&#9203;</span><span class="status-text">Awaiting QC Final Signoff</span><span class="status-action" onclick="simulateQCFinalApproval()">Simulate QC Approval</span>`;
+
+            // Update backlog status
+            const backlogItem = document.querySelector(`.backlog-item[data-sn="${currentRepair}"] .backlog-status`);
+            if (backlogItem) {
+                backlogItem.className = 'backlog-status blocked';
+                backlogItem.textContent = 'Awaiting QC';
+            }
+
+            closeQCSignoffModal();
+        }
+
+        function autoUpdateReadyToRejoin() {
+            // Update status banner
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'repair-status-banner ready';
+            banner.innerHTML = `<span class="status-icon">&#10003;</span><span class="status-text">Ready to Rejoin Main Line</span>`;
+
+            // Update backlog status
+            const backlogItem = document.querySelector(`.backlog-item[data-sn="${currentRepair}"] .backlog-status`);
+            if (backlogItem) {
+                backlogItem.className = 'backlog-status ready';
+                backlogItem.textContent = 'Ready to Rejoin';
+            }
+
+            // Show notification
+            showCompletionNotification('Ready to Rejoin Main Line');
+        }
+
+        function showCompletionNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'completion-notification';
+            notification.innerHTML = `<span class="notification-icon">&#10003;</span>${message}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function simulateQCFinalApproval() {
+            const completedSN = currentRepair;
+
+            // Remove from backlog
+            const backlogItem = document.querySelector(`.backlog-item[data-sn="${completedSN}"]`);
+            if (backlogItem) {
+                backlogItem.style.transition = 'all 0.3s ease';
+                backlogItem.style.opacity = '0';
+                backlogItem.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    backlogItem.remove();
+                    updateBacklogCount();
+
+                    // Switch to next available repair or show empty state
+                    const remainingItems = document.querySelectorAll('.backlog-item');
+                    if (remainingItems.length > 0) {
+                        selectBacklog(remainingItems[0]);
+                    } else {
+                        showEmptyQueueState();
+                    }
+                }, 300);
+            }
+
+            // Show completion notification
+            showCompletionNotification(`${completedSN} - Repair Complete & Closed`);
+        }
+
+        function updateBacklogCount() {
+            const count = document.querySelectorAll('.backlog-item').length;
+            document.querySelector('.backlog-count').textContent = count;
+        }
+
+        function showEmptyQueueState() {
+            // Update status banner
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'repair-status-banner ready';
+            banner.innerHTML = `<span class="status-icon">&#10003;</span><span class="status-text">All Repairs Complete</span>`;
+
+            // Clear main content areas
+            document.querySelector('.unit-serial').textContent = '—';
+            document.querySelector('.unit-source').textContent = 'No active repairs';
+            document.querySelector('.nc-number').innerHTML = '—';
+            document.querySelector('.nc-title').textContent = 'No active NC';
+        }
+
+        // Submit NC for verification - open modal
+        document.getElementById('resolveBtn').addEventListener('click', function() {
+            document.getElementById('verifyNC').textContent = repairs[currentRepair].nc;
+            document.getElementById('verifyComment').value = '';
+            document.getElementById('verifyModal').classList.add('active');
+        });
+
+        function closeVerifyModal() {
+            document.getElementById('verifyModal').classList.remove('active');
+        }
+
+        function confirmVerification() {
+            const r = repairs[currentRepair];
+            const ncNum = r.nc;
+
+            // Update button to show waiting
+            const btn = document.getElementById('resolveBtn');
+            btn.innerHTML = 'Awaiting QE Verification';
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.background = 'var(--bg-dark)';
+
+            // Complete step buttons remain blocked until QE verifies
+            ncResolved = false;
+            updateCompleteButtons();
+
+            // Update status banner to blocked
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'repair-status-banner blocked';
+            banner.innerHTML = `<span class="status-icon">&#9203;</span><span class="status-text">Awaiting QE Verification</span><span class="status-action" onclick="simulateQEVerification()">Simulate QE Approval</span>`;
+
+            // Update backlog item status
+            const backlogItem = document.querySelector(`.backlog-item[data-sn="${currentRepair}"] .backlog-status`);
+            if (backlogItem) {
+                backlogItem.className = 'backlog-status blocked';
+                backlogItem.textContent = 'Awaiting QE';
+            }
+
+            closeVerifyModal();
+        }
+
+        // For prototype demo - simulate QE verification
+        function simulateQEVerification() {
+            // Update button
+            const btn = document.getElementById('resolveBtn');
+            btn.innerHTML = 'NC Verified';
+
+            // Update status banner
+            const banner = document.getElementById('statusBanner');
+            banner.className = 'repair-status-banner ready';
+            banner.innerHTML = `<span class="status-icon">&#10003;</span><span class="status-text">NC Verified - Continue with remaining operations</span>`;
+
+            // Now enable complete step buttons
+            ncResolved = true;
+            updateCompleteButtons();
+        }
+
+        // Open Jules
+        function openJules(id) {
+            // In production, this would open the actual Jules URL
+            alert(`Opening ${id} in Jules...\n\nURL: https://jules.blueorigin.com/${id.startsWith('NC') ? 'nonconformance' : 'workorder'}/${id}`);
+        }
+
+        // Repair data
+        const repairs = {
+            'SN-2847': {
+                nc: 'NC-4521',
+                title: 'Antenna Array Misalignment',
+                station: 'Station 3 - RF Assembly',
+                status: 'in-progress',
+                statusText: 'In Progress',
+                statusIcon: '&#9654;',
+                statusDetail: null,
+                age: '3 days',
+                ageClass: 'amber',
+                priority: 'p1',
+                priorityReason: 'Customer commit Thu 5/9',
+                whatsWrong: 'Antenna array alignment pins not fully engaged. 2mm gap on connector interface.',
+                disposition: 'Rework - Realign and Reinstall',
+                instructions: [
+                    'Verify alignment jig calibration before reinstall',
+                    'Document pin condition with photos',
+                    'Use new shielding gasket <strong>P/N 472-185-9922-001</strong> (do not reuse)',
+                    'Perform continuity test per <strong>TP-3847</strong>'
+                ],
+                partsNeeded: [
+                    { pn: '472-185-9922-001', desc: 'Shielding Gasket' }
+                ],
+                hospitalTime: 45 * 60,
+                ops: [
+                    { station: 'Station 3 - Step 1', name: 'Install RF panel mounting brackets', done: true },
+                    { station: 'Station 3 - Step 2', name: 'Route RF cables through chassis', done: true },
+                    { station: 'Station 3 - Step 3 (Rework)', name: 'Connect antenna array', done: false, current: true, desc: 'Connect the main antenna array to the RF panel using the precision connector tool.' },
+                    { station: 'Station 3 - Step 4', name: 'Torque all RF connections', done: false, desc: 'Verify all RF connections are torqued to specification using calibrated torque wrench.' },
+                    { station: 'Station 3 - Step 5', name: 'RF continuity test', done: false, desc: 'Perform RF continuity test on all antenna connections. All 4 connectors must show green.' },
+                    { station: 'Station 4 - Step 1', name: 'Install thermal interface panels', done: false, desc: 'Install thermal interface panels on chassis mounting points.' },
+                    { station: 'Station 4 - Step 2', name: 'Route propulsion lines', done: false, desc: 'Route propulsion lines through designated channels and secure with clamps.' },
+                    { station: 'Station 5 - Step 1', name: 'Final integration check', done: false, desc: 'Perform final integration check on all subsystems.' },
+                    { station: 'Station 5 - Step 2', name: 'System functional test', done: false, desc: 'Execute system functional test sequence.' }
+                ]
+            },
+            'SN-2831': {
+                nc: 'NC-4518',
+                title: 'Power Bus Short Circuit',
+                station: 'Station 2 - Electrical Integration',
+                status: 'verified',
+                statusText: 'NC Verified',
+                statusIcon: '&#10003;',
+                statusDetail: 'Continue with remaining operations',
+                age: '14 days',
+                ageClass: 'red',
+                priority: 'p1',
+                priorityReason: 'NC age 14 days - escalated',
+                whatsWrong: 'Short circuit on main power bus. Smoke observed from connector J14. Bus voltage dropped to 0V.',
+                disposition: 'Rework - Replace Harness',
+                instructions: [
+                    '<strong style="color: var(--accent-red);">⚠ LOTO required before repair</strong>',
+                    'Replace harness <strong>P/N 472-185-7823-A Rev C</strong>',
+                    'Inspect connectors J12-J16 for heat damage per <strong>VWI-2341</strong>',
+                    'Full electrical test per <strong>TP-8821</strong>'
+                ],
+                partsNeeded: [
+                    { pn: '472-185-7823-A', desc: 'Power Harness Rev C' }
+                ],
+                hospitalTime: 6 * 3600 + 45 * 60,
+                ops: [
+                    { station: 'Station 2 - Step 1', name: 'Disconnect power harness', done: true },
+                    { station: 'Station 2 - Step 2', name: 'Remove damaged section', done: false, current: true, desc: 'Remove the damaged harness section between J12 and J16.' },
+                    { station: 'Station 2 - Step 3', name: 'Install replacement harness', done: false, desc: 'Install new harness P/N 7823-A with proper routing.' },
+                    { station: 'Station 2 - Step 4', name: 'Connector inspection', done: false, desc: 'Inspect all connectors J12-J16 for heat damage or discoloration.' },
+                    { station: 'Station 2 - Step 5', name: 'Electrical continuity test', done: false, desc: 'Perform full electrical continuity test on power bus.' },
+                    { station: 'Station 3 - Step 1', name: 'Install RF panel mounting brackets', done: false, desc: 'Install RF panel mounting brackets.' },
+                    { station: 'Station 3 - Step 2', name: 'Route RF cables', done: false, desc: 'Route RF cables through chassis.' },
+                    { station: 'Station 4 - Step 1', name: 'Install thermal panels', done: false, desc: 'Install thermal interface panels.' },
+                    { station: 'Station 5 - Step 1', name: 'Final integration check', done: false, desc: 'Perform final integration check.' }
+                ]
+            },
+            'SN-2856': {
+                nc: 'NC-4525',
+                title: 'Label Placement Defect',
+                station: 'Station 5 - Final Assembly',
+                status: 'waiting-disposition',
+                statusText: 'Awaiting Disposition',
+                statusIcon: '&#9203;',
+                statusDetail: 'Assigned to: Mike Torres (QE)',
+                age: '1 day',
+                ageClass: 'green',
+                priority: 'p3',
+                priorityReason: 'No production impact',
+                whatsWrong: 'Serial number label applied 5mm off-center. Spec tolerance is +/- 2mm.',
+                disposition: 'Pending Disposition',
+                instructions: [
+                    '<strong style="color: var(--accent-amber);">⏳ Awaiting QE disposition - do not proceed</strong>'
+                ],
+                partsNeeded: [],
+                hospitalTime: 2 * 3600 + 34 * 60 + 15,
+                ops: [
+                    { station: 'Station 5 - Step 1', name: 'Remove existing label', done: false, current: true, desc: 'Carefully remove existing serial number label using approved solvent.' },
+                    { station: 'Station 5 - Step 2', name: 'Clean surface', done: false, desc: 'Clean label area with IPA and lint-free wipe.' },
+                    { station: 'Station 5 - Step 3', name: 'Apply new label', done: false, desc: 'Apply new label using alignment template. Verify placement within +/- 2mm.' },
+                    { station: 'Station 5 - Step 4', name: 'Final inspection', done: false, desc: 'Perform final visual inspection of label placement.' }
+                ]
+            }
+        };
+
+        let currentRepair = 'SN-2847';
+
+        // Select backlog item
+        function selectBacklog(item) {
+            document.querySelectorAll('.backlog-item').forEach(i => i.classList.remove('active'));
+            item.classList.add('active');
+
+            const sn = item.querySelector('.backlog-sn').textContent;
+            currentRepair = sn;
+            loadRepair(sn);
+        }
+
+        // Load repair data into UI
+        function loadRepair(sn) {
+            const r = repairs[sn];
+            if (!r) return;
+
+            // Update header
+            document.querySelector('.unit-serial').textContent = sn;
+            document.querySelector('.unit-source').textContent = `From ${r.station}`;
+
+            // Update hospital time
+            hospitalSeconds = r.hospitalTime;
+
+            // Update NC panel
+            document.querySelector('.nc-number').innerHTML = `${r.nc} <span class="nc-age-badge ${r.ageClass}" id="ncAgeBadge">${r.age}</span>`;
+            document.querySelector('.nc-title').textContent = r.title;
+
+            // Update Jules links
+            document.querySelector('.jules-links').innerHTML = `
+                <a class="jules-link" onclick="openJules('${r.nc}')">&#8599; View NC in Jules</a>
+                <a class="jules-link" onclick="openJules('WO-${r.nc.split('-')[1]}')">&#8599; View WO in Jules</a>
+            `;
+
+            // Update What's Wrong
+            document.querySelector('.nc-description').textContent = r.whatsWrong;
+
+            // Update What To Do
+            document.querySelector('.disposition-title').textContent = r.disposition;
+            const instList = document.querySelector('.disposition-instructions ul');
+            instList.innerHTML = r.instructions.map(i => `<li>${i}</li>`).join('');
+
+            // Update Parts Needed
+            const partsSection = document.querySelector('.parts-needed');
+            if (r.partsNeeded.length > 0) {
+                partsSection.innerHTML = r.partsNeeded.map(p =>
+                    `<div class="part-item"><span class="part-pn">${p.pn}</span><span class="part-desc">${p.desc}</span></div>`
+                ).join('');
+                partsSection.parentElement.style.display = '';
+            } else {
+                partsSection.parentElement.style.display = 'none';
+            }
+
+            // Update Jules links
+            document.querySelector('.jules-links').innerHTML = `
+                <a class="jules-link" onclick="openJules('${r.nc}')">&#8599; View NC in Jules</a>
+                <a class="jules-link" onclick="openJules('WO-${r.nc.split('-')[1]}')">&#8599; View WO in Jules</a>
+            `;
+
+            // Rebuild operations list
+            const opsList = document.querySelector('.ops-list');
+            opsList.innerHTML = r.ops.map((op, i) => `
+                <div class="op-card ${op.done ? 'completed' : ''} ${op.current ? 'current expanded' : ''}">
+                    <div class="op-header" onclick="toggleOp(this)">
+                        <div class="op-checkbox"></div>
+                        <div class="op-info">
+                            <div class="op-station">${op.station}</div>
+                            <div class="op-name">${op.name}</div>
+                        </div>
+                        <span class="op-status-badge ${op.done ? 'done' : op.current ? 'in-progress' : 'pending'}">${op.done ? 'Done' : op.current ? 'In Progress' : 'Pending'}</span>
+                        <span class="op-expand">&#9660;</span>
+                    </div>
+                    ${op.desc ? `
+                    <div class="op-details">
+                        <p class="op-description">${op.desc}</p>
+                        <div class="op-action-row">
+                            <button class="op-complete-btn" onclick="completeOp(this)">Complete Step</button>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Reset return options
+            document.querySelectorAll('.return-option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === 0);
+            });
+            document.querySelectorAll('.op-card').forEach(op => op.style.display = '');
+
+            // Update progress
+            checkAllComplete();
+
+            // Update status banner
+            const banner = document.getElementById('statusBanner');
+            banner.className = `repair-status-banner ${r.status}`;
+            let bannerContent = `<span class="status-icon">${r.statusIcon}</span><span class="status-text">${r.statusText}${r.statusDetail ? ' - ' + r.statusDetail : ''}</span>`;
+            if (r.status === 'waiting-disposition') {
+                bannerContent += `<span class="status-action" onclick="requestDisposition()">Request Update</span>`;
+            } else if (r.status === 'verified') {
+                // No action needed for verified status
+            } else {
+                bannerContent += `<span class="status-action" onclick="updateStatus()">Update Status</span>`;
+            }
+            banner.innerHTML = bannerContent;
+
+            // Disable operations if not in-progress
+            const opsDisabled = r.status !== 'in-progress';
+            document.querySelectorAll('.op-complete-btn').forEach(btn => {
+                btn.disabled = opsDisabled;
+                btn.style.opacity = opsDisabled ? '0.5' : '1';
+                btn.style.cursor = opsDisabled ? 'not-allowed' : 'pointer';
+            });
+
+            // Handle resolve button and NC state based on status
+            const resolveBtn = document.getElementById('resolveBtn');
+
+            if (r.status === 'verified') {
+                // Already verified - can proceed with operations
+                resolveBtn.innerHTML = 'NC Verified';
+                resolveBtn.disabled = true;
+                resolveBtn.style.opacity = '0.5';
+                resolveBtn.style.background = 'var(--bg-dark)';
+                ncResolved = true;
+            } else if (r.status === 'waiting-disposition') {
+                // Waiting on disposition - can't submit or proceed
+                resolveBtn.innerHTML = 'Submit for Verification';
+                resolveBtn.disabled = true;
+                resolveBtn.style.opacity = '0.5';
+                resolveBtn.style.background = '';
+                ncResolved = false;
+            } else {
+                // Normal state - can submit for verification
+                resolveBtn.innerHTML = 'Submit for Verification';
+                resolveBtn.disabled = false;
+                resolveBtn.style.opacity = '1';
+                resolveBtn.style.background = '';
+                ncResolved = false;
+            }
+            updateCompleteButtons();
+        }
+
+        // Track NC resolved state
+        let ncResolved = false;
+
+        function updateCompleteButtons() {
+            document.querySelectorAll('.op-complete-btn').forEach(btn => {
+                btn.disabled = !ncResolved;
+                btn.style.opacity = ncResolved ? '1' : '0.5';
+                btn.style.cursor = ncResolved ? 'pointer' : 'not-allowed';
+            });
+        }
+
+        // Status modal
+        let selectedStatus = null;
+
+        function updateStatus() {
+            document.getElementById('statusModal').classList.add('active');
+            selectedStatus = null;
+            document.querySelectorAll('.status-option').forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('statusDetailInput').classList.remove('active');
+            document.getElementById('statusDetailText').value = '';
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').classList.remove('active');
+        }
+
+        function selectStatus(element, status) {
+            document.querySelectorAll('.status-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedStatus = status;
+
+            const detailInput = document.getElementById('statusDetailInput');
+            const detailLabel = document.getElementById('statusDetailLabel');
+            const detailText = document.getElementById('statusDetailText');
+
+            if (status === 'waiting-parts') {
+                detailInput.classList.add('active');
+                detailLabel.textContent = 'Which part do you need?';
+                detailText.placeholder = 'e.g., P/N 472-185-7823-A';
+            } else if (status === 'waiting-tool') {
+                detailInput.classList.add('active');
+                detailLabel.textContent = 'Which tool do you need?';
+                detailText.placeholder = 'e.g., Torque wrench 2.5 N-m';
+            } else if (status === 'blocked') {
+                detailInput.classList.add('active');
+                detailLabel.textContent = 'What is blocking you?';
+                detailText.placeholder = 'Describe the issue...';
+            } else {
+                detailInput.classList.remove('active');
+            }
+        }
+
+        function confirmStatus() {
+            if (!selectedStatus) {
+                alert('Please select a status');
+                return;
+            }
+
+            const detail = document.getElementById('statusDetailText').value;
+            const statusLabels = {
+                'in-progress': 'In Progress',
+                'waiting-parts': 'Waiting on Parts',
+                'waiting-tool': 'Waiting on Tool',
+                'blocked': 'Blocked'
+            };
+
+            // Update the banner
+            const r = repairs[currentRepair];
+            r.status = selectedStatus;
+            r.statusText = statusLabels[selectedStatus];
+            r.statusDetail = detail || null;
+
+            // Update backlog item
+            const backlogItem = document.querySelector(`.backlog-item[data-sn="${currentRepair}"] .backlog-status`);
+            if (backlogItem) {
+                backlogItem.className = `backlog-status ${selectedStatus}`;
+                backlogItem.textContent = selectedStatus === 'in-progress' ? 'In Progress' :
+                    selectedStatus === 'waiting-parts' ? 'Waiting Parts' :
+                    selectedStatus === 'waiting-tool' ? 'Waiting Tool' :
+                    selectedStatus === 'waiting-disposition' ? 'Awaiting Disp' : 'Blocked';
+            }
+
+            // Reload the repair to update banner
+            loadRepair(currentRepair);
+            closeStatusModal();
+        }
+
+        function requestDisposition() {
+            alert('Disposition update requested.\\n\\nNotification sent to QE team.');
+        }
+
+        function checkParts() {
+            alert('Parts Status:\\n\\nP/N 7823-A (Power Harness)\\nStatus: In Transit\\nETA: May 9, 2:00 PM\\nTracking: FDX-789234');
+        }
+
+        function openAttachment(filename) {
+            alert(`Opening attachment: ${filename}\\n\\nIn production, this would open the file viewer or download the document.`);
+        }
+
+        // Add note modal
+        function addNote() {
+            document.getElementById('addNoteNC').textContent = repairs[currentRepair].nc;
+            document.getElementById('noteTextInput').value = '';
+            document.getElementById('addNoteModal').classList.add('active');
+            document.getElementById('noteTextInput').focus();
+        }
+
+        function closeAddNoteModal() {
+            document.getElementById('addNoteModal').classList.remove('active');
+        }
+
+        function submitNote() {
+            const note = document.getElementById('noteTextInput').value.trim();
+            if (note) {
+                // In production, this would post to Jules
+                closeAddNoteModal();
+                alert('Note added and synced to Jules.');
+            }
+        }
+
+        // View notes modal
+        function viewNotes() {
+            document.getElementById('viewNotesModal').classList.add('active');
+        }
+
+        function closeViewNotesModal() {
+            document.getElementById('viewNotesModal').classList.remove('active');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            ncResolved = false;
+            updateCompleteButtons();
+        });
+
+        // Theme toggle
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
+        // Profile menu toggle
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Close profile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const profile = document.querySelector('.user-profile');
+            const menu = document.getElementById('profileMenu');
+            if (profile && !profile.contains(e.target)) {
+                menu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
