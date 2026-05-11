@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andon Resolution Workflow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            margin: 0;
+            padding: 2rem;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 2rem;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        .legend-box.auto { background: #90EE90; }
+        .legend-box.agent { background: #98FB98; border: 2px dashed #228B22; }
+        .legend-box.human { background: #FFA500; }
+        .legend-box.terminate { background: #ccc; border: 2px dashed #666; }
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background: #fff;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .meta-card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+        .meta-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: #3b82f6;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .meta-card p {
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+            color: #ccc;
+        }
+        .meta-card strong {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Andon Resolution Workflow</h1>
+    <p class="subtitle">TeraWave Manufacturing Operations</p>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-box auto"></div> Automated/System</div>
+        <div class="legend-item"><div class="legend-box agent"></div> AI/Agent Assisted</div>
+        <div class="legend-item"><div class="legend-box human"></div> Human Decision</div>
+        <div class="legend-item"><div class="legend-box terminate"></div> Terminate</div>
+    </div>
+
+    <div class="mermaid">
+flowchart TB
+    subgraph trigger["TRIGGER"]
+        A["pull_andon_ref<br/>(Operator pulls andon at station)"]
+    end
+
+    subgraph validate["VALIDATE"]
+        B{"validate_andon_ref<br/>(Check WO and station status)"}
+        O["fail_ref<br/>(Invalid - terminate)"]
+    end
+
+    subgraph triage["TRIAGE - Supervisor decides issue type"]
+        C["notify_ref<br/>(Alert supervisor via dashboard)"]
+        D["ai_suggest_ref<br/>(AI predicts issue type @ 92% confidence)"]
+        E{"confidence_gate_ref<br/>(Is AI confidence high?)"}
+        F["human_triage_ref<br/>(Supervisor confirms/overrides type)"]
+    end
+
+    subgraph classify["CLASSIFY"]
+        G["set_type_ref<br/>(Defect | Material | Equipment | Safety)"]
+    end
+
+    subgraph assign["ASSIGN - System matches responder"]
+        H["filter_responders_ref<br/>(Filter by cert + availability)"]
+        I["auto_assign_ref<br/>(Assign best available responder)"]
+    end
+
+    subgraph resolve["RESOLVE - Human chooses path"]
+        J{"resolution_gate_ref<br/>(Supervisor selects resolution path)"}
+        K["inline_repair_ref<br/>(Fix at station, SOP guided)"]
+        L["hospital_ref<br/>(Transfer to hospital bay)"]
+        M["escalate_ref<br/>(Route to engineering)"]
+    end
+
+    subgraph execute["EXECUTE"]
+        N["execute_sop_ref<br/>(Responder follows repair SOP)"]
+        P{"complete_gate_ref<br/>(Repair successful?)"}
+    end
+
+    subgraph close["CLOSE OUT"]
+        Q["create_nc_ref<br/>(Auto-generate NC record)"]
+        R["close_andon_ref<br/>(Update status, release station)"]
+        S["update_metrics_ref<br/>(Feed Pareto + cycle time)"]
+    end
+
+    A --> B
+    B -->|"false"| O
+    B -->|"default"| C
+    C --> D
+    D --> E
+    E -->|"low"| F
+    E -->|"default"| G
+    F --> G
+    G --> H
+    H --> I
+    I --> J
+    J -->|"inline"| K
+    J -->|"hospital"| L
+    J -->|"escalate"| M
+    K --> N
+    L --> N
+    M --> N
+    N --> P
+    P -->|"false"| N
+    P -->|"true"| Q
+    Q --> R
+    R --> S
+
+    style A fill:#90EE90,stroke:#228B22
+    style B fill:#90EE90,stroke:#228B22
+    style C fill:#90EE90,stroke:#228B22
+    style D fill:#98FB98,stroke:#228B22,stroke-dasharray: 5 5
+    style E fill:#90EE90,stroke:#228B22
+    style F fill:#FFA500,stroke:#CC7000
+    style G fill:#90EE90,stroke:#228B22
+    style H fill:#98FB98,stroke:#228B22,stroke-dasharray: 5 5
+    style I fill:#98FB98,stroke:#228B22,stroke-dasharray: 5 5
+    style J fill:#FFA500,stroke:#CC7000
+    style K fill:#90EE90,stroke:#228B22
+    style L fill:#90EE90,stroke:#228B22
+    style M fill:#90EE90,stroke:#228B22
+    style N fill:#FFA500,stroke:#CC7000
+    style P fill:#90EE90,stroke:#228B22
+    style Q fill:#98FB98,stroke:#228B22,stroke-dasharray: 5 5
+    style R fill:#90EE90,stroke:#228B22
+    style S fill:#90EE90,stroke:#228B22
+    style O fill:#cccccc,stroke:#666,stroke-dasharray: 5 5
+    </div>
+
+    <h2 style="text-align:center; margin-top: 2rem; color: #3b82f6;">Workflow Specification</h2>
+
+    <div class="metadata">
+        <div class="meta-card" style="border-left-color: #ef4444;">
+            <h3>1. What event starts the workflow?</h3>
+            <p>Operator pulls andon cord/button at their station when they encounter an issue they cannot resolve themselves.</p>
+            <p><strong>Trigger:</strong> Physical button press or UI "Pull Andon" action</p>
+            <p><strong>Input data:</strong> Station ID, WO number, operator ID, timestamp, current op step</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #f59e0b;">
+            <h3>2. What business object is moving through the process?</h3>
+            <p><strong>Primary:</strong> Andon Ticket</p>
+            <p><strong>Attributes:</strong> Ticket ID, Station, WO#, Serial#, Issue Type, Duration, Assigned Responder, NC Number, Resolution</p>
+            <p><strong>Linked objects:</strong> Work Order, Unit/Serial, NC Record, SOP, Responder</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #22c55e;">
+            <h3>3. What states can it be in?</h3>
+            <p><strong>OPEN</strong> → Andon pulled, awaiting triage</p>
+            <p><strong>TRIAGED</strong> → Issue classified, awaiting assignment</p>
+            <p><strong>ASSIGNED</strong> → Responder assigned, awaiting action</p>
+            <p><strong>IN PROGRESS</strong> → Repair/resolution underway</p>
+            <p><strong>RESOLVED</strong> → Issue fixed, pending close-out</p>
+            <p><strong>CLOSED</strong> → Documentation complete, metrics updated</p>
+            <p><strong>TERMINATED</strong> → Invalid/cancelled andon</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #3b82f6;">
+            <h3>4. Who or what acts at each state?</h3>
+            <p><strong>OPEN:</strong> System notifies supervisor</p>
+            <p><strong>TRIAGED:</strong> Supervisor classifies issue type</p>
+            <p><strong>ASSIGNED:</strong> System auto-assigns responder by cert + availability</p>
+            <p><strong>IN PROGRESS:</strong> Responder executes repair per SOP</p>
+            <p><strong>RESOLVED:</strong> Responder marks complete</p>
+            <p><strong>CLOSED:</strong> System generates NC, updates WO, feeds metrics</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #a855f7;">
+            <h3>5. What rules determine branching?</h3>
+            <p><strong>validate_andon:</strong> Is WO active and station valid? → false: terminate</p>
+            <p><strong>confidence_gate:</strong> AI confidence &gt;85%? → low: require human triage</p>
+            <p><strong>resolution_gate:</strong> Based on issue severity + estimated repair time:</p>
+            <p style="margin-left: 1rem;">• &lt;15 min fixable → In-line repair</p>
+            <p style="margin-left: 1rem;">• Needs part removal → Hospital bay</p>
+            <p style="margin-left: 1rem;">• Beyond tech scope → Escalate to engineering</p>
+            <p><strong>complete_gate:</strong> Repair successful? → false: retry repair</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #06b6d4;">
+            <h3>6. Where does an agent add value?</h3>
+            <p><strong>ai_suggest_ref:</strong> Predicts issue type from station history, part data, and symptom patterns. Shows confidence % so supervisor knows when to trust vs. override.</p>
+            <p><strong>filter_responders_ref:</strong> Ranks available responders by certification match, proximity, and current workload.</p>
+            <p><strong>auto_assign_ref:</strong> Suggests best responder with ETA.</p>
+            <p><strong>create_nc_ref:</strong> Auto-generates NC record with pre-filled fields from andon context.</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #FFA500;">
+            <h3>7. Where does a human need to decide?</h3>
+            <p><strong>human_triage_ref:</strong> Supervisor confirms or overrides AI-suggested issue type when confidence is low or edge case.</p>
+            <p><strong>resolution_gate_ref:</strong> Supervisor chooses resolution path (in-line / hospital / escalate) based on judgment of severity and shop floor context.</p>
+            <p><strong>execute_sop_ref:</strong> Responder performs physical repair, makes real-time decisions during execution.</p>
+            <p><strong>complete_gate_ref:</strong> Responder judges if repair is truly complete and unit is good.</p>
+        </div>
+
+        <div class="meta-card" style="border-left-color: #ec4899;">
+            <h3>8. What does the UI need to surface at each handoff?</h3>
+            <p><strong>OPEN → TRIAGED:</strong> Andon alert card with station, duration timer, WO context, AI prediction with confidence bar, issue type buttons</p>
+            <p><strong>TRIAGED → ASSIGNED:</strong> Responder list filtered by cert, availability status, ETA, one-click assign</p>
+            <p><strong>ASSIGNED → IN PROGRESS:</strong> Resolution path cards (in-line/hospital/escalate) with time estimates, SOP preview</p>
+            <p><strong>IN PROGRESS → RESOLVED:</strong> Active repair view with SOP steps, timer, parts used, "Mark Complete" button</p>
+            <p><strong>RESOLVED → CLOSED:</strong> Resolution form with root cause dropdown, notes field, auto-populated NC preview</p>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>

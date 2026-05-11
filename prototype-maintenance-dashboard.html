@@ -1,0 +1,3164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terawave Equipment Maintenance Dashboard</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-green: #22c55e;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-purple: #a855f7;
+            --accent-cyan: #06b6d4;
+            --border-color: #334155;
+        }
+
+        body.light-mode {
+            --bg-dark: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-card-hover: #e2e8f0;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.1));
+            border-bottom: 2px solid var(--accent-cyan);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .site-code {
+            background: var(--bg-card);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--bg-card);
+            padding: 0.4rem 1rem;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-value.overdue { color: var(--accent-red); }
+        .stat-value.due-soon { color: var(--accent-amber); }
+        .stat-value.completed { color: var(--accent-green); }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.35rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .theme-icon-light { display: none; }
+        body.light-mode .theme-icon-dark { display: none; }
+        body.light-mode .theme-icon-light { display: inline; }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.6rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+
+        .profile-menu.active {
+            display: block;
+        }
+
+        .profile-menu-header {
+            padding: 0.75rem 1rem;
+        }
+
+        .profile-menu-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .profile-menu-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .profile-menu-divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0.25rem 0;
+        }
+
+        .profile-menu-item {
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .profile-menu-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .profile-menu-item.logout {
+            color: var(--accent-red);
+        }
+
+        /* Reassign dropdown */
+        .reassign-container {
+            position: relative;
+        }
+
+        .reassign-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            min-width: 240px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 100;
+            padding: 0.5rem;
+        }
+
+        .reassign-dropdown.active {
+            display: block;
+        }
+
+        .reassign-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 0.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .reassign-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.6rem 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .reassign-option:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .reassign-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .reassign-info {
+            flex: 1;
+        }
+
+        .reassign-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .reassign-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .reassign-status.available {
+            color: var(--accent-green);
+        }
+
+        .reassign-status.busy {
+            color: var(--accent-amber);
+        }
+
+        .reassign-status.away {
+            color: var(--text-muted);
+        }
+
+        /* Work History Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0.25rem;
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        .modal-filters {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .filter-btn {
+            padding: 0.4rem 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: white;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem 1.25rem;
+        }
+
+        .history-entry {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-dark);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .history-entry:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .history-entry-details {
+            display: none;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .history-entry.expanded .history-entry-details {
+            display: block;
+        }
+
+        .history-entry-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.35rem 0;
+        }
+
+        .history-entry-detail-label {
+            color: var(--text-muted);
+        }
+
+        .history-entry-detail-value {
+            color: var(--text-primary);
+        }
+
+        .history-entry-notes {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .history-entry-notes-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-entry-expand {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+
+        .history-entry.expanded .history-entry-expand {
+            transform: rotate(180deg);
+        }
+
+        .history-entry-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .history-entry-icon.reactive {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .history-entry-icon.preventive {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .history-entry-icon.proactive {
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        .history-entry-content {
+            flex: 1;
+        }
+
+        .history-entry-title {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .history-entry-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 1rem;
+        }
+
+        .history-entry-action {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .history-entry-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+            min-width: 80px;
+        }
+
+        .modal-stats {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            border-radius: 0 0 12px 12px;
+        }
+
+        .modal-stat {
+            flex: 1;
+            text-align: center;
+        }
+
+        .modal-stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .modal-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Native Toast/Notification */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 300;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.hiding {
+            animation: slideOut 0.2s ease-in forwards;
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .toast-close:hover {
+            color: var(--text-primary);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .toast.error .toast-title {
+            color: var(--accent-red);
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .toast.success .toast-title {
+            color: var(--accent-green);
+        }
+
+        .toast.warning {
+            border-left: 3px solid var(--accent-amber);
+        }
+
+        .toast.warning .toast-title {
+            color: var(--accent-amber);
+        }
+
+        .toast.info {
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .toast.info .toast-title {
+            color: var(--accent-blue);
+        }
+
+        /* Date input calendar icon color */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .profile-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .profile-arrow {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+
+        /* Main Layout */
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 340px 1fr 320px;
+            gap: 0;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* Left Panel - Queue */
+        .queue-panel {
+            background: var(--bg-card);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .queue-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .queue-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .queue-tabs {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .queue-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .queue-tab {
+            flex-shrink: 0;
+        }
+
+        .queue-tab {
+            padding: 0.4rem 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .queue-tab:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .queue-tab.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: white;
+        }
+
+        .queue-tab .count {
+            background: rgba(255,255,255,0.2);
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 0.35rem;
+        }
+
+        .queue-tab.active .count {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .queue-card {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid var(--border-color);
+        }
+
+        .queue-card:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .queue-card.active {
+            border-left-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        .queue-card.preventive {
+            border-left-color: var(--accent-blue);
+        }
+
+        .queue-card.reactive {
+            border-left-color: var(--accent-red);
+        }
+
+        .queue-card.proactive {
+            border-left-color: var(--accent-purple);
+        }
+
+        .maintenance-type.proactive {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .detail-badge.type-proactive {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .trend-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            color: var(--accent-purple);
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(168, 85, 247, 0.1);
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .queue-card.preventive.overdue {
+            border-left-color: var(--accent-amber);
+        }
+
+        .queue-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .equipment-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .equipment-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .maintenance-type {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .maintenance-type.preventive {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .maintenance-type.reactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .queue-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .due-date {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .due-date.overdue {
+            color: var(--accent-red);
+            font-weight: 500;
+        }
+
+        .due-date.due-soon {
+            color: var(--accent-amber);
+        }
+
+        .station-location {
+            color: var(--text-muted);
+        }
+
+        .andon-link-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            color: var(--accent-red);
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 4px;
+            width: fit-content;
+        }
+
+        .queue-card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .queue-card-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .queue-card-status.in-progress {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .queue-card-status.verification {
+            background: rgba(168, 85, 247, 0.2);
+            color: var(--accent-purple);
+        }
+
+        .queue-card-status.scheduled {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--accent-green);
+        }
+
+        .queue-card-assignee {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        /* Center Panel - Details */
+        .detail-panel {
+            background: var(--bg-dark);
+            overflow-y: auto;
+            padding: 1.5rem;
+            min-height: 0;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-title-section {
+            flex: 1;
+        }
+
+        .detail-equipment-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-equipment-id {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .detail-badge {
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .detail-badge.type-preventive {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .detail-badge.type-reactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--accent-red);
+        }
+
+        .detail-badge.status {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--accent-amber);
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .action-btn.primary {
+            background: var(--accent-cyan);
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            background: #0891b2;
+        }
+
+        .action-btn.secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .action-btn.secondary:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .action-btn.resolve-andon {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .action-btn.resolve-andon:hover {
+            background: #16a34a;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .detail-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Trend Section (Proactive) */
+        .trend-section {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid var(--accent-purple);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .trend-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .trend-section-title {
+            font-weight: 600;
+            color: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .trend-confidence {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(168, 85, 247, 0.2);
+            border-radius: 4px;
+            color: var(--accent-purple);
+        }
+
+        .trend-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+
+        .trend-data-points {
+            background: var(--bg-dark);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .trend-data-point {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.35rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        .trend-data-point:last-child {
+            border-bottom: none;
+        }
+
+        .trend-data-date {
+            color: var(--text-muted);
+            min-width: 90px;
+        }
+
+        .trend-data-value {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .trend-data-note {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+
+        .trend-prediction {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--accent-amber);
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .trend-prediction-label {
+            font-size: 0.75rem;
+            color: var(--accent-amber);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .trend-prediction-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .trend-recommendation {
+            background: rgba(34, 197, 94, 0.1);
+            border-left: 3px solid var(--accent-green);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .trend-recommendation-label {
+            font-size: 0.75rem;
+            color: var(--accent-green);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .trend-recommendation-text {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .trend-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        /* Andon Section */
+        .andon-section {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .andon-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .andon-section-title {
+            font-weight: 600;
+            color: var(--accent-red);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .andon-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .andon-detail-item {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .andon-detail-label {
+            color: var(--text-muted);
+        }
+
+        /* SOP Section */
+        .sop-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sop-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .sop-item:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .sop-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sop-icon {
+            font-size: 1.25rem;
+        }
+
+        .sop-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .sop-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .sop-open {
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+        }
+
+        /* Right Panel - History */
+        .history-panel {
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-color);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .history-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .history-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.75rem;
+        }
+
+        .history-item {
+            padding: 0.75rem;
+            border-left: 2px solid var(--border-color);
+            margin-left: 0.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0.85rem;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-color);
+        }
+
+        .history-item.calibration::before {
+            background: var(--accent-blue);
+        }
+
+        .history-item.repair::before {
+            background: var(--accent-amber);
+        }
+
+        .history-item.replacement::before {
+            background: var(--accent-purple);
+        }
+
+        .history-item.inspection::before {
+            background: var(--accent-green);
+        }
+
+        .history-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-action {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .history-tech {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .history-notes {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.35rem;
+            padding-left: 0.5rem;
+            border-left: 2px solid var(--border-color);
+        }
+
+        /* Completion Form */
+        .completion-form {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .completion-form.active {
+            display: block;
+        }
+
+        .form-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-row {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.35rem;
+            display: block;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-row-inline {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-row input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-cyan);
+        }
+
+        .checkbox-row label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Empty state */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="header-title">
+                <span>🔧</span>
+                EQUIPMENT MAINTENANCE
+            </div>
+            <div class="site-code">ATX-01</div>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-item">
+                <span class="stat-value overdue">3</span>
+                <span class="stat-label">Overdue</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value due-soon">7</span>
+                <span class="stat-label">Due This Week</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-value completed">12</span>
+                <span class="stat-label">Completed (MTD)</span>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+                <span class="theme-icon-dark">🌙</span>
+                <span class="theme-icon-light">☀️</span>
+            </button>
+            <div class="user-profile" onclick="toggleProfileMenu()">
+                <div class="profile-avatar">NG</div>
+                <span class="profile-name">Nina G.</span>
+                <span class="profile-arrow">▼</span>
+                <div class="profile-menu" id="profileMenu">
+                    <div class="profile-menu-header">
+                        <div class="profile-menu-name">Nina Garcia</div>
+                        <div class="profile-menu-role">Equipment Technician</div>
+                    </div>
+                    <div class="profile-menu-divider"></div>
+                    <div class="profile-menu-item" onclick="showMyHistory()">
+                        <span>📋</span> My Work History
+                    </div>
+                    <div class="profile-menu-item">
+                        <span>⚙️</span> Settings
+                    </div>
+                    <div class="profile-menu-item">
+                        <span>🔔</span> Notifications
+                    </div>
+                    <div class="profile-menu-divider"></div>
+                    <div class="profile-menu-item">
+                        <span>❓</span> Help & Support
+                    </div>
+                    <div class="profile-menu-item logout">
+                        <span>🚪</span> Sign Out
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Left Panel - Queue -->
+        <div class="queue-panel">
+            <div class="queue-header">
+                <div class="queue-title">Maintenance Queue</div>
+                <div class="queue-tabs">
+                    <div class="queue-tab active" onclick="filterQueue('all')">All<span class="count">8</span></div>
+                    <div class="queue-tab" onclick="filterQueue('reactive')">Reactive<span class="count">2</span></div>
+                    <div class="queue-tab" onclick="filterQueue('proactive')">Proactive<span class="count">2</span></div>
+                    <div class="queue-tab" onclick="filterQueue('preventive')">Preventive<span class="count">11</span></div>
+                </div>
+            </div>
+            <div class="queue-list">
+                <!-- Reactive - From Andon -->
+                <div class="queue-card reactive active" onclick="selectEquipment('torque-001')" data-type="reactive" data-id="torque-001">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Torque Wrench TW-2847</div>
+                            <div class="equipment-id">EQ-TW-001</div>
+                        </div>
+                        <span class="maintenance-type reactive">REACTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date overdue">⚠ Andon Open 2h 34m</span>
+                        <span class="station-location">Station 3</span>
+                    </div>
+                    <div class="andon-link-badge">
+                        <span>🚨</span> Linked to ANDON-4521
+                    </div>
+                    <div class="queue-card-status in-progress" id="status-torque-001">🔧 In Progress</div>
+                </div>
+
+                <!-- Reactive -->
+                <div class="queue-card reactive" onclick="selectEquipment('welder-003')" data-type="reactive" data-id="welder-003">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Ultrasonic Welder UW-1142</div>
+                            <div class="equipment-id">EQ-UW-003</div>
+                        </div>
+                        <span class="maintenance-type reactive">REACTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date overdue">⚠ Andon Open 45m</span>
+                        <span class="station-location">Station 5</span>
+                    </div>
+                    <div class="andon-link-badge">
+                        <span>🚨</span> Linked to ANDON-4528
+                    </div>
+                    <div class="queue-card-status pending" id="status-welder-003">⏳ Pending</div>
+                </div>
+
+                <!-- Proactive - Scheduled from Ops Dashboard -->
+                <div class="queue-card proactive" onclick="selectEquipment('welder-007')" data-type="proactive" data-id="welder-007">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Ultrasonic Welder UW-1188</div>
+                            <div class="equipment-id">EQ-UW-007</div>
+                        </div>
+                        <span class="maintenance-type proactive">PROACTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date" id="due-welder-007">📅 May 12</span>
+                        <span class="station-location">Station 2B</span>
+                    </div>
+                    <div class="trend-indicator" id="trend-welder-007">
+                        <span>📈</span> Cal drift: 3 consecutive readings near limit
+                    </div>
+                    <div class="queue-card-status scheduled" id="status-welder-007">📅 Scheduled</div>
+                    <div class="queue-card-assignee" id="assignee-welder-007">👤 Nina Garcia</div>
+                </div>
+
+                <div class="queue-card proactive" onclick="selectEquipment('press-003')" data-type="proactive" data-id="press-003">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Hydraulic Press HP-215</div>
+                            <div class="equipment-id">EQ-HP-003</div>
+                        </div>
+                        <span class="maintenance-type proactive">PROACTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date" id="due-press-003">📅 May 14</span>
+                        <span class="station-location">Station 4A</span>
+                    </div>
+                    <div class="trend-indicator" id="trend-press-003">
+                        <span>🔄</span> 9,200 / 10,000 cycle limit reached
+                    </div>
+                    <div class="queue-card-status scheduled" id="status-press-003">📅 Scheduled</div>
+                    <div class="queue-card-assignee" id="assignee-press-003">👤 Nina Garcia</div>
+                </div>
+
+                <!-- Preventive - Overdue -->
+                <div class="queue-card preventive overdue" onclick="selectEquipment('scope-002')" data-type="preventive" data-id="scope-002">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Digital Microscope DM-445</div>
+                            <div class="equipment-id">EQ-DM-002</div>
+                        </div>
+                        <span class="maintenance-type preventive">PREVENTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date overdue">⚠ Overdue 3 days</span>
+                        <span class="station-location">QC Area</span>
+                    </div>
+                    <div class="queue-card-status pending" id="status-scope-002">⏳ Pending</div>
+                </div>
+
+                <!-- Preventive - Due Soon -->
+                <div class="queue-card preventive" onclick="selectEquipment('press-001')" data-type="preventive" data-id="press-001">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Hydraulic Press HP-200</div>
+                            <div class="equipment-id">EQ-HP-001</div>
+                        </div>
+                        <span class="maintenance-type preventive">PREVENTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date due-soon">📅 Due Tomorrow</span>
+                        <span class="station-location">Station 2A</span>
+                    </div>
+                    <div class="queue-card-status pending" id="status-press-001">⏳ Pending</div>
+                </div>
+
+                <!-- More Preventive -->
+                <div class="queue-card preventive" onclick="selectEquipment('meter-004')" data-type="preventive" data-id="meter-004">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Multimeter MM-7721</div>
+                            <div class="equipment-id">EQ-MM-004</div>
+                        </div>
+                        <span class="maintenance-type preventive">PREVENTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date">📅 Due May 15</span>
+                        <span class="station-location">Station 4</span>
+                    </div>
+                    <div class="queue-card-status pending" id="status-meter-004">⏳ Pending</div>
+                </div>
+
+                <div class="queue-card preventive" onclick="selectEquipment('caliper-006')" data-type="preventive" data-id="caliper-006">
+                    <div class="queue-card-header">
+                        <div>
+                            <div class="equipment-name">Digital Caliper DC-1150</div>
+                            <div class="equipment-id">EQ-DC-006</div>
+                        </div>
+                        <span class="maintenance-type preventive">PREVENTIVE</span>
+                    </div>
+                    <div class="queue-card-meta">
+                        <span class="due-date">📅 Due May 16</span>
+                        <span class="station-location">Station 1</span>
+                    </div>
+                    <div class="queue-card-status pending" id="status-caliper-006">⏳ Pending</div>
+                </div>
+
+                            </div>
+        </div>
+
+        <!-- Center Panel - Details -->
+        <div class="detail-panel">
+            <div class="detail-header">
+                <div class="detail-title-section">
+                    <div class="detail-equipment-name" id="detailName">Torque Wrench TW-2847</div>
+                    <div class="detail-equipment-id" id="detailId">EQ-TW-001 • Station 3 - RF Assembly</div>
+                    <div class="detail-badges">
+                        <span class="detail-badge type-reactive" id="detailTypeBadge">🔴 Reactive Maintenance</span>
+                        <span class="detail-badge status" id="detailStatusBadge">⏳ In Progress</span>
+                    </div>
+                </div>
+                <div class="detail-actions" id="detailActions">
+                    <div class="reassign-container">
+                        <button class="action-btn secondary" onclick="toggleReassign()">↻ Reassign</button>
+                        <div class="reassign-dropdown" id="reassignDropdown">
+                            <div class="reassign-title">Reassign to:</div>
+                            <div class="reassign-option" onclick="reassignTo('Tom Bradley')">
+                                <div class="reassign-avatar" style="background: linear-gradient(135deg, #22c55e, #16a34a);">TB</div>
+                                <div class="reassign-info">
+                                    <div class="reassign-name">Tom Bradley</div>
+                                    <div class="reassign-status available">Available • 2 items</div>
+                                </div>
+                            </div>
+                            <div class="reassign-option" onclick="reassignTo('Sarah Kim')">
+                                <div class="reassign-avatar" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">SK</div>
+                                <div class="reassign-info">
+                                    <div class="reassign-name">Sarah Kim</div>
+                                    <div class="reassign-status available">Available • 1 item</div>
+                                </div>
+                            </div>
+                            <div class="reassign-option" onclick="reassignTo('Mike Chen')">
+                                <div class="reassign-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">MC</div>
+                                <div class="reassign-info">
+                                    <div class="reassign-name">Mike Chen</div>
+                                    <div class="reassign-status busy">Busy • 4 items</div>
+                                </div>
+                            </div>
+                            <div class="reassign-option" onclick="reassignTo('Lisa Park')">
+                                <div class="reassign-avatar" style="background: linear-gradient(135deg, #a855f7, #9333ea);">LP</div>
+                                <div class="reassign-info">
+                                    <div class="reassign-name">Lisa Park</div>
+                                    <div class="reassign-status away">Away until 2pm</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Section (only for proactive) -->
+            <div class="trend-section" id="trendSection" style="display: none;">
+                <div class="trend-section-header">
+                    <div class="trend-section-title">
+                        <span>📊</span> <span id="trendTitle">Trend Analysis</span>
+                    </div>
+                    <span class="trend-confidence" id="trendConfidence">87% Confidence</span>
+                </div>
+                <div class="trend-description" id="trendDescription"></div>
+                <div class="trend-data-points" id="trendDataPoints">
+                    <!-- Data points rendered here -->
+                </div>
+                <div class="trend-prediction">
+                    <div class="trend-prediction-label">⚠️ Prediction</div>
+                    <div class="trend-prediction-text" id="trendPrediction"></div>
+                </div>
+                <div class="trend-recommendation">
+                    <div class="trend-recommendation-label">✓ Recommendation</div>
+                    <div class="trend-recommendation-text" id="trendRecommendation"></div>
+                </div>
+            </div>
+
+            <!-- Preventive Maintenance Section -->
+            <div class="preventive-section" id="preventiveSection" style="display: none; margin-bottom: 1rem;">
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--accent-blue); border-radius: 10px; padding: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="font-weight: 600; color: var(--accent-blue); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>🔵</span> Scheduled Preventive Maintenance
+                        </div>
+                        <span id="preventiveDue" style="font-size: 0.85rem; color: var(--text-secondary);"></span>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Notes (optional)</label>
+                        <textarea id="preventiveNotes" placeholder="Observations, measurements, parts used..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 60px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Photo (optional)</label>
+                        <input type="file" id="preventivePhoto" accept="image/*" style="width: 100%; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.8rem;">
+                    </div>
+                    <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px;">
+                        <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="preventiveFlagNC" onchange="togglePreventiveNCNotes()" style="width: 18px; height: 18px; accent-color: var(--accent-red); margin-top: 2px;">
+                            <div>
+                                <span style="font-size: 0.85rem; color: var(--accent-red); font-weight: 500;">Flag for NC Review</span>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Check if equipment issue may have affected product quality</div>
+                            </div>
+                        </label>
+                        <textarea id="preventiveNCNotes" placeholder="Describe potential product impact..." style="display: none; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 40px; margin-top: 0.5rem;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 0.75rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Technician Signature</label>
+                        <input type="text" id="preventiveSignature" value="Nina Garcia" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
+                    </div>
+                    <button class="action-btn primary" onclick="completePreventive()" style="width: 100%;">✓ Mark Complete</button>
+                </div>
+            </div>
+
+            <!-- Andon Section (only for reactive) -->
+            <div class="andon-section" id="andonSection">
+                <div class="andon-section-header">
+                    <div class="andon-section-title">
+                        <span>🚨</span> Linked Andon - <span id="andonId">ANDON-4521</span>
+                    </div>
+                    <span id="andonDuration" style="color: var(--accent-amber); font-size: 0.85rem;">Open 2h 34m</span>
+                </div>
+                <div class="andon-details">
+                    <div class="andon-detail-item">
+                        <span class="andon-detail-label">Pulled By:</span>
+                        <span id="andonPulledBy">Isabella J. @ 10:42 AM</span>
+                    </div>
+                    <div class="andon-detail-item">
+                        <span class="andon-detail-label">Station:</span>
+                        <span id="andonStation">Station 3 - RF Assembly</span>
+                    </div>
+                    <div class="andon-detail-item">
+                        <span class="andon-detail-label">Issue Type:</span>
+                        <span id="andonIssueType">Equipment</span>
+                    </div>
+                    <div class="andon-detail-item">
+                        <span class="andon-detail-label">WO Affected:</span>
+                        <span id="andonWO">WO-2024-0847</span>
+                    </div>
+                </div>
+                <div class="andon-operator-note" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3);">
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">Operator Note:</div>
+                    <div id="andonOperatorNote" style="font-size: 0.9rem; font-style: italic; color: var(--text-secondary);">"Torque wrench clicking but not holding torque..."</div>
+                </div>
+                <!-- Workflow Steps -->
+                <div class="andon-workflow" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3);">
+
+                    <!-- Step 1: Diagnosis -->
+                    <div class="workflow-step" id="stepDiagnosis">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Step 1: Diagnosis</span>
+                            <span id="diagnosisStatus" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(245, 158, 11, 0.2); color: var(--accent-amber);">Pending</span>
+                        </div>
+                        <div id="diagnosisDisplay" style="font-size: 0.9rem; color: var(--text-primary); display: none; align-items: center; gap: 0.5rem;">
+                            <span id="diagnosisContent" style="flex: 1;"></span>
+                            <button onclick="editDiagnosis()" style="padding: 0.2rem 0.5rem; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; white-space: nowrap;">Edit</button>
+                        </div>
+                        <div id="diagnosisInput" style="display: block;">
+                            <textarea id="diagnosisText" placeholder="Enter diagnosis after inspection..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 60px;"></textarea>
+                            <button class="action-btn primary" onclick="saveDiagnosis()" style="width: 100%; margin-top: 0.5rem;">Save Diagnosis & Start Repair</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Maintenance Work -->
+                    <div class="workflow-step" id="stepMaintenance" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Step 2: Maintenance Work</span>
+                            <span id="maintenanceStatus" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(59, 130, 246, 0.2); color: var(--accent-blue);">In Progress</span>
+                        </div>
+                        <div id="maintenanceInput">
+                            <div style="margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Action Performed:</label>
+                                <select id="maintenanceAction" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
+                                    <option value="">Select action...</option>
+                                    <option value="calibration">Calibration Adjustment</option>
+                                    <option value="repair">Repair</option>
+                                    <option value="parts">Parts Replacement</option>
+                                    <option value="cleaning">Cleaning / Preventive</option>
+                                    <option value="software">Software/Firmware Update</option>
+                                    <option value="adjustment">Mechanical Adjustment</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div style="margin-bottom: 0.5rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Work Details:</label>
+                                <textarea id="maintenanceDetails" placeholder="Describe work performed, parts used, settings adjusted..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 80px;"></textarea>
+                            </div>
+                            <button class="action-btn primary" onclick="completeMaintenanceWork()" style="width: 100%;">Complete Work & Proceed to Verification</button>
+                        </div>
+                        <div id="maintenanceDisplay" style="display: none;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                <strong id="maintenanceActionDisplay" style="flex: 1; font-size: 0.85rem;"></strong>
+                                <button onclick="editMaintenance()" style="padding: 0.2rem 0.5rem; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; white-space: nowrap;">Edit</button>
+                            </div>
+                            <div id="maintenanceDetailsDisplay" style="font-size: 0.85rem; color: var(--text-secondary);"></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Verification -->
+                    <div class="workflow-step" id="stepVerification" style="display: none; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.2);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">Step 3: Verify Equipment</span>
+                            <span id="verificationStatus" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(168, 85, 247, 0.2); color: var(--accent-purple);">Pending Test</span>
+                        </div>
+                        <div id="verificationInput">
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="verifyFunctional" style="width: 18px; height: 18px; accent-color: var(--accent-green);">
+                                    <span style="font-size: 0.85rem;">Equipment is functional and operating within spec</span>
+                                </label>
+                            </div>
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Verification Notes (optional):</label>
+                                <textarea id="verificationNotes" placeholder="Test results, measurements, observations..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 50px;"></textarea>
+                            </div>
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Photo (optional):</label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <input type="file" id="verificationPhoto" accept="image/*" style="flex: 1; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.8rem;">
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px;">
+                                <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" id="flagForNC" onchange="toggleNCNotes()" style="width: 18px; height: 18px; accent-color: var(--accent-red); margin-top: 2px;">
+                                    <div>
+                                        <span style="font-size: 0.85rem; color: var(--accent-red); font-weight: 500;">Flag for NC Review</span>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Check if equipment issue may have affected product quality</div>
+                                    </div>
+                                </label>
+                                <textarea id="ncNotes" placeholder="Describe potential product impact..." style="display: none; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 40px; margin-top: 0.5rem;"></textarea>
+                            </div>
+                            <div style="margin-bottom: 0.75rem;">
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Technician Signature:</label>
+                                <input type="text" id="techSignature" value="Nina Garcia" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
+                            </div>
+                            <button class="action-btn resolve-andon" onclick="completeVerification()" style="width: 100%;">✓ Verify & Resolve Andon</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <div class="detail-card-title">📋 Equipment Info</div>
+                    <div class="detail-row">
+                        <span class="detail-label">Manufacturer</span>
+                        <span class="detail-value" id="eqManufacturer">Snap-on Industrial</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Model</span>
+                        <span class="detail-value" id="eqModel">QDRIVER4-250</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Serial Number</span>
+                        <span class="detail-value" id="eqSerial">SN-TW-2847-X</span>
+                    </div>
+                    <div id="eqSpecs">
+                        <div class="detail-row">
+                            <span class="detail-label">Range</span>
+                            <span class="detail-value">5-250 in-lb</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Accuracy</span>
+                            <span class="detail-value">±2% CW / ±3% CCW</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">📅 Service Status</div>
+                    <div class="detail-row">
+                        <span class="detail-label">Last Service</span>
+                        <span class="detail-value" id="serviceLast">2026-02-15</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Next PM Due</span>
+                        <span class="detail-value" id="serviceNext">2026-08-15</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">PM Interval</span>
+                        <span class="detail-value" id="serviceInterval">6 months</span>
+                    </div>
+                    <div class="detail-row" id="calRequiredRow">
+                        <span class="detail-label">Requires Calibration</span>
+                        <span class="detail-value" id="serviceRequiresCal" style="color: var(--accent-green);">Yes</span>
+                    </div>
+                </div>
+
+                <div class="detail-card full-width">
+                    <div class="detail-card-title">📄 Procedures / SOPs</div>
+                    <div class="sop-list" id="sopList">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Panel - History -->
+        <div class="history-panel">
+            <div class="history-header">
+                <div class="history-title">Equipment History</div>
+            </div>
+            <div class="history-list" id="historyList">
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Work History Modal -->
+    <div class="modal-overlay" id="historyModal" onclick="closeHistoryModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title">📋 My Work History</div>
+                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
+            </div>
+            <div class="modal-filters">
+                <button class="filter-btn active" onclick="filterHistory('today')">Today</button>
+                <button class="filter-btn" onclick="filterHistory('week')">This Week</button>
+                <button class="filter-btn" onclick="filterHistory('month')">This Month</button>
+                <button class="filter-btn" onclick="filterHistory('all')">All Time</button>
+            </div>
+            <div class="modal-body" id="historyModalBody">
+                <!-- History entries populated by JS -->
+            </div>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <div class="modal-stat-value" id="statCompleted">3</div>
+                    <div class="modal-stat-label">Completed</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-value" id="statAvgTime">42m</div>
+                    <div class="modal-stat-label">Avg Time</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-value" id="statReactive">2</div>
+                    <div class="modal-stat-label">Reactive</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-value" id="statPreventive">1</div>
+                    <div class="modal-stat-label">Preventive</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toast notification system
+        function showToast(type, title, message, duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                error: '⚠️',
+                success: '✓',
+                warning: '⚡',
+                info: 'ℹ️'
+            };
+
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${message ? `<div class="toast-message">${message}</div>` : ''}
+                </div>
+                <button class="toast-close" onclick="closeToast(this)">&times;</button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto dismiss
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.classList.add('hiding');
+                    setTimeout(() => toast.remove(), 200);
+                }
+            }, duration);
+        }
+
+        function closeToast(btn) {
+            const toast = btn.closest('.toast');
+            toast.classList.add('hiding');
+            setTimeout(() => toast.remove(), 200);
+        }
+
+        // Equipment database
+        const equipmentData = {
+            'torque-001': {
+                name: 'Torque Wrench TW-2847',
+                id: 'EQ-TW-001',
+                location: 'Station 3 - RF Assembly',
+                type: 'reactive',
+                status: 'In Progress',
+                manufacturer: 'Snap-on Industrial',
+                model: 'QDRIVER4-250',
+                serial: 'SN-TW-2847-X',
+                specs: { range: '5-250 in-lb', accuracy: '±2% CW / ±3% CCW' },
+                calibration: {
+                    last: '2026-02-15',
+                    next: '2026-08-15',
+                    interval: '6 months',
+                    provider: 'Tektronix (External)',
+                    certificate: 'CAL-2026-0215'
+                },
+                andon: {
+                    id: 'ANDON-4521',
+                    duration: '2h 34m',
+                    pulledBy: 'Isabella J.',
+                    pulledAt: '10:42 AM',
+                    station: 'Station 3 - RF Assembly',
+                    issueType: 'Calibration Required',
+                    woAffected: 'WO-2024-0847',
+                    operatorNote: 'Torque wrench clicking but not holding torque. Tried recalibrating per SOP but still getting inconsistent readings.',
+                    diagnosis: 'Internal ratchet mechanism worn. Needs adjustment per SOP-EQ-TW-002.'
+                },
+                service: {
+                    lastPM: '2026-02-15',
+                    nextPM: '2026-08-15',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Torque Wrench Calibration Verification', id: 'SOP-EQ-TW-001', rev: '4.2' },
+                    { name: 'Torque Wrench Field Adjustment', id: 'SOP-EQ-TW-002', rev: '2.1' },
+                    { name: 'Equipment Return to Service Checklist', id: 'SOP-EQ-GEN-010', rev: '1.5' }
+                ],
+                history: [
+                    { date: 'Today, 11:15 AM', action: 'Maintenance Started', tech: 'Nina Garcia', type: 'repair', notes: 'Andon reported torque readings out of spec. Beginning verification.' },
+                    { date: 'Feb 15, 2026', action: 'Calibration - Pass', tech: 'External: Tektronix', type: 'calibration', notes: 'Full calibration per ISO 6789. All checkpoints within ±2%.' },
+                    { date: 'Nov 10, 2025', action: 'Preventive Inspection', tech: 'Tom Bradley', type: 'inspection', notes: 'Visual inspection, battery check, cleaned contacts.' },
+                    { date: 'Aug 15, 2025', action: 'Calibration - Pass', tech: 'External: Tektronix', type: 'calibration' },
+                    { date: 'May 22, 2025', action: 'Repair - Battery Replaced', tech: 'Nina Garcia', type: 'repair', notes: 'Replaced internal battery. Verified operation.' },
+                    { date: 'Jan 5, 2025', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'welder-003': {
+                name: 'Ultrasonic Welder UW-1142',
+                id: 'EQ-UW-003',
+                location: 'Station 5 - Cable Assembly',
+                type: 'reactive',
+                status: 'Pending',
+                manufacturer: 'Branson Ultrasonics',
+                model: 'UW-2000X',
+                serial: 'SN-UW-1142-B',
+                specs: { frequency: '20 kHz', power: '2000W max' },
+                calibration: {
+                    last: '2026-03-01',
+                    next: '2026-09-01',
+                    interval: '6 months',
+                    provider: 'In-House',
+                    certificate: 'CAL-2026-0301'
+                },
+                andon: {
+                    id: 'ANDON-4528',
+                    duration: '45m',
+                    pulledBy: 'Marcus T.',
+                    pulledAt: '12:31 PM',
+                    station: 'Station 5 - Cable Assembly',
+                    issueType: 'Equipment Failure',
+                    woAffected: 'WO-2024-0852',
+                    operatorNote: 'Welds failing pull test on last 3 units. Machine sounds different than usual.',
+                    diagnosis: ''
+                },
+                service: {
+                    lastPM: '2026-03-01',
+                    nextPM: '2026-09-01',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Ultrasonic Welder Power Calibration', id: 'SOP-EQ-UW-001', rev: '3.0' },
+                    { name: 'Weld Horn Inspection & Replacement', id: 'SOP-EQ-UW-002', rev: '2.2' },
+                    { name: 'Ultrasonic Welder Troubleshooting Guide', id: 'SOP-EQ-UW-003', rev: '1.8' }
+                ],
+                history: [
+                    { date: 'Today, 12:31 PM', action: 'Andon Created', tech: 'Marcus T.', type: 'repair', notes: 'Weld strength test failures on 3 consecutive units. Pulled for inspection.' },
+                    { date: 'Mar 1, 2026', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration', notes: 'Power output verified at all levels.' },
+                    { date: 'Dec 15, 2025', action: 'Horn Replacement', tech: 'Nina Garcia', type: 'replacement', notes: 'Replaced weld horn due to wear. New horn SN: WH-4421.' },
+                    { date: 'Sep 1, 2025', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration' },
+                    { date: 'Jun 10, 2025', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'scope-002': {
+                name: 'Digital Microscope DM-445',
+                id: 'EQ-DM-002',
+                location: 'QC Area - Inspection Station',
+                type: 'preventive',
+                status: 'Overdue',
+                manufacturer: 'Keyence',
+                model: 'VHX-7000',
+                serial: 'SN-DM-445-K',
+                specs: { magnification: '20x-2000x', resolution: '4K' },
+                calibration: {
+                    last: '2025-11-08',
+                    next: '2026-05-08',
+                    interval: '6 months',
+                    provider: 'Keyence Service (External)',
+                    certificate: 'CAL-2025-1108'
+                },
+                andon: null,
+                service: {
+                    lastPM: '2025-11-08',
+                    nextPM: '2026-05-08',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Microscope Calibration Procedure', id: 'SOP-EQ-DM-001', rev: '2.5' },
+                    { name: 'Microscope Lens Cleaning', id: 'SOP-EQ-DM-002', rev: '1.3' },
+                    { name: 'Measurement Verification Checklist', id: 'SOP-EQ-DM-003', rev: '1.1' }
+                ],
+                history: [
+                    { date: 'Nov 8, 2025', action: 'Calibration - Pass', tech: 'External: Keyence', type: 'calibration', notes: 'Full calibration with measurement verification. All parameters within spec.' },
+                    { date: 'Aug 20, 2025', action: 'Lens Cleaning', tech: 'Sarah Kim', type: 'inspection', notes: 'Scheduled cleaning of objective lenses.' },
+                    { date: 'May 8, 2025', action: 'Calibration - Pass', tech: 'External: Keyence', type: 'calibration' },
+                    { date: 'Feb 1, 2025', action: 'Software Update', tech: 'IT Support', type: 'repair', notes: 'Updated to firmware v4.2.1' },
+                    { date: 'Nov 8, 2024', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'press-001': {
+                name: 'Hydraulic Press HP-200',
+                id: 'EQ-HP-001',
+                location: 'Station 2A - Mechanical Assembly',
+                type: 'preventive',
+                status: 'Scheduled',
+                manufacturer: 'Dake Corporation',
+                model: 'Force 200',
+                serial: 'SN-HP-200-D',
+                specs: { capacity: '200 ton', stroke: '12 inches' },
+                calibration: {
+                    last: '2025-11-12',
+                    next: '2026-05-12',
+                    interval: '6 months',
+                    provider: 'In-House',
+                    certificate: 'CAL-2025-1112'
+                },
+                andon: null,
+                service: {
+                    lastPM: '2025-11-12',
+                    nextPM: '2026-05-12',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Hydraulic Press Force Calibration', id: 'SOP-EQ-HP-001', rev: '3.1' },
+                    { name: 'Hydraulic System Inspection', id: 'SOP-EQ-HP-002', rev: '2.0' },
+                    { name: 'Press Safety Checklist', id: 'SOP-EQ-HP-003', rev: '4.0' }
+                ],
+                history: [
+                    { date: 'Nov 12, 2025', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration', notes: 'Force output verified at 50, 100, 150, 200 ton. All within ±1%.' },
+                    { date: 'Sep 5, 2025', action: 'Hydraulic Fluid Change', tech: 'Tom Bradley', type: 'inspection', notes: 'Scheduled fluid replacement. Filter also replaced.' },
+                    { date: 'May 12, 2025', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration' },
+                    { date: 'Jan 20, 2025', action: 'Seal Replacement', tech: 'External: Dake Service', type: 'repair', notes: 'Replaced main cylinder seals due to minor leak.' },
+                    { date: 'Nov 12, 2024', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'meter-004': {
+                name: 'Multimeter MM-7721',
+                id: 'EQ-MM-004',
+                location: 'Station 4 - Electronics Test',
+                type: 'preventive',
+                status: 'Scheduled',
+                manufacturer: 'Fluke',
+                model: '87V MAX',
+                serial: 'SN-MM-7721-F',
+                specs: { dcVoltage: '0.1mV - 1000V', accuracy: '±0.05%' },
+                calibration: {
+                    last: '2025-11-15',
+                    next: '2026-05-15',
+                    interval: '6 months',
+                    provider: 'Fluke Service (External)',
+                    certificate: 'CAL-2025-1115'
+                },
+                andon: null,
+                service: {
+                    lastPM: '2025-11-15',
+                    nextPM: '2026-05-15',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Multimeter Calibration Verification', id: 'SOP-EQ-MM-001', rev: '2.3' },
+                    { name: 'Probe Inspection & Replacement', id: 'SOP-EQ-MM-002', rev: '1.5' }
+                ],
+                history: [
+                    { date: 'Nov 15, 2025', action: 'Calibration - Pass', tech: 'External: Fluke', type: 'calibration', notes: 'Full calibration across all ranges.' },
+                    { date: 'Aug 1, 2025', action: 'Probe Replacement', tech: 'Nina Garcia', type: 'replacement', notes: 'Replaced test leads due to wear on insulation.' },
+                    { date: 'May 15, 2025', action: 'Calibration - Pass', tech: 'External: Fluke', type: 'calibration' },
+                    { date: 'Nov 15, 2024', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'caliper-006': {
+                name: 'Digital Caliper DC-1150',
+                id: 'EQ-DC-006',
+                location: 'Station 1 - Incoming QC',
+                type: 'preventive',
+                status: 'Scheduled',
+                manufacturer: 'Mitutoyo',
+                model: 'Absolute Digimatic',
+                serial: 'SN-DC-1150-M',
+                specs: { range: '0-6 inches', resolution: '0.0005"' },
+                calibration: {
+                    last: '2025-11-16',
+                    next: '2026-05-16',
+                    interval: '6 months',
+                    provider: 'In-House',
+                    certificate: 'CAL-2025-1116'
+                },
+                andon: null,
+                service: {
+                    lastPM: '2025-11-16',
+                    nextPM: '2026-05-16',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Caliper Calibration Procedure', id: 'SOP-EQ-DC-001', rev: '3.2' },
+                    { name: 'Gauge Block Verification', id: 'SOP-EQ-DC-002', rev: '1.4' }
+                ],
+                history: [
+                    { date: 'Nov 16, 2025', action: 'Calibration - Pass', tech: 'Sarah Kim', type: 'calibration', notes: 'Verified against gauge blocks at 1", 2", 4", 6". All within spec.' },
+                    { date: 'May 16, 2025', action: 'Calibration - Pass', tech: 'Sarah Kim', type: 'calibration' },
+                    { date: 'Feb 10, 2025', action: 'Battery Replaced', tech: 'Nina Garcia', type: 'repair', notes: 'Replaced SR44 battery.' },
+                    { date: 'Nov 16, 2024', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'welder-007': {
+                name: 'Ultrasonic Welder UW-1188',
+                id: 'EQ-UW-007',
+                location: 'Station 2B - Harness Assembly',
+                type: 'proactive',
+                status: 'Scheduled',
+                scheduledDate: '2026-05-12',
+                assignee: 'Nina Garcia',
+                manufacturer: 'Branson Ultrasonics',
+                model: 'UW-2000X',
+                serial: 'SN-UW-1188-B',
+                specs: { frequency: '20 kHz', power: '2000W max' },
+                calibration: {
+                    last: '2026-04-01',
+                    next: '2026-10-01',
+                    interval: '6 months',
+                    provider: 'In-House',
+                    certificate: 'CAL-2026-0401'
+                },
+                andon: null,
+                trend: {
+                    type: 'calibration_drift',
+                    title: 'Calibration Drift Detected',
+                    description: 'Last 3 calibration verification checks show power output trending toward lower tolerance limit.',
+                    dataPoints: [
+                        { date: '2026-03-15', value: '1980W', note: 'Within spec' },
+                        { date: '2026-04-15', value: '1945W', note: 'Within spec, slight decrease' },
+                        { date: '2026-05-08', value: '1912W', note: 'Approaching lower limit (1900W)' }
+                    ],
+                    prediction: 'Based on current trend, equipment may fall out of spec within 2-3 weeks.',
+                    recommendation: 'Schedule preventive recalibration before next production run.',
+                    confidence: '87%',
+                    acknowledged: true
+                },
+                service: {
+                    lastPM: '2026-04-01',
+                    nextPM: '2026-10-01',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Ultrasonic Welder Power Calibration', id: 'SOP-EQ-UW-001', rev: '3.0' },
+                    { name: 'Weld Horn Inspection & Replacement', id: 'SOP-EQ-UW-002', rev: '2.2' }
+                ],
+                history: [
+                    { date: 'May 8, 2026', action: 'Verification Check', tech: 'Nina Garcia', type: 'inspection', notes: 'Power output 1912W - approaching lower limit. Flagged for proactive review.' },
+                    { date: 'Apr 15, 2026', action: 'Verification Check', tech: 'Tom Bradley', type: 'inspection', notes: 'Power output 1945W - within spec.' },
+                    { date: 'Apr 1, 2026', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration', notes: 'Full calibration. Power output verified at 1980W.' },
+                    { date: 'Mar 15, 2026', action: 'Verification Check', tech: 'Nina Garcia', type: 'inspection', notes: 'Power output 1980W - nominal.' },
+                    { date: 'Oct 1, 2025', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'press-003': {
+                name: 'Hydraulic Press HP-215',
+                id: 'EQ-HP-003',
+                location: 'Station 4A - Structural Assembly',
+                type: 'proactive',
+                status: 'Scheduled',
+                scheduledDate: '2026-05-14',
+                assignee: 'Nina Garcia',
+                manufacturer: 'Dake Corporation',
+                model: 'Force 200',
+                serial: 'SN-HP-215-D',
+                specs: { capacity: '200 ton', stroke: '12 inches', cycleCount: '9,200' },
+                calibration: {
+                    last: '2026-03-20',
+                    next: '2026-09-20',
+                    interval: '6 months',
+                    provider: 'In-House',
+                    certificate: 'CAL-2026-0320'
+                },
+                andon: null,
+                trend: {
+                    type: 'cycle_limit',
+                    title: 'Approaching Cycle Limit',
+                    description: 'Equipment has completed 9,200 of 10,000 recommended cycles before major service.',
+                    dataPoints: [
+                        { date: '2026-01-01', value: '7,500 cycles', note: 'Normal operation' },
+                        { date: '2026-03-01', value: '8,400 cycles', note: 'High utilization period' },
+                        { date: '2026-05-10', value: '9,200 cycles', note: '92% of limit' }
+                    ],
+                    prediction: 'At current rate (~400 cycles/month), will reach 10,000 cycle limit by end of June.',
+                    recommendation: 'Schedule seal inspection and hydraulic fluid analysis before reaching limit.',
+                    confidence: '94%',
+                    acknowledged: true
+                },
+                service: {
+                    lastPM: '2026-03-20',
+                    nextPM: '2026-09-20',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Hydraulic Press Force Calibration', id: 'SOP-EQ-HP-001', rev: '3.1' },
+                    { name: 'Hydraulic System Inspection', id: 'SOP-EQ-HP-002', rev: '2.0' },
+                    { name: 'Press Major Service Procedure', id: 'SOP-EQ-HP-004', rev: '1.2' }
+                ],
+                history: [
+                    { date: 'May 10, 2026', action: 'Cycle Counter Alert', tech: 'System', type: 'inspection', notes: 'Automated alert: 9,200 cycles reached (92% of 10,000 limit).' },
+                    { date: 'Mar 20, 2026', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration', notes: 'Force output verified. Cycle count: 8,100.' },
+                    { date: 'Jan 15, 2026', action: 'Preventive Inspection', tech: 'Nina Garcia', type: 'inspection', notes: 'Visual inspection, no leaks observed. Cycle count: 7,800.' },
+                    { date: 'Sep 20, 2025', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration' },
+                    { date: 'Mar 1, 2025', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            },
+            'solderer-002': {
+                name: 'Soldering Station SS-400',
+                id: 'EQ-SS-002',
+                location: 'Station 5B - PCB Assembly',
+                type: 'reactive',
+                status: 'Pending',
+                manufacturer: 'Weller',
+                model: 'WXA2',
+                serial: 'SN-SS-400-W',
+                specs: { power: '200W', tempRange: '50-550°C' },
+                calibration: {
+                    last: '2026-01-20',
+                    next: '2026-07-20',
+                    interval: '6 months',
+                    provider: 'In-House',
+                    certificate: 'CAL-2026-0120'
+                },
+                andon: {
+                    id: 'ANDON-4530',
+                    duration: '15m',
+                    pulledBy: 'David L.',
+                    pulledAt: '1:02 PM',
+                    station: 'Station 5B - PCB Assembly',
+                    issueType: 'Unknown - Needs Investigation',
+                    woAffected: 'WO-2024-0855',
+                    operatorNote: 'Temperature display jumping around. Was set to 350C but showing anywhere from 330-370.',
+                    diagnosis: ''
+                },
+                service: {
+                    lastPM: '2026-01-20',
+                    nextPM: '2026-07-20',
+                    pmInterval: '6 months',
+                    requiresCal: true
+                },
+                sops: [
+                    { name: 'Soldering Station Temperature Calibration', id: 'SOP-EQ-SS-001', rev: '2.1' },
+                    { name: 'Tip Replacement Procedure', id: 'SOP-EQ-SS-002', rev: '1.6' },
+                    { name: 'Soldering Station Troubleshooting', id: 'SOP-EQ-SS-003', rev: '1.2' }
+                ],
+                history: [
+                    { date: 'Today, 1:02 PM', action: 'Andon Created', tech: 'David L.', type: 'repair', notes: 'Temperature display showing erratic readings. Fluctuating ±20°C during operation.' },
+                    { date: 'Jan 20, 2026', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration', notes: 'Temperature verified at 250°C, 350°C, 400°C setpoints.' },
+                    { date: 'Oct 5, 2025', action: 'Tip Replacement', tech: 'Nina Garcia', type: 'replacement', notes: 'Replaced chisel tip due to oxidation.' },
+                    { date: 'Jul 20, 2025', action: 'Calibration - Pass', tech: 'Tom Bradley', type: 'calibration' },
+                    { date: 'Apr 15, 2025', action: 'Initial Setup', tech: 'Equipment received and entered into service', type: 'replacement' }
+                ]
+            }
+        };
+
+        let currentEquipmentId = 'torque-001';
+
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
+
+        function filterQueue(type) {
+            document.querySelectorAll('.queue-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.queue-card').forEach(card => {
+                if (type === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = card.dataset.type === type ? 'block' : 'none';
+                }
+            });
+        }
+
+        function selectEquipment(equipmentId) {
+            document.querySelectorAll('.queue-card').forEach(c => c.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            currentEquipmentId = equipmentId;
+            renderEquipmentDetails(equipmentId);
+        }
+
+        function renderEquipmentDetails(equipmentId) {
+            const eq = equipmentData[equipmentId];
+            if (!eq) return;
+
+            // Update header
+            document.getElementById('detailName').textContent = eq.name;
+            document.getElementById('detailId').textContent = `${eq.id} • ${eq.location}`;
+
+            // Update type badge
+            const typeBadge = document.getElementById('detailTypeBadge');
+            if (eq.type === 'reactive') {
+                typeBadge.className = 'detail-badge type-reactive';
+                typeBadge.textContent = '🔴 Reactive Maintenance';
+            } else if (eq.type === 'proactive') {
+                typeBadge.className = 'detail-badge type-proactive';
+                typeBadge.textContent = '🟣 Proactive Maintenance';
+            } else {
+                typeBadge.className = 'detail-badge type-preventive';
+                typeBadge.textContent = '🔵 Preventive Maintenance';
+            }
+
+            // Update status badge
+            const statusBadge = document.getElementById('detailStatusBadge');
+            statusBadge.textContent = `⏳ ${eq.status}`;
+
+            // Update status badge color based on status
+            if (eq.status === 'Resolved') {
+                statusBadge.style.background = 'rgba(34, 197, 94, 0.2)';
+                statusBadge.style.color = 'var(--accent-green)';
+                statusBadge.textContent = `✓ ${eq.status}`;
+            } else if (eq.status === 'Maintenance In Progress') {
+                statusBadge.style.background = 'rgba(59, 130, 246, 0.2)';
+                statusBadge.style.color = 'var(--accent-blue)';
+            } else if (eq.status === 'Pending Verification') {
+                statusBadge.style.background = 'rgba(168, 85, 247, 0.2)';
+                statusBadge.style.color = 'var(--accent-purple)';
+            } else {
+                statusBadge.style.background = 'rgba(245, 158, 11, 0.2)';
+                statusBadge.style.color = 'var(--accent-amber)';
+            }
+
+            // Show/hide andon section
+            const andonSection = document.getElementById('andonSection');
+
+            if (eq.andon) {
+                andonSection.style.display = 'block';
+                document.getElementById('andonId').textContent = eq.andon.id;
+                document.getElementById('andonDuration').textContent = eq.andon.resolved ? 'Resolved' : `Open ${eq.andon.duration}`;
+                document.getElementById('andonPulledBy').textContent = `${eq.andon.pulledBy} @ ${eq.andon.pulledAt}`;
+                document.getElementById('andonStation').textContent = eq.andon.station;
+                document.getElementById('andonIssueType').textContent = eq.andon.issueType;
+                document.getElementById('andonWO').textContent = eq.andon.woAffected;
+
+                // Operator note
+                document.getElementById('andonOperatorNote').textContent = `"${eq.andon.operatorNote}"`;
+
+                // Diagnosis
+                const diagnosisDisplay = document.getElementById('diagnosisDisplay');
+                const diagnosisInput = document.getElementById('diagnosisInput');
+                const diagnosisStatus = document.getElementById('diagnosisStatus');
+                const diagnosisText = document.getElementById('diagnosisText');
+
+                // Get workflow elements
+                const stepMaintenance = document.getElementById('stepMaintenance');
+                const stepVerification = document.getElementById('stepVerification');
+                const maintenanceInput = document.getElementById('maintenanceInput');
+                const maintenanceDisplay = document.getElementById('maintenanceDisplay');
+                const maintenanceStatus = document.getElementById('maintenanceStatus');
+
+                // Determine workflow step
+                const workflowStep = eq.andon.workflowStep || (eq.andon.diagnosis ? 'maintenance' : 'diagnosis');
+
+                // Reset all steps
+                stepMaintenance.style.display = 'none';
+                stepVerification.style.display = 'none';
+
+                if (eq.andon.diagnosis) {
+                    document.getElementById('diagnosisContent').textContent = eq.andon.diagnosis;
+                    diagnosisDisplay.style.display = 'flex';
+                    diagnosisDisplay.style.alignItems = 'center';
+                    diagnosisInput.style.display = 'none';
+                    diagnosisStatus.textContent = 'Complete';
+                    diagnosisStatus.style.background = 'rgba(34, 197, 94, 0.2)';
+                    diagnosisStatus.style.color = 'var(--accent-green)';
+
+                    // Show maintenance step
+                    stepMaintenance.style.display = 'block';
+
+                    if (eq.andon.maintenanceAction && eq.andon.maintenanceDetails) {
+                        // Maintenance work completed, show display
+                        maintenanceInput.style.display = 'none';
+                        maintenanceDisplay.style.display = 'block';
+                        document.getElementById('maintenanceActionDisplay').textContent = getActionLabel(eq.andon.maintenanceAction);
+                        document.getElementById('maintenanceDetailsDisplay').textContent = eq.andon.maintenanceDetails;
+                        maintenanceStatus.textContent = 'Complete';
+                        maintenanceStatus.style.background = 'rgba(34, 197, 94, 0.2)';
+                        maintenanceStatus.style.color = 'var(--accent-green)';
+
+                        // Show verification step
+                        stepVerification.style.display = 'block';
+
+                        if (eq.andon.resolved) {
+                            document.getElementById('verificationStatus').textContent = 'Verified & Resolved';
+                            document.getElementById('verificationStatus').style.background = 'rgba(34, 197, 94, 0.2)';
+                            document.getElementById('verificationStatus').style.color = 'var(--accent-green)';
+                            document.getElementById('verificationInput').style.display = 'none';
+                        }
+                    } else {
+                        // Maintenance work in progress
+                        maintenanceInput.style.display = 'block';
+                        maintenanceDisplay.style.display = 'none';
+                        document.getElementById('maintenanceAction').value = '';
+                        document.getElementById('maintenanceDetails').value = '';
+                        maintenanceStatus.textContent = 'In Progress';
+                        maintenanceStatus.style.background = 'rgba(59, 130, 246, 0.2)';
+                        maintenanceStatus.style.color = 'var(--accent-blue)';
+                    }
+                } else {
+                    diagnosisDisplay.style.display = 'none';
+                    diagnosisInput.style.display = 'block';
+                    diagnosisText.value = '';
+                    diagnosisStatus.textContent = 'Pending';
+                    diagnosisStatus.style.background = 'rgba(245, 158, 11, 0.2)';
+                    diagnosisStatus.style.color = 'var(--accent-amber)';
+                }
+            } else {
+                andonSection.style.display = 'none';
+            }
+
+            // Show/hide preventive section
+            const preventiveSection = document.getElementById('preventiveSection');
+            if (eq.type === 'preventive' && !eq.completed) {
+                preventiveSection.style.display = 'block';
+                // Set due date text
+                const dueText = eq.status === 'Overdue' ? `⚠ Overdue` : `Due: ${eq.service?.nextPM || 'Scheduled'}`;
+                document.getElementById('preventiveDue').textContent = dueText;
+                document.getElementById('preventiveNotes').value = eq.preventiveNotes || '';
+            } else {
+                preventiveSection.style.display = 'none';
+            }
+
+            // Show/hide trend section (proactive)
+            const trendSection = document.getElementById('trendSection');
+            if (eq.trend && !eq.trend.dismissed) {
+                trendSection.style.display = 'block';
+                document.getElementById('trendTitle').textContent = eq.trend.title;
+                document.getElementById('trendConfidence').textContent = `${eq.trend.confidence} Confidence`;
+                document.getElementById('trendDescription').textContent = eq.trend.description;
+                document.getElementById('trendPrediction').textContent = eq.trend.prediction;
+                document.getElementById('trendRecommendation').textContent = eq.trend.recommendation;
+
+                // Render data points
+                const dataPointsContainer = document.getElementById('trendDataPoints');
+                dataPointsContainer.innerHTML = '';
+                eq.trend.dataPoints.forEach(dp => {
+                    const pointDiv = document.createElement('div');
+                    pointDiv.className = 'trend-data-point';
+                    pointDiv.innerHTML = `
+                        <span class="trend-data-date">${dp.date}</span>
+                        <span class="trend-data-value">${dp.value}</span>
+                        <span class="trend-data-note">${dp.note}</span>
+                    `;
+                    dataPointsContainer.appendChild(pointDiv);
+                });
+
+                // Show scheduled info with notes and complete button (scheduling done in ops dashboard)
+                const existing = trendSection.querySelector('.schedule-info');
+                if (existing) existing.remove();
+
+                if (!eq.completed) {
+                    const scheduleInfo = document.createElement('div');
+                    scheduleInfo.style.cssText = 'margin-top: 1rem;';
+                    scheduleInfo.innerHTML = `
+                        <div style="padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border-radius: 6px; border-left: 3px solid var(--accent-green); margin-bottom: 0.75rem;">
+                            <div style="font-size: 0.8rem; color: var(--accent-green); font-weight: 500; margin-bottom: 0.25rem;">✓ Maintenance Scheduled</div>
+                            <div style="font-size: 0.85rem;">📅 ${new Date(eq.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • 👤 ${eq.assignee}</div>
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Notes (optional)</label>
+                            <textarea id="proactiveNotes" placeholder="Observations, measurements, parts used..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 60px;">${eq.proactiveNotes || ''}</textarea>
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Photo (optional)</label>
+                            <input type="file" id="proactivePhoto" accept="image/*" style="width: 100%; padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.8rem;">
+                        </div>
+                        <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px;">
+                            <label style="display: flex; align-items: flex-start; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="proactiveFlagNC" onchange="toggleProactiveNCNotes()" style="width: 18px; height: 18px; accent-color: var(--accent-red); margin-top: 2px;">
+                                <div>
+                                    <span style="font-size: 0.85rem; color: var(--accent-red); font-weight: 500;">Flag for NC Review</span>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Check if equipment issue may have affected product quality</div>
+                                </div>
+                            </label>
+                            <textarea id="proactiveNCNotes" placeholder="Describe potential product impact..." style="display: none; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 40px; margin-top: 0.5rem;"></textarea>
+                        </div>
+                        <div style="margin-bottom: 0.75rem;">
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Technician Signature</label>
+                            <input type="text" id="proactiveSignature" value="Nina Garcia" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
+                        </div>
+                        <button class="action-btn primary" onclick="completeProactive()" style="width: 100%;">✓ Mark Complete</button>
+                    `;
+                    scheduleInfo.className = 'schedule-info';
+                    trendSection.appendChild(scheduleInfo);
+                }
+            } else {
+                trendSection.style.display = 'none';
+            }
+
+            // Update equipment info
+            document.getElementById('eqManufacturer').textContent = eq.manufacturer;
+            document.getElementById('eqModel').textContent = eq.model;
+            document.getElementById('eqSerial').textContent = eq.serial;
+
+            // Update specs
+            const specsContainer = document.getElementById('eqSpecs');
+            specsContainer.innerHTML = '';
+            for (const [key, value] of Object.entries(eq.specs)) {
+                const row = document.createElement('div');
+                row.className = 'detail-row';
+                row.innerHTML = `<span class="detail-label">${formatLabel(key)}</span><span class="detail-value">${value}</span>`;
+                specsContainer.appendChild(row);
+            }
+
+            // Update service status
+            if (eq.service) {
+                document.getElementById('serviceLast').textContent = eq.service.lastPM;
+                document.getElementById('serviceNext').textContent = eq.service.nextPM;
+                document.getElementById('serviceInterval').textContent = eq.service.pmInterval;
+                document.getElementById('serviceRequiresCal').textContent = eq.service.requiresCal ? 'Yes' : 'No';
+                document.getElementById('serviceRequiresCal').style.color = eq.service.requiresCal ? 'var(--accent-green)' : 'var(--text-muted)';
+            }
+
+            // Update SOPs
+            const sopList = document.getElementById('sopList');
+            sopList.innerHTML = '';
+            eq.sops.forEach(sop => {
+                const sopItem = document.createElement('div');
+                sopItem.className = 'sop-item';
+                sopItem.innerHTML = `
+                    <div class="sop-info">
+                        <span class="sop-icon">📘</span>
+                        <div>
+                            <div class="sop-name">${sop.name}</div>
+                            <div class="sop-id">${sop.id} • Rev ${sop.rev}</div>
+                        </div>
+                    </div>
+                    <span class="sop-open">Open →</span>
+                `;
+                sopList.appendChild(sopItem);
+            });
+
+            // Update history
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            eq.history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${item.type}`;
+                historyItem.innerHTML = `
+                    <div class="history-date">${item.date}</div>
+                    <div class="history-action">${item.action}</div>
+                    <div class="history-tech">${item.tech}</div>
+                    ${item.notes ? `<div class="history-notes">${item.notes}</div>` : ''}
+                `;
+                historyList.appendChild(historyItem);
+            });
+
+        }
+
+        function formatLabel(key) {
+            return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+
+        function saveDiagnosis() {
+            const eq = equipmentData[currentEquipmentId];
+            const diagnosisText = document.getElementById('diagnosisText').value.trim();
+            if (!diagnosisText) return;
+            if (eq && eq.andon) {
+                eq.andon.diagnosis = diagnosisText;
+                eq.andon.workflowStep = 'maintenance';
+                eq.status = 'Maintenance In Progress';
+                updateQueueCardStatus(currentEquipmentId, 'in-progress', '🔧 In Progress');
+                renderEquipmentDetails(currentEquipmentId);
+            }
+        }
+
+        function updateQueueCardStatus(equipmentId, statusClass, statusText) {
+            const statusEl = document.getElementById(`status-${equipmentId}`);
+            if (statusEl) {
+                statusEl.className = `queue-card-status ${statusClass}`;
+                statusEl.textContent = statusText;
+            }
+        }
+
+        function editDiagnosis() {
+            const eq = equipmentData[currentEquipmentId];
+            if (eq && eq.andon) {
+                document.getElementById('diagnosisText').value = eq.andon.diagnosis;
+                document.getElementById('diagnosisDisplay').style.display = 'none';
+                document.getElementById('diagnosisInput').style.display = 'block';
+                document.getElementById('diagnosisStatus').textContent = 'Editing';
+                document.getElementById('diagnosisStatus').style.background = 'rgba(59, 130, 246, 0.2)';
+                document.getElementById('diagnosisStatus').style.color = 'var(--accent-blue)';
+            }
+        }
+
+        function completeMaintenanceWork() {
+            const eq = equipmentData[currentEquipmentId];
+            const action = document.getElementById('maintenanceAction').value;
+            const details = document.getElementById('maintenanceDetails').value.trim();
+            if (!action) {
+                showToast('error', 'Required Field', 'Please select an action performed.');
+                return;
+            }
+            if (!details) {
+                showToast('error', 'Required Field', 'Please enter work details.');
+                return;
+            }
+            if (eq && eq.andon) {
+                eq.andon.maintenanceAction = action;
+                eq.andon.maintenanceDetails = details;
+                eq.andon.workflowStep = 'verification';
+                eq.status = 'Pending Verification';
+                updateQueueCardStatus(currentEquipmentId, 'verification', '✓ Pending Verification');
+                renderEquipmentDetails(currentEquipmentId);
+            }
+        }
+
+        function editMaintenance() {
+            const eq = equipmentData[currentEquipmentId];
+            if (eq && eq.andon) {
+                document.getElementById('maintenanceAction').value = eq.andon.maintenanceAction || '';
+                document.getElementById('maintenanceDetails').value = eq.andon.maintenanceDetails || '';
+                document.getElementById('maintenanceInput').style.display = 'block';
+                document.getElementById('maintenanceDisplay').style.display = 'none';
+                document.getElementById('maintenanceStatus').textContent = 'Editing';
+                document.getElementById('maintenanceStatus').style.background = 'rgba(59, 130, 246, 0.2)';
+                document.getElementById('maintenanceStatus').style.color = 'var(--accent-blue)';
+            }
+        }
+
+        function completeVerification() {
+            const eq = equipmentData[currentEquipmentId];
+            const verified = document.getElementById('verifyFunctional').checked;
+            const notes = document.getElementById('verificationNotes').value.trim();
+            if (!verified) {
+                showToast('error', 'Verification Required', 'Please confirm equipment is functional before resolving.');
+                return;
+            }
+            if (eq && eq.andon) {
+                eq.andon.verificationNotes = notes;
+                eq.andon.workflowStep = 'resolved';
+                eq.andon.resolved = true;
+                eq.status = 'Resolved';
+
+                // Remove from queue
+                const queueCards = document.querySelectorAll('.queue-card');
+                queueCards.forEach(card => {
+                    if (card.classList.contains('active')) {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Update queue counts
+                updateQueueCounts();
+
+                // Select next item in queue or show empty state
+                selectNextInQueue();
+            }
+        }
+
+        function updateQueueCounts() {
+            const allVisible = document.querySelectorAll('.queue-card:not([style*="display: none"])').length;
+            const reactiveVisible = document.querySelectorAll('.queue-card.reactive:not([style*="display: none"])').length;
+            const proactiveVisible = document.querySelectorAll('.queue-card.proactive:not([style*="display: none"])').length;
+            const preventiveVisible = document.querySelectorAll('.queue-card.preventive:not([style*="display: none"])').length;
+
+            const tabs = document.querySelectorAll('.queue-tab');
+            tabs[0].innerHTML = `All<span class="count">${allVisible}</span>`;
+            tabs[1].innerHTML = `Reactive<span class="count">${reactiveVisible}</span>`;
+            tabs[2].innerHTML = `Proactive<span class="count">${proactiveVisible}</span>`;
+            tabs[3].innerHTML = `Preventive<span class="count">${preventiveVisible}</span>`;
+        }
+
+        function selectNextInQueue() {
+            const visibleCards = document.querySelectorAll('.queue-card:not([style*="display: none"])');
+            if (visibleCards.length > 0) {
+                visibleCards[0].click();
+            } else {
+                // Show empty state
+                document.querySelector('.detail-panel').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">✓</div>
+                        <div class="empty-state-text">All items resolved!<br>No pending maintenance.</div>
+                    </div>
+                `;
+            }
+        }
+
+        function getActionLabel(action) {
+            const labels = {
+                'calibration': 'Calibration Adjustment',
+                'repair': 'Repair',
+                'parts': 'Parts Replacement',
+                'cleaning': 'Cleaning / Preventive',
+                'software': 'Software/Firmware Update',
+                'adjustment': 'Mechanical Adjustment',
+                'other': 'Other'
+            };
+            return labels[action] || action;
+        }
+
+        // Profile menu
+        function toggleProfileMenu() {
+            event.stopPropagation();
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+            // Close reassign if open
+            document.getElementById('reassignDropdown').classList.remove('active');
+        }
+
+        // Reassign dropdown
+        function toggleReassign() {
+            event.stopPropagation();
+            const dropdown = document.getElementById('reassignDropdown');
+            dropdown.classList.toggle('active');
+            // Close profile menu if open
+            document.getElementById('profileMenu').classList.remove('active');
+        }
+
+        function reassignTo(techName) {
+            const eq = equipmentData[currentEquipmentId];
+            // Remove from queue (reassigned to someone else)
+            const queueCards = document.querySelectorAll('.queue-card');
+            queueCards.forEach(card => {
+                if (card.classList.contains('active')) {
+                    card.style.display = 'none';
+                }
+            });
+            updateQueueCounts();
+            document.getElementById('reassignDropdown').classList.remove('active');
+            selectNextInQueue();
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function() {
+            document.getElementById('profileMenu').classList.remove('active');
+            document.getElementById('reassignDropdown').classList.remove('active');
+        });
+
+        // Work History Modal
+        const myWorkHistory = [
+            { id: 1, equipment: 'Torque Wrench TW-2832', eqId: 'EQ-TW-002', type: 'reactive', action: 'Calibration Adjustment', time: '35m', date: 'Today, 9:15 AM', andon: 'ANDON-4518', station: 'Station 3', diagnosis: 'Torque readings inconsistent at higher settings', notes: 'Adjusted internal spring tension per SOP-EQ-TW-002. Verified at 50, 100, 150 in-lb. All readings within ±2%.', flaggedNC: false },
+            { id: 2, equipment: 'Digital Caliper DC-1148', eqId: 'EQ-DC-004', type: 'preventive', action: 'Scheduled Calibration', time: '25m', date: 'Today, 8:30 AM', andon: null, station: 'Station 1', diagnosis: null, notes: 'Verified against gauge blocks at 1", 2", 4", 6". All within spec. Battery at 80%.', flaggedNC: false },
+            { id: 3, equipment: 'Multimeter MM-7718', eqId: 'EQ-MM-002', type: 'reactive', action: 'Battery Replacement', time: '15m', date: 'Yesterday, 3:45 PM', andon: 'ANDON-4512', station: 'Station 4', diagnosis: 'Display flickering and auto-shutoff', notes: 'Replaced 9V battery. Tested all ranges. Unit functioning normally.', flaggedNC: false },
+            { id: 4, equipment: 'Hydraulic Press HP-198', eqId: 'EQ-HP-002', type: 'preventive', action: 'Hydraulic Fluid Check', time: '45m', date: 'Yesterday, 1:20 PM', andon: null, station: 'Station 2A', diagnosis: null, notes: 'Fluid level nominal. No leaks observed. Pressure test passed at 50, 100, 150, 200 ton.', flaggedNC: false },
+            { id: 5, equipment: 'Ultrasonic Welder UW-1140', eqId: 'EQ-UW-002', type: 'reactive', action: 'Horn Replacement', time: '1h 15m', date: 'May 9, 2:30 PM', andon: 'ANDON-4505', station: 'Station 5', diagnosis: 'Weld strength test failures, horn showing wear', notes: 'Replaced weld horn (P/N WH-4422). Calibrated power output. Test welds passed pull test.', flaggedNC: true, ncNotes: 'Last 5 units before andon may have weak welds. QA to pull for inspection.' },
+            { id: 6, equipment: 'Soldering Station SS-398', eqId: 'EQ-SS-001', type: 'proactive', action: 'Tip Replacement (Trend Alert)', time: '20m', date: 'May 9, 10:00 AM', andon: null, station: 'Station 5B', diagnosis: null, notes: 'Proactive tip replacement due to oxidation trend. New tip installed, temp verified at 350°C.', flaggedNC: false },
+            { id: 7, equipment: 'Digital Microscope DM-442', eqId: 'EQ-DM-001', type: 'preventive', action: 'Lens Cleaning & Calibration', time: '50m', date: 'May 8, 11:30 AM', andon: null, station: 'QC Area', diagnosis: null, notes: 'Cleaned all objective lenses. Calibration verified with stage micrometer. Software updated to v4.2.2.', flaggedNC: false },
+            { id: 8, equipment: 'Torque Wrench TW-2845', eqId: 'EQ-TW-003', type: 'reactive', action: 'Internal Mechanism Repair', time: '1h 30m', date: 'May 7, 9:00 AM', andon: 'ANDON-4498', station: 'Station 3', diagnosis: 'Clicking but not holding torque', notes: 'Disassembled and found worn pawl. Replaced pawl and spring assembly. Full calibration performed.', flaggedNC: false },
+            { id: 9, equipment: 'Press HP-195', eqId: 'EQ-HP-001', type: 'preventive', action: 'Seal Inspection', time: '40m', date: 'May 5, 2:00 PM', andon: null, station: 'Station 2A', diagnosis: null, notes: 'Visual inspection of all seals. Minor wear on main cylinder seal noted - schedule replacement next PM.', flaggedNC: false },
+            { id: 10, equipment: 'Caliper DC-1145', eqId: 'EQ-DC-002', type: 'preventive', action: 'Scheduled Calibration', time: '20m', date: 'May 3, 8:45 AM', andon: null, station: 'Station 1', diagnosis: null, notes: 'Calibration verification passed. All measurements within ±0.001".', flaggedNC: false },
+        ];
+
+        function showMyHistory() {
+            document.getElementById('historyModal').classList.add('active');
+            document.getElementById('profileMenu').classList.remove('active');
+            // Reset filter buttons and select Today
+            document.querySelectorAll('.modal-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.modal-filters .filter-btn').classList.add('active');
+            filterHistoryByPeriod('today');
+        }
+
+        function closeHistoryModal(event) {
+            if (!event || event.target === document.getElementById('historyModal')) {
+                document.getElementById('historyModal').classList.remove('active');
+            }
+        }
+
+        function toggleHistoryEntry(entry) {
+            entry.classList.toggle('expanded');
+        }
+
+        function filterHistory(period) {
+            // Update active filter button
+            document.querySelectorAll('.modal-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            filterHistoryByPeriod(period);
+        }
+
+        function filterHistoryByPeriod(period) {
+            // Filter data based on period
+            let filtered = myWorkHistory;
+            if (period === 'today') {
+                filtered = myWorkHistory.filter(h => h.date.includes('Today'));
+            } else if (period === 'week') {
+                filtered = myWorkHistory.slice(0, 6); // Simulated this week
+            } else if (period === 'month') {
+                filtered = myWorkHistory.slice(0, 10); // Simulated this month
+            }
+
+            // Render entries
+            const body = document.getElementById('historyModalBody');
+            if (filtered.length === 0) {
+                body.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No completed work for this period.</div>';
+            } else {
+                body.innerHTML = filtered.map(h => `
+                    <div class="history-entry" onclick="toggleHistoryEntry(this)">
+                        <div class="history-entry-icon ${h.type}">
+                            ${h.type === 'reactive' ? '🔴' : h.type === 'proactive' ? '🟣' : '🔵'}
+                        </div>
+                        <div class="history-entry-content">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div>
+                                    <div class="history-entry-title">${h.equipment}</div>
+                                    <div class="history-entry-meta">
+                                        <span>${h.eqId}</span>
+                                        <span>${h.station}</span>
+                                        ${h.andon ? `<span style="color: var(--accent-red);">${h.andon}</span>` : ''}
+                                    </div>
+                                    <div class="history-entry-action">${h.action}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.8rem;">${h.time}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">${h.date}</div>
+                                    <span class="history-entry-expand">▼</span>
+                                </div>
+                            </div>
+                            <div class="history-entry-details">
+                                ${h.diagnosis ? `
+                                    <div class="history-entry-detail-row">
+                                        <span class="history-entry-detail-label">Diagnosis:</span>
+                                        <span class="history-entry-detail-value">${h.diagnosis}</span>
+                                    </div>
+                                ` : ''}
+                                ${h.notes ? `
+                                    <div class="history-entry-notes">
+                                        <div class="history-entry-notes-label">Notes</div>
+                                        ${h.notes}
+                                    </div>
+                                ` : ''}
+                                ${h.flaggedNC ? `
+                                    <div style="margin-top: 0.5rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border-left: 3px solid var(--accent-red); border-radius: 0 6px 6px 0;">
+                                        <div style="font-size: 0.75rem; color: var(--accent-red); font-weight: 500;">⚠️ Flagged for NC Review</div>
+                                        ${h.ncNotes ? `<div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${h.ncNotes}</div>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Update stats
+            const reactive = filtered.filter(h => h.type === 'reactive').length;
+            const preventive = filtered.filter(h => h.type === 'preventive').length;
+            const proactive = filtered.filter(h => h.type === 'proactive').length;
+            document.getElementById('statCompleted').textContent = filtered.length;
+            document.getElementById('statReactive').textContent = reactive;
+            document.getElementById('statPreventive').textContent = preventive + proactive;
+        }
+
+        function togglePreventiveNCNotes() {
+            const checkbox = document.getElementById('preventiveFlagNC');
+            const notes = document.getElementById('preventiveNCNotes');
+            notes.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function toggleProactiveNCNotes() {
+            const checkbox = document.getElementById('proactiveFlagNC');
+            const notes = document.getElementById('proactiveNCNotes');
+            notes.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function toggleNCNotes() {
+            const checkbox = document.getElementById('flagForNC');
+            const notes = document.getElementById('ncNotes');
+            notes.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function completeProactive() {
+            const eq = equipmentData[currentEquipmentId];
+            const notes = document.getElementById('proactiveNotes').value.trim();
+            const signature = document.getElementById('proactiveSignature').value.trim();
+            const flagNC = document.getElementById('proactiveFlagNC').checked;
+
+            if (!signature) {
+                showToast('error', 'Required Field', 'Please provide technician signature.');
+                return;
+            }
+
+            if (eq) {
+                eq.completed = true;
+                eq.proactiveNotes = notes;
+                eq.status = 'Completed';
+
+                // Remove from queue
+                const card = document.querySelector(`[data-id="${currentEquipmentId}"]`);
+                if (card) {
+                    card.style.display = 'none';
+                }
+
+                updateQueueCounts();
+                selectNextInQueue();
+
+                if (flagNC) {
+                    showToast('warning', 'NC Review Flagged', `${eq.name} flagged for quality review.`);
+                } else {
+                    showToast('success', 'Proactive Maintenance Complete', `${eq.name} maintenance completed.`);
+                }
+            }
+        }
+
+        function completePreventive() {
+            const eq = equipmentData[currentEquipmentId];
+            const notes = document.getElementById('preventiveNotes').value.trim();
+
+            if (eq) {
+                eq.completed = true;
+                eq.preventiveNotes = notes;
+                eq.status = 'Completed';
+
+                // Remove from queue
+                const card = document.querySelector(`[data-id="${currentEquipmentId}"]`);
+                if (card) {
+                    card.style.display = 'none';
+                }
+
+                updateQueueCounts();
+                selectNextInQueue();
+            }
+        }
+
+        function sortQueueByPriority() {
+            const queueList = document.querySelector('.queue-list');
+            const cards = Array.from(queueList.querySelectorAll('.queue-card'));
+
+            cards.sort((a, b) => {
+                const getPriority = (card) => {
+                    // 1. Reactive (andons) - highest priority
+                    if (card.dataset.type === 'reactive') return 1;
+                    // 2. Overdue preventive
+                    if (card.dataset.type === 'preventive' && card.classList.contains('overdue')) return 2;
+                    // 3. Due soon preventive
+                    if (card.dataset.type === 'preventive' && card.querySelector('.due-date.due-soon')) return 3;
+                    // 4. Proactive
+                    if (card.dataset.type === 'proactive') return 4;
+                    // 5. Other preventive
+                    if (card.dataset.type === 'preventive') return 5;
+                    return 6;
+                };
+                return getPriority(a) - getPriority(b);
+            });
+
+            // Re-append in sorted order
+            cards.forEach(card => queueList.appendChild(card));
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            sortQueueByPriority();
+            renderEquipmentDetails('torque-001');
+        });
+    </script>
+</body>
+</html>

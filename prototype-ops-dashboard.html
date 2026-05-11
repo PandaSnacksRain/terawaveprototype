@@ -4997,7 +4997,7 @@
                     <div class="panel-title" style="margin-bottom: 0.5rem;">Triage This Andon</div>
 
                     <div style="margin-bottom: 1rem;">
-                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Issue Type</label>
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Issue Type <span style="color: var(--accent-red);">*</span></label>
                         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                             <button class="triage-type-btn" onclick="selectTriageType(this, 'defect')">🔧 Defect</button>
                             <button class="triage-type-btn" onclick="selectTriageType(this, 'material')">📦 Material</button>
@@ -5008,12 +5008,12 @@
                     </div>
 
                     <div style="margin-bottom: 1rem;">
-                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Issue Description</label>
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Issue Description <span style="color: var(--text-muted); font-weight: normal;">(optional)</span></label>
                         <textarea id="triageDescription" placeholder="Describe the issue..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 60px;"></textarea>
                     </div>
 
                     <div id="triageResponderSection" style="margin-bottom: 1rem; display: none;">
-                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Assigned Responder</label>
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Assigned Responder <span style="color: var(--accent-red);">*</span></label>
                         <div id="autoAssignedResponder" class="auto-assigned-responder">
                             <div class="assigned-responder-info">
                                 <div class="assigned-avatar" id="assignedAvatar">MR</div>
@@ -5039,7 +5039,7 @@
                     </div>
 
                     <div id="triageResolutionPath" style="margin-bottom: 1rem; display: none;">
-                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Resolution Path</label>
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.5rem;">Resolution Path <span style="color: var(--accent-red);">*</span></label>
                         <div class="resolve-path-grid">
                             <div class="triage-path-option" onclick="selectTriagePath(this, 'inline')">
                                 <div class="triage-path-icon">🔧</div>
@@ -5053,7 +5053,7 @@
                     </div>
 
                     <div id="triageHospitalBaySection" style="margin-bottom: 1rem; display: none;">
-                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Assign Hospital Bay</label>
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.35rem;">Assign Hospital Bay <span style="color: var(--accent-red);">*</span></label>
                         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
                             <div class="hospital-bay" data-bay="1" onclick="selectTriageHospitalBay(this)">
                                 <div style="font-weight: 600;">Bay 1</div>
@@ -5288,6 +5288,99 @@
                             </div>
                         </div>
                     </details>
+                </div>
+
+                <!-- Non-Defect Issue View (Equipment, Safety, Material, Other) -->
+                <div id="andonNonDefectView" style="display: none;">
+                    <!-- Duration + Actions Row -->
+                    <div class="andon-top-row">
+                        <div class="andon-duration-compact">
+                            <div class="andon-duration-time" id="nonDefectDurationTime">04:32</div>
+                            <div class="andon-duration-meta">
+                                <span>Opened <strong id="nonDefectOpenedAt">14:28:13</strong></span>
+                                <span class="separator">|</span>
+                                <span id="nonDefectIssueType">Equipment</span>
+                            </div>
+                            <div class="andon-timeline">
+                                <div class="timeline-segment filled"></div>
+                                <div class="timeline-segment filled"></div>
+                                <div class="timeline-segment filled"></div>
+                                <div class="timeline-segment warning"></div>
+                                <div class="timeline-segment"></div>
+                                <div class="timeline-segment"></div>
+                                <div class="timeline-segment"></div>
+                                <div class="timeline-segment"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Issue Status Card -->
+                    <div style="background: var(--bg-dark); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; border-left: 3px solid var(--accent-amber);">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <span id="nonDefectIcon" style="font-size: 1.5rem;">⚙️</span>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);" id="nonDefectTitle">Equipment Issue</div>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);" id="nonDefectDescription">Responder notified and en route</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); padding-top: 0.75rem; border-top: 1px solid var(--border-color);">
+                            <span id="nonDefectTriagedInfo">Triaged by Rain Wang @ 14:32:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Responder Section -->
+                    <div class="panel-title" style="margin-bottom: 0.5rem;">Assigned Responder</div>
+                    <div style="position: relative; margin-bottom: 1rem;">
+                        <div class="responder-section" style="background: var(--bg-dark); border-radius: 8px; padding: 0.75rem;">
+                            <div class="responder-avatar" id="nonDefectResponderAvatar">NG</div>
+                            <div class="responder-info">
+                                <h4 id="nonDefectResponderName">Nina Garcia</h4>
+                                <p id="nonDefectResponderRole">Equipment Technician</p>
+                            </div>
+                            <div class="responder-actions">
+                                <button class="btn-secondary btn-sm" onclick="toggleNonDefectReassign()">Reassign</button>
+                            </div>
+                        </div>
+                        <div id="nonDefectReassignOptions" class="reassign-options" style="display: none;">
+                            <div class="reassign-header">
+                                <span>Select Responder</span>
+                                <button class="reassign-close" onclick="hideNonDefectReassign()">×</button>
+                            </div>
+                            <div id="nonDefectReassignList" class="reassign-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Context - Collapsible -->
+                    <details class="context-details">
+                        <summary class="context-summary">
+                            <span>Context & Details</span>
+                            <span class="expand-icon">▼</span>
+                        </summary>
+                        <div class="context-grid">
+                            <div class="context-item">
+                                <div class="context-label">Operation Step</div>
+                                <div class="context-value" id="nonDefectOpStep">Step 3.2: Connect antenna array</div>
+                            </div>
+                            <div class="context-item">
+                                <div class="context-label">Unit Serial</div>
+                                <div class="context-value" id="nonDefectSerial">SN-2854</div>
+                            </div>
+                            <div class="context-item">
+                                <div class="context-label">Pulled By</div>
+                                <div class="context-value" id="nonDefectPulledBy">Isabella Johnson (IJ)</div>
+                            </div>
+                            <div class="context-item">
+                                <div class="context-label">Station</div>
+                                <div class="context-value" id="nonDefectStation">Station 5 Final Test</div>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Actions -->
+                    <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                        <button class="btn-secondary" style="flex: 1;" onclick="closeAndonModal()">Close</button>
+                        <button class="btn-primary" style="flex: 1;" onclick="resolveNonDefectAndon()">Mark Resolved</button>
+                    </div>
                 </div>
 
                 <!-- In-Line Fix View -->
@@ -5798,6 +5891,9 @@
                     <button class="cal-modal-tab active" onclick="switchCalTab('action')">
                         Action Required <span class="tab-count overdue">7</span>
                     </button>
+                    <button class="cal-modal-tab" onclick="switchCalTab('proactive')">
+                        Proactive <span class="tab-count" style="background: var(--accent-purple);">2</span>
+                    </button>
                     <button class="cal-modal-tab" onclick="switchCalTab('scheduled')">
                         Scheduled <span class="tab-count warning">3</span>
                     </button>
@@ -5997,6 +6093,57 @@
                         <div class="cal-list-status">
                             <div class="cal-list-due scheduled">In calibration</div>
                             <div class="cal-list-action" onclick="viewCalSchedule('HT-004')">View details →</div>
+                        </div>
+                    </div>
+
+                    <!-- Proactive items (trend-based) -->
+                    <div class="cal-list-item proactive" data-status="proactive" data-type="electrical" style="border-left: 3px solid var(--accent-purple);">
+                        <div class="cal-list-icon">⚡</div>
+                        <div class="cal-list-info">
+                            <div class="cal-list-name-row">
+                                <div class="cal-list-name">Ultrasonic Welder UW-1188</div>
+                                <div class="cal-list-lastcal">Last cal: Apr 1, 2026</div>
+                            </div>
+                            <div class="cal-list-meta">
+                                <span>📍 Station 2B</span>
+                                <span>🏷️ Branson UW-2000X</span>
+                            </div>
+                            <div style="margin-top: 0.35rem; padding: 0.35rem 0.5rem; background: rgba(168, 85, 247, 0.1); border-radius: 4px; font-size: 0.75rem;">
+                                <span style="color: var(--accent-purple);">📈 Trend Alert:</span>
+                                <span style="color: var(--text-secondary);">Cal drift - 3 consecutive readings near limit (87% confidence)</span>
+                            </div>
+                        </div>
+                        <div class="cal-list-status">
+                            <div class="cal-list-due" style="color: var(--accent-purple);">Proactive</div>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <div class="cal-list-action" onclick="scheduleProactiveMaintenance('UW-1188')">Schedule maintenance →</div>
+                                <div class="cal-list-action" onclick="dismissProactiveAlert('UW-1188', this)" style="color: var(--text-muted);">Dismiss alert</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cal-list-item proactive" data-status="proactive" data-type="torque" style="border-left: 3px solid var(--accent-purple);">
+                        <div class="cal-list-icon">🔧</div>
+                        <div class="cal-list-info">
+                            <div class="cal-list-name-row">
+                                <div class="cal-list-name">Hydraulic Press HP-215</div>
+                                <div class="cal-list-lastcal">Last cal: Mar 20, 2026</div>
+                            </div>
+                            <div class="cal-list-meta">
+                                <span>📍 Station 4A</span>
+                                <span>🏷️ Dake Force 200</span>
+                            </div>
+                            <div style="margin-top: 0.35rem; padding: 0.35rem 0.5rem; background: rgba(168, 85, 247, 0.1); border-radius: 4px; font-size: 0.75rem;">
+                                <span style="color: var(--accent-purple);">🔄 Trend Alert:</span>
+                                <span style="color: var(--text-secondary);">9,200 / 10,000 cycle limit reached (94% confidence)</span>
+                            </div>
+                        </div>
+                        <div class="cal-list-status">
+                            <div class="cal-list-due" style="color: var(--accent-purple);">Proactive</div>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <div class="cal-list-action" onclick="scheduleProactiveMaintenance('HP-215')">Schedule maintenance →</div>
+                                <div class="cal-list-action" onclick="dismissProactiveAlert('HP-215', this)" style="color: var(--text-muted);">Dismiss alert</div>
+                            </div>
                         </div>
                     </div>
 
@@ -6855,6 +7002,7 @@
             document.getElementById('andonTriageView').style.display = 'none';
             document.getElementById('andonInProgressView').style.display = 'none';
             document.getElementById('andonMainView').style.display = 'none';
+            document.getElementById('andonNonDefectView').style.display = 'none';
             document.getElementById('andonRepairRecommendView').style.display = 'none';
             document.getElementById('completeRepairView').style.display = 'none';
             document.getElementById('escalateView').style.display = 'none';
@@ -6900,8 +7048,43 @@
                         document.getElementById('progressResponderShort').textContent = andon.responder.name;
                     }
                 }
+            } else if (andon.issueCategory && ['Equipment', 'Safety', 'Material', 'Other'].includes(andon.issueCategory)) {
+                // Show non-defect view for Equipment, Safety, Material, Other issues
+                document.getElementById('andonNonDefectView').style.display = 'block';
+
+                // Get icon based on category
+                const categoryIcons = {
+                    'Equipment': '⚙️',
+                    'Safety': '⚠️',
+                    'Material': '📦',
+                    'Other': '📋'
+                };
+
+                // Populate non-defect view
+                document.getElementById('nonDefectDurationTime').textContent = andon.duration || '';
+                document.getElementById('nonDefectOpenedAt').textContent = andon.openedAt || '';
+                document.getElementById('nonDefectIssueType').textContent = andon.issueCategory || '';
+                document.getElementById('nonDefectIcon').textContent = categoryIcons[andon.issueCategory] || '📋';
+                document.getElementById('nonDefectTitle').textContent = andon.issueCategory + ' Issue';
+                document.getElementById('nonDefectDescription').textContent = andon.issueType || 'Responder notified';
+                document.getElementById('nonDefectTriagedInfo').textContent = 'Triaged by ' + (andon.triagedBy || 'Unknown') + ' @ ' + (andon.triagedAt || '');
+                document.getElementById('nonDefectOpStep').textContent = andon.opStep || '';
+                document.getElementById('nonDefectSerial').textContent = andon.serial || '';
+                document.getElementById('nonDefectPulledBy').textContent = andon.pulledBy || '';
+                document.getElementById('nonDefectStation').textContent = andon.title ? andon.title.replace('Andon - ', '') : '';
+
+                // Responder
+                if (andon.responder) {
+                    document.getElementById('nonDefectResponderAvatar').textContent = andon.responder.initials || andon.responder.id || 'R';
+                    document.getElementById('nonDefectResponderName').textContent = andon.responder.name || andon.responderName || '';
+                    document.getElementById('nonDefectResponderRole').textContent = andon.responder.role || '';
+                } else if (andon.responderName) {
+                    document.getElementById('nonDefectResponderAvatar').textContent = andon.responderName.split(' ').map(n => n[0]).join('');
+                    document.getElementById('nonDefectResponderName').textContent = andon.responderName;
+                    document.getElementById('nonDefectResponderRole').textContent = 'Responder';
+                }
             } else {
-                // Show main view (triaged, awaiting resolution decision)
+                // Show main view (triaged defect, awaiting resolution decision)
                 document.getElementById('andonMainView').style.display = 'block';
 
                 // Populate main view
@@ -6945,6 +7128,74 @@
             document.getElementById('andonModal').classList.remove('active');
         }
 
+        function resolveNonDefectAndon() {
+            const andon = andonData[currentAndonId];
+            if (!andon) return;
+
+            // Mark as resolved
+            andon.status = 'resolved';
+            andon.resolvedAt = new Date().toLocaleTimeString('en-US', {hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'});
+
+            // Update card display
+            updateAndonCardDisplay(currentAndonId, 'resolved');
+
+            closeAndonModal();
+        }
+
+        function toggleNonDefectReassign() {
+            const options = document.getElementById('nonDefectReassignOptions');
+            if (options.style.display === 'none') {
+                populateNonDefectReassignList();
+                options.style.display = 'block';
+            } else {
+                options.style.display = 'none';
+            }
+        }
+
+        function hideNonDefectReassign() {
+            document.getElementById('nonDefectReassignOptions').style.display = 'none';
+        }
+
+        function populateNonDefectReassignList() {
+            const andon = andonData[currentAndonId];
+            const currentResponderId = andon?.responder?.id || '';
+            const list = document.getElementById('nonDefectReassignList');
+
+            // Get responders - filter to show others
+            const responders = [
+                { id: 'NG', name: 'Nina Garcia', role: 'Equipment Technician', status: 'available' },
+                { id: 'MR', name: 'Maria Rodriguez', role: 'Team Lead', status: 'available' },
+                { id: 'TB', name: 'Tom Bradley', role: 'Senior Technician', status: 'busy' },
+                { id: 'JC', name: 'James Chen', role: 'Quality Engineer', status: 'available' }
+            ].filter(r => r.id !== currentResponderId);
+
+            list.innerHTML = responders.map(r => `
+                <div class="reassign-option" onclick="selectNonDefectResponder('${r.id}', '${r.name}', '${r.role}')">
+                    <div class="reassign-avatar">${r.id}</div>
+                    <div class="reassign-info">
+                        <div class="reassign-name">${r.name}</div>
+                        <div class="reassign-role">${r.role}</div>
+                    </div>
+                    <span class="reassign-status assigned-status ${r.status}">${r.status === 'available' ? 'Available' : 'Busy'}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectNonDefectResponder(id, name, role) {
+            const andon = andonData[currentAndonId];
+            if (andon) {
+                andon.responder = { id, name, role, initials: id };
+                andon.responderName = name;
+            }
+
+            // Update the display
+            document.getElementById('nonDefectResponderAvatar').textContent = id;
+            document.getElementById('nonDefectResponderName').textContent = name;
+            document.getElementById('nonDefectResponderRole').textContent = role;
+
+            hideNonDefectReassign();
+        }
+
         function updateAndonStatus(andonId, newStatus, additionalData = {}) {
             if (!andonData[andonId]) return;
 
@@ -6966,6 +7217,12 @@
             const cards = document.querySelectorAll('.andon-card');
             cards.forEach(card => {
                 if (card.getAttribute('onclick')?.includes(andonId)) {
+                    // If resolved, hide the card
+                    if (status === 'resolved') {
+                        card.style.display = 'none';
+                        return;
+                    }
+
                     // Update the status badge/display
                     const typeEl = card.querySelector('.andon-type');
                     const linkEl = card.querySelector('div[style*="color: var(--accent-blue)"]');
@@ -6978,8 +7235,6 @@
                             typeEl.innerHTML = '<span style="color: var(--accent-green);">● Triaged - Awaiting Action</span>';
                         } else if (status === 'hospital') {
                             typeEl.innerHTML = '<span style="color: var(--accent-purple);">● Sent to Hospital</span>';
-                        } else if (status === 'resolved') {
-                            typeEl.innerHTML = '<span style="color: var(--accent-green);">● Resolved</span>';
                         }
                     }
 
@@ -7218,10 +7473,6 @@
                 showToast('Required Field', 'Please select an issue type.', 'warning', 3000);
                 return;
             }
-            if (!description) {
-                showToast('Required Field', 'Please enter an issue description.', 'warning', 3000);
-                return;
-            }
             if (!responder) {
                 showToast('Required Field', 'Please assign a responder.', 'warning', 3000);
                 return;
@@ -7280,12 +7531,15 @@
                     serial: document.getElementById('andonTriageSerial').textContent
                 });
             } else {
-                // Non-defect issues (Material, Equipment, Safety, Other) - just complete triage and notify responder
+                // Non-defect issues (Material, Equipment, Safety, Other) - complete triage and notify responder
+                const issueCategory = type.replace(/[🔧📦⚙️⚠️📋]/g, '').trim();
                 updateAndonStatus(currentAndonId, 'triaged', {
-                    issueType: type.replace(/[🔧📦⚙️⚠️📋]/g, '').trim(),
-                    responderName: responderName
+                    issueType: issueCategory + (description ? ' - ' + description : ''),
+                    issueCategory: issueCategory,
+                    responderName: responderName,
+                    responder: currentAssignedResponder
                 });
-                showToast('Triage Complete', `${type.replace(/[🔧📦⚙️⚠️📋]/g, '').trim()}: ${description}\nResponder: ${responderName}\n\nResponder has been notified.`, 'success');
+                showToast('Triage Complete', `${issueCategory}: ${description}\nResponder: ${responderName}\n\nResponder has been notified.`, 'success');
                 closeAndonModal();
             }
         }
@@ -7844,6 +8098,8 @@
                     showByTab = true;
                 } else if (currentCalTab === 'action') {
                     showByTab = itemStatus === 'action';
+                } else if (currentCalTab === 'proactive') {
+                    showByTab = itemStatus === 'proactive';
                 } else if (currentCalTab === 'scheduled') {
                     showByTab = itemStatus === 'scheduled';
                 }
@@ -7872,6 +8128,57 @@
         };
 
         let currentScheduleToolId = null;
+
+        function scheduleProactiveMaintenance(toolId) {
+            // Proactive maintenance uses the same scheduling form
+            const proactiveTools = {
+                'UW-1188': { icon: '⚡', name: 'Ultrasonic Welder UW-1188', meta: 'Station 2B • Branson UW-2000X', status: 'Proactive - Cal drift detected', statusClass: 'proactive' },
+                'HP-215': { icon: '🔧', name: 'Hydraulic Press HP-215', meta: 'Station 4A • Dake Force 200', status: 'Proactive - Cycle limit approaching', statusClass: 'proactive' }
+            };
+
+            currentScheduleToolId = toolId;
+            const tool = proactiveTools[toolId];
+
+            if (tool) {
+                document.getElementById('scheduleToolIcon').textContent = tool.icon;
+                document.getElementById('scheduleToolName').textContent = tool.name;
+                document.getElementById('scheduleToolMeta').textContent = tool.meta;
+                document.getElementById('scheduleToolStatus').textContent = tool.status;
+                document.getElementById('scheduleToolStatus').className = 'schedule-tool-status';
+                document.getElementById('scheduleToolStatus').style.background = 'rgba(168, 85, 247, 0.2)';
+                document.getElementById('scheduleToolStatus').style.color = 'var(--accent-purple)';
+
+                document.getElementById('schedulePriority').value = 'medium';
+            }
+
+            // Set default date to within next week
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 3);
+            document.getElementById('scheduleDate').value = nextWeek.toISOString().split('T')[0];
+
+            document.getElementById('scheduleTech').value = '';
+            document.getElementById('scheduleNotes').value = '';
+            document.getElementById('scheduleType').value = 'preventive';
+
+            document.getElementById('scheduleFormOverlay').classList.add('active');
+        }
+
+        function dismissProactiveAlert(toolId, element) {
+            const proactiveTools = {
+                'UW-1188': 'Ultrasonic Welder UW-1188',
+                'HP-215': 'Hydraulic Press HP-215'
+            };
+
+            const toolName = proactiveTools[toolId] || toolId;
+            const card = element.closest('.cal-list-item');
+
+            if (card) {
+                card.dataset.status = 'dismissed';
+                card.style.display = 'none';
+                updateCalTabCounts();
+                showToast('Alert Dismissed', `${toolName} proactive alert dismissed`, 'info', 3000);
+            }
+        }
 
         function scheduleCalibration(toolId) {
             currentScheduleToolId = toolId;
@@ -7920,8 +8227,14 @@
                 return;
             }
 
+            // Proactive tools lookup
+            const proactiveTools = {
+                'UW-1188': { name: 'Ultrasonic Welder UW-1188' },
+                'HP-215': { name: 'Hydraulic Press HP-215' }
+            };
+
             // Find the card and update it
-            const toolName = toolData[currentScheduleToolId]?.name || currentScheduleToolId;
+            const toolName = toolData[currentScheduleToolId]?.name || proactiveTools[currentScheduleToolId]?.name || currentScheduleToolId;
             const cards = document.querySelectorAll('.cal-list-item');
 
             cards.forEach(card => {
@@ -7974,19 +8287,21 @@
         function updateCalTabCounts() {
             const cards = document.querySelectorAll('.cal-list-item');
             let actionCount = 0;
+            let proactiveCount = 0;
             let scheduledCount = 0;
             let totalCount = cards.length;
 
             cards.forEach(card => {
                 if (card.dataset.status === 'action') actionCount++;
+                if (card.dataset.status === 'proactive') proactiveCount++;
                 if (card.dataset.status === 'scheduled') scheduledCount++;
             });
 
             // Update tab badges
             const tabs = document.querySelectorAll('.cal-modal-tab .tab-count');
             if (tabs[0]) tabs[0].textContent = actionCount;
-            if (tabs[1]) tabs[1].textContent = scheduledCount;
-            if (tabs[2]) tabs[2].textContent = totalCount;
+            if (tabs[1]) tabs[1].textContent = proactiveCount;
+            if (tabs[2]) tabs[2].textContent = scheduledCount;
         }
 
         function viewCalSchedule(toolId) {
