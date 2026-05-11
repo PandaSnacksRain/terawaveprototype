@@ -1795,7 +1795,7 @@
                         <textarea id="preventiveNCNotes" placeholder="Describe potential product impact..." style="display: none; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 40px; margin-top: 0.5rem;"></textarea>
                     </div>
                     <div style="margin-bottom: 0.75rem;">
-                        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Technician Signature</label>
+                        <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Technician Signature <span style="color: var(--accent-red);">*</span></label>
                         <input type="text" id="preventiveSignature" value="Nina Garcia" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
                     </div>
                     <button class="action-btn primary" onclick="completePreventive()" style="width: 100%;">✓ Mark Complete</button>
@@ -1846,6 +1846,7 @@
                             <button onclick="editDiagnosis()" style="padding: 0.2rem 0.5rem; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer; white-space: nowrap;">Edit</button>
                         </div>
                         <div id="diagnosisInput" style="display: block;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Diagnosis <span style="color: var(--accent-red);">*</span></label>
                             <textarea id="diagnosisText" placeholder="Enter diagnosis after inspection..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 60px;"></textarea>
                             <button class="action-btn primary" onclick="saveDiagnosis()" style="width: 100%; margin-top: 0.5rem;">Save Diagnosis & Start Repair</button>
                         </div>
@@ -1859,7 +1860,7 @@
                         </div>
                         <div id="maintenanceInput">
                             <div style="margin-bottom: 0.5rem;">
-                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Action Performed:</label>
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Action Performed <span style="color: var(--accent-red);">*</span></label>
                                 <select id="maintenanceAction" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
                                     <option value="">Select action...</option>
                                     <option value="calibration">Calibration Adjustment</option>
@@ -1872,7 +1873,7 @@
                                 </select>
                             </div>
                             <div style="margin-bottom: 0.5rem;">
-                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Work Details:</label>
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Work Details <span style="color: var(--accent-red);">*</span></label>
                                 <textarea id="maintenanceDetails" placeholder="Describe work performed, parts used, settings adjusted..." style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 80px;"></textarea>
                             </div>
                             <button class="action-btn primary" onclick="completeMaintenanceWork()" style="width: 100%;">Complete Work & Proceed to Verification</button>
@@ -1896,7 +1897,7 @@
                             <div style="margin-bottom: 0.75rem;">
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                                     <input type="checkbox" id="verifyFunctional" style="width: 18px; height: 18px; accent-color: var(--accent-green);">
-                                    <span style="font-size: 0.85rem;">Equipment is functional and operating within spec</span>
+                                    <span style="font-size: 0.85rem;">Equipment is functional and operating within spec <span style="color: var(--accent-red);">*</span></span>
                                 </label>
                             </div>
                             <div style="margin-bottom: 0.75rem;">
@@ -1920,7 +1921,7 @@
                                 <textarea id="ncNotes" placeholder="Describe potential product impact..." style="display: none; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 40px; margin-top: 0.5rem;"></textarea>
                             </div>
                             <div style="margin-bottom: 0.75rem;">
-                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Technician Signature:</label>
+                                <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Technician Signature <span style="color: var(--accent-red);">*</span></label>
                                 <input type="text" id="techSignature" value="Nina Garcia" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
                             </div>
                             <button class="action-btn resolve-andon" onclick="completeVerification()" style="width: 100%;">✓ Verify & Resolve Andon</button>
@@ -2693,7 +2694,7 @@
                             <textarea id="proactiveNCNotes" placeholder="Describe potential product impact..." style="display: none; width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-family: inherit; font-size: 0.85rem; resize: vertical; min-height: 40px; margin-top: 0.5rem;"></textarea>
                         </div>
                         <div style="margin-bottom: 0.75rem;">
-                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Technician Signature</label>
+                            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Technician Signature <span style="color: var(--accent-red);">*</span></label>
                             <input type="text" id="proactiveSignature" value="Nina Garcia" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
                         </div>
                         <button class="action-btn primary" onclick="completeProactive()" style="width: 100%;">✓ Mark Complete</button>
