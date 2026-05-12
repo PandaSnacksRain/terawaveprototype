@@ -160,72 +160,77 @@
 
     <h2>1. System Architecture</h2>
 
-    <div class="mermaid">
-flowchart TB
-    subgraph clients["CLIENT LAYER"]
-        OPS["Ops Dashboard<br/>(Supervisor)"]
-        MAINT["Maintenance Dashboard<br/>(Technician)"]
-        OP["Operator Interface<br/>(Station)"]
-        MOBILE["Mobile App<br/>(Floor Support)"]
-    end
+    <div class="section">
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+            <!-- Clients -->
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid #3b82f6; border-radius: 8px; padding: 1rem;">
+                <div style="color: #3b82f6; font-weight: 600; margin-bottom: 0.75rem;">👤 CLIENTS</div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Ops Dashboard</div>
+                    <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Maintenance Dashboard</div>
+                    <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Operator Interface</div>
+                    <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Mobile App</div>
+                </div>
+            </div>
 
-    subgraph gateway["API GATEWAY"]
-        GW["API Gateway<br/>Auth | Rate Limit | Routing"]
-    end
+            <div style="text-align: center; color: #64748b;">↓ API Gateway (Auth, Routing) ↓</div>
 
-    subgraph services["SERVICE LAYER"]
-        ANDON["Andon Service<br/>Pull, Triage, Resolve"]
-        NC["NC Service<br/>Create, Disposition, Close"]
-        EQUIP["Equipment Service<br/>Status, Cal, PM Schedule"]
-        WO["Work Order Service<br/>Progress, Hospital, Rejoin"]
-        CREW["Crew Service<br/>Certs, Availability, Assign"]
-        NOTIFY["Notification Service<br/>Alerts, Escalations"]
-    end
+            <!-- Services -->
+            <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid #a855f7; border-radius: 8px; padding: 1rem;">
+                <div style="color: #a855f7; font-weight: 600; margin-bottom: 0.75rem;">⚙️ SERVICES</div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
+                    <div style="background: #334155; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                        <div style="font-weight: 500;">Andon</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Pull → Triage → Resolve</div>
+                    </div>
+                    <div style="background: #334155; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                        <div style="font-weight: 500;">NC/Quality</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Create → Dispo → Close</div>
+                    </div>
+                    <div style="background: #334155; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                        <div style="font-weight: 500;">Work Order</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Track → Hospital → Rejoin</div>
+                    </div>
+                    <div style="background: #334155; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                        <div style="font-weight: 500;">Equipment</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Status, Cal, PM</div>
+                    </div>
+                    <div style="background: #334155; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                        <div style="font-weight: 500;">Crew</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Certs, Assign</div>
+                    </div>
+                    <div style="background: #334155; padding: 0.75rem; border-radius: 6px; text-align: center;">
+                        <div style="font-weight: 500;">Notifications</div>
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Alerts, Escalations</div>
+                    </div>
+                </div>
+            </div>
 
-    subgraph data["DATA LAYER"]
-        DB[(PostgreSQL<br/>Primary Store)]
-        REDIS[(Redis<br/>Real-time State)]
-        QUEUE[["Message Queue<br/>(RabbitMQ/Kafka)"]]
-    end
+            <div style="display: flex; justify-content: center; gap: 2rem; color: #64748b;">
+                <span>↓</span>
+                <span>↓</span>
+            </div>
 
-    subgraph integrations["INTEGRATION LAYER"]
-        MES["MES Adapter"]
-        ERP["ERP Adapter"]
-        EQMS["Equipment Mgmt<br/>Adapter"]
-        HR["HR/Training<br/>Adapter"]
-    end
-
-    subgraph external["EXTERNAL SYSTEMS"]
-        MES_SYS["MES<br/>(Ignition/Camstar)"]
-        ERP_SYS["ERP<br/>(SAP/Oracle)"]
-        EQMS_SYS["Cal/PM System<br/>(Blue Mtn/Maximo)"]
-        HR_SYS["Training System<br/>(Workday/LMS)"]
-    end
-
-    clients --> GW
-    GW --> services
-    services --> data
-    services --> QUEUE
-    QUEUE --> NOTIFY
-
-    ANDON --> MES
-    WO --> MES
-    WO --> ERP
-    EQUIP --> EQMS
-    CREW --> HR
-    NC --> ERP
-
-    MES --> MES_SYS
-    ERP --> ERP_SYS
-    EQMS --> EQMS_SYS
-    HR --> HR_SYS
-
-    style clients fill:#1e293b,stroke:#3b82f6
-    style gateway fill:#1e293b,stroke:#06b6d4
-    style services fill:#1e293b,stroke:#a855f7
-    style data fill:#1e293b,stroke:#22c55e
-    style integrations fill:#1e293b,stroke:#f59e0b
-    style external fill:#1e293b,stroke:#64748b
+            <!-- Data + Integrations side by side -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid #22c55e; border-radius: 8px; padding: 1rem;">
+                    <div style="color: #22c55e; font-weight: 600; margin-bottom: 0.75rem;">💾 DATA</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">PostgreSQL (primary)</div>
+                        <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Redis (real-time)</div>
+                        <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Message Queue</div>
+                    </div>
+                </div>
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem;">
+                    <div style="color: #f59e0b; font-weight: 600; margin-bottom: 0.75rem;">🔌 INTEGRATIONS</div>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">MES → WO, Station, Serial</div>
+                        <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">ERP → Parts, Cost</div>
+                        <div style="background: #334155; padding: 0.5rem 1rem; border-radius: 6px;">Cal System → PM, Certs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <h2>2. Data Flow: Andon to Resolution</h2>
