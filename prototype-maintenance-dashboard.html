@@ -1920,6 +1920,16 @@
                     </div>
                 </div>
 
+                <!-- Selected Equipment Display (shown after selection) -->
+                <div id="selectedEquipmentDisplay" class="andon-workflow" style="display: none; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">Equipment</span>
+                        <button onclick="editEquipmentSelection()" style="padding: 0.2rem 0.5rem; background: transparent; border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-secondary); font-size: 0.75rem; cursor: pointer;">Change</button>
+                    </div>
+                    <div id="selectedEquipmentName" style="font-weight: 500; font-size: 0.95rem;"></div>
+                    <div id="selectedEquipmentId" style="font-size: 0.8rem; color: var(--text-muted);"></div>
+                </div>
+
                 <!-- Workflow Steps (hidden until equipment selected) -->
                 <div class="andon-workflow" id="andonWorkflowSteps" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3); display: none;">
 
@@ -2688,14 +2698,24 @@
                 populateAndonEquipmentDropdown(eq.andon.station);
 
                 // Check if equipment has been selected for this andon
+                const selectedEquipmentDisplay = document.getElementById('selectedEquipmentDisplay');
                 if (eq.andon.selectedEquipment) {
                     equipmentSelectionSection.style.display = 'none';
+
+                    // Show selected equipment display
+                    const stationEquipmentList = stationEquipment[eq.andon.station] || [];
+                    const selectedEquip = stationEquipmentList.find(e => e.id === eq.andon.selectedEquipment);
+                    selectedEquipmentDisplay.style.display = 'block';
+                    document.getElementById('selectedEquipmentName').textContent = selectedEquip ? selectedEquip.name : eq.andon.selectedEquipment;
+                    document.getElementById('selectedEquipmentId').textContent = selectedEquip ? selectedEquip.type : '';
+
                     andonWorkflowSteps.style.display = 'block';
                     equipmentDetailGrid.style.display = 'grid';
                     equipmentHistoryPanel.style.display = 'block';
                     document.getElementById('andonEquipmentSelect').value = eq.andon.selectedEquipment;
                 } else {
                     equipmentSelectionSection.style.display = 'block';
+                    selectedEquipmentDisplay.style.display = 'none';
                     andonWorkflowSteps.style.display = 'none';
                     equipmentDetailGrid.style.display = 'none';
                     equipmentHistoryPanel.style.display = 'none';
@@ -2970,6 +2990,10 @@
             if (eq && eq.andon) {
                 eq.andon.selectedEquipment = selectedValue;
 
+                // Get selected equipment info from the station equipment list
+                const stationEquipmentList = stationEquipment[eq.andon.station] || [];
+                const selectedEquip = stationEquipmentList.find(e => e.id === selectedValue);
+
                 // Reset diagnosis when equipment is first selected (fresh start)
                 if (!eq.andon.equipmentConfirmed) {
                     eq.andon.equipmentConfirmed = true;
@@ -2980,14 +3004,37 @@
                     eq.andon.resolved = false;
                 }
 
-                // Show workflow steps and equipment info
+                // Show selected equipment display
                 document.getElementById('equipmentSelectionSection').style.display = 'none';
+                const selectedDisplay = document.getElementById('selectedEquipmentDisplay');
+                selectedDisplay.style.display = 'block';
+                document.getElementById('selectedEquipmentName').textContent = selectedEquip ? selectedEquip.name : selectedValue;
+                document.getElementById('selectedEquipmentId').textContent = selectedEquip ? selectedEquip.type : '';
+
+                // Show workflow steps and equipment info
                 document.getElementById('andonWorkflowSteps').style.display = 'block';
                 document.getElementById('equipmentDetailGrid').style.display = 'grid';
                 document.getElementById('equipmentHistoryPanel').style.display = 'block';
 
                 // Re-render to show fresh diagnosis step
                 renderEquipmentDetails(currentEquipmentId);
+            }
+        }
+
+        function editEquipmentSelection() {
+            const eq = equipmentData[currentEquipmentId];
+            if (eq && eq.andon) {
+                // Reset equipment confirmation to allow re-selection
+                eq.andon.equipmentConfirmed = false;
+                eq.andon.selectedEquipment = null;
+
+                // Hide selected display and workflow, show dropdown
+                document.getElementById('selectedEquipmentDisplay').style.display = 'none';
+                document.getElementById('andonWorkflowSteps').style.display = 'none';
+                document.getElementById('equipmentDetailGrid').style.display = 'none';
+                document.getElementById('equipmentHistoryPanel').style.display = 'none';
+                document.getElementById('equipmentSelectionSection').style.display = 'block';
+                document.getElementById('andonEquipmentSelect').value = '';
             }
         }
 
