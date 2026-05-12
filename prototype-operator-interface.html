@@ -1105,6 +1105,325 @@
             color: var(--text-muted);
         }
 
+        /* Enhanced Test Results Panel */
+        .test-results-panel {
+            margin-top: 1rem;
+            background: var(--bg-dark);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .test-results-panel.visible {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .test-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .test-results-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .test-results-title .icon {
+            font-size: 1.1rem;
+        }
+
+        .test-results-summary {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .test-results-summary.pass {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-green);
+        }
+
+        .test-results-summary.fail {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        .test-results-body {
+            padding: 1rem;
+        }
+
+        .test-detail-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 80px 70px 60px;
+            gap: 0.5rem;
+            align-items: center;
+            padding: 0.6rem 0.75rem;
+            background: var(--bg-card);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .test-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .test-detail-row.fail {
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .test-detail-row.pass {
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .test-detail-label {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .test-detail-threshold {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .test-detail-threshold::before {
+            content: 'Req: ';
+            color: var(--text-muted);
+            font-family: inherit;
+        }
+
+        .test-detail-measured {
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .test-detail-measured.pass {
+            color: var(--accent-green);
+        }
+
+        .test-detail-measured.fail {
+            color: var(--accent-red);
+        }
+
+        .test-detail-delta {
+            font-family: monospace;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+        }
+
+        .test-detail-delta.pass {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--accent-green);
+        }
+
+        .test-detail-delta.fail {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        .test-detail-status {
+            text-align: right;
+            font-weight: 600;
+            font-size: 0.7rem;
+        }
+
+        .test-detail-status.pass {
+            color: var(--accent-green);
+        }
+
+        .test-detail-status.fail {
+            color: var(--accent-red);
+        }
+
+        /* AI Diagnosis Section */
+        .ai-diagnosis-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(139, 92, 246, 0.08));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 8px;
+        }
+
+        .ai-diagnosis-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .ai-diagnosis-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+
+        .ai-diagnosis-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+        }
+
+        .ai-diagnosis-badge {
+            font-size: 0.65rem;
+            padding: 0.15rem 0.4rem;
+            background: rgba(139, 92, 246, 0.2);
+            color: #a78bfa;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+
+        .ai-diagnosis-content {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .ai-diagnosis-analysis {
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .ai-diagnosis-analysis strong {
+            color: var(--text-primary);
+        }
+
+        .ai-diagnosis-cause {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .ai-diagnosis-cause-prob {
+            font-family: monospace;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.35rem;
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
+        .ai-diagnosis-cause-text {
+            flex: 1;
+        }
+
+        /* Recommended Steps Section */
+        .recommended-steps-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .recommended-steps-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .recommended-steps-icon {
+            font-size: 1rem;
+        }
+
+        .recommended-steps-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+        }
+
+        .recommended-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.6rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-dark);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .recommended-step:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .recommended-step:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 22px;
+            height: 22px;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-action {
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .step-detail {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .step-quick-action {
+            padding: 0.3rem 0.6rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: var(--accent-blue);
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .step-quick-action:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
         /* Error Recovery */
         .error-recovery-box {
             background: rgba(239, 68, 68, 0.1);
@@ -2270,6 +2589,7 @@
                     </div>
                     <div class="test-progress-text" id="testProgressText">Connect test cable to port T1</div>
                 </div>
+                <div class="test-results-panel" id="testResultsPanel" style="display: none;"></div>
             `;
 
             section.innerHTML = html;
@@ -2385,19 +2705,218 @@
 
             badge.classList.remove('running');
 
+            // Always render the detailed results panel
+            renderEnhancedTestResults(allPass);
+
             if (allPass) {
                 badge.textContent = 'PASS';
                 badge.classList.add('complete');
                 document.getElementById('testProgressText').textContent = 'All channels passed ✓';
                 showScanToast('Test Complete', 'All channels within specification', 'success');
-                updateSimulateButtons(); // Hide test buttons after pass
+                updateSimulateButtons();
                 checkAllVerificationsComplete();
             } else {
                 badge.textContent = 'FAIL';
                 badge.classList.add('failed');
-                document.getElementById('testProgressText').textContent = 'Test failed - see results';
+                document.getElementById('testProgressText').textContent = 'Test failed - see detailed results below';
                 showTestFailure();
-                updateSimulateButtons(); // Keep test buttons visible for retry
+                updateSimulateButtons();
+            }
+        }
+
+        function renderEnhancedTestResults(allPass) {
+            const panel = document.getElementById('testResultsPanel');
+            if (!panel || !testRequirements) return;
+
+            const threshold = 0.5; // dB loss threshold
+            const failedChannels = Object.entries(testResults).filter(([id, r]) => !r.pass);
+            const passedChannels = Object.entries(testResults).filter(([id, r]) => r.pass);
+
+            let html = `
+                <div class="test-results-header">
+                    <span class="test-results-title">
+                        <span class="icon">${allPass ? '✓' : '⚠️'}</span>
+                        Test Results
+                    </span>
+                    <span class="test-results-summary ${allPass ? 'pass' : 'fail'}">
+                        ${allPass ? 'ALL PASS' : `${failedChannels.length} FAILED`}
+                    </span>
+                </div>
+                <div class="test-results-body">
+            `;
+
+            // Render each channel's detailed results
+            testRequirements.channels.forEach(ch => {
+                const result = testResults[ch.id];
+                const measured = parseFloat(result.value);
+                const delta = measured - threshold;
+                const deltaStr = delta >= 0 ? `+${delta.toFixed(2)}` : delta.toFixed(2);
+                const isPass = result.pass;
+
+                html += `
+                    <div class="test-detail-row ${isPass ? 'pass' : 'fail'}">
+                        <span class="test-detail-label">${ch.name}</span>
+                        <span class="test-detail-threshold">< ${threshold} dB</span>
+                        <span class="test-detail-measured ${isPass ? 'pass' : 'fail'}">${result.value}</span>
+                        <span class="test-detail-delta ${isPass ? 'pass' : 'fail'}">${deltaStr} dB</span>
+                        <span class="test-detail-status ${isPass ? 'pass' : 'fail'}">${isPass ? 'PASS' : 'FAIL'}</span>
+                    </div>
+                `;
+            });
+
+            // Add AI diagnosis if there are failures
+            if (!allPass) {
+                const diagnosis = generateAIDiagnosis(failedChannels, passedChannels);
+                html += diagnosis;
+            }
+
+            html += `</div>`;
+            panel.innerHTML = html;
+            panel.style.display = 'block';
+            panel.classList.add('visible');
+        }
+
+        function generateAIDiagnosis(failedChannels, passedChannels) {
+            const failCount = failedChannels.length;
+            const totalChannels = failedChannels.length + passedChannels.length;
+
+            // Determine failure pattern for diagnosis
+            const avgFailedValue = failedChannels.reduce((sum, [id, r]) => sum + parseFloat(r.value), 0) / failCount;
+            const isSlightlyOverSpec = avgFailedValue < 0.7;
+            const isSevereFailure = avgFailedValue > 0.9;
+            const isMultipleFailures = failCount > 1;
+            const isAdjacentChannels = checkAdjacentChannels(failedChannels);
+
+            let analysisText = '';
+            let causes = [];
+            let steps = [];
+
+            if (isSevereFailure) {
+                analysisText = `<strong>Severe signal loss detected</strong> (${avgFailedValue.toFixed(2)} dB avg). This indicates a significant connection or component issue requiring immediate attention.`;
+                causes = [
+                    { prob: '65%', text: 'Cable connector not fully seated or damaged pins' },
+                    { prob: '25%', text: 'Antenna element damage or manufacturing defect' },
+                    { prob: '10%', text: 'Test equipment calibration drift' }
+                ];
+                steps = [
+                    { action: 'Inspect connector pins', detail: 'Check for bent, corroded, or damaged pins on both cable and antenna connectors', quick: 'View Pin Diagram' },
+                    { action: 'Verify cable seating', detail: 'Disconnect and reconnect cable, ensuring audible click and visual alignment marks match', quick: null },
+                    { action: 'Run continuity check', detail: 'Use multimeter to verify cable continuity before retesting', quick: 'Start Check' },
+                    { action: 'Escalate if persists', detail: 'Contact RF Engineering if issue remains after physical inspection', quick: 'Create NCR' }
+                ];
+            } else if (isMultipleFailures && isAdjacentChannels) {
+                analysisText = `<strong>Adjacent channel failures</strong> suggest a localized issue in the ${failCount > 2 ? 'connector block' : 'connector pair'}. Pattern indicates physical alignment or contamination problem.`;
+                causes = [
+                    { prob: '55%', text: 'Debris or contamination in connector housing' },
+                    { prob: '30%', text: 'Misaligned connector during installation' },
+                    { prob: '15%', text: 'Partial cable damage near connector' }
+                ];
+                steps = [
+                    { action: 'Clean connector contacts', detail: 'Use IPA wipes and lint-free cloth per WI-RF-042', quick: 'View WI' },
+                    { action: 'Check alignment marks', detail: 'Verify connector key alignment with socket orientation', quick: null },
+                    { action: 'Inspect cable sheath', detail: 'Look for kinks, bends, or damage within 6" of connector', quick: null },
+                    { action: 'Retry test sequence', detail: 'Re-run full test after completing inspection steps', quick: null }
+                ];
+            } else if (isSlightlyOverSpec) {
+                analysisText = `<strong>Marginal failure</strong> - measured value (${avgFailedValue.toFixed(2)} dB) is close to the 0.5 dB threshold. This may indicate a minor connection issue or environmental factor.`;
+                causes = [
+                    { prob: '50%', text: 'Connector not fully torqued to spec' },
+                    { prob: '30%', text: 'Temperature variation affecting calibration' },
+                    { prob: '20%', text: 'Normal variation at tolerance boundary' }
+                ];
+                steps = [
+                    { action: 'Verify connector torque', detail: `Check torque on affected channel(s): ${failedChannels.map(([id]) => `CH${id}`).join(', ')}`, quick: null },
+                    { action: 'Allow thermal stabilization', detail: 'Wait 2 min if unit was recently moved from different temp zone', quick: null },
+                    { action: 'Retry single channel', detail: 'Re-test only failed channels before full sequence', quick: 'Quick Retest' }
+                ];
+            } else {
+                analysisText = `<strong>${failCount} channel${failCount > 1 ? 's' : ''} failed</strong> the RF continuity test. Analysis of failure pattern suggests connector or cable issues as most likely root cause.`;
+                causes = [
+                    { prob: '45%', text: 'Incomplete connector engagement' },
+                    { prob: '35%', text: 'Cable routing causing signal loss' },
+                    { prob: '20%', text: 'Component variation or damage' }
+                ];
+                steps = [
+                    { action: 'Re-seat all connections', detail: 'Disconnect and reconnect cables on failed channels', quick: null },
+                    { action: 'Check cable routing', detail: 'Ensure minimum bend radius and no pinch points', quick: 'View Routing Guide' },
+                    { action: 'Visual inspection', detail: 'Inspect antenna elements for visible damage or contamination', quick: null },
+                    { action: 'Document & escalate', detail: 'If retry fails, create NCR with test data attached', quick: 'Create NCR' }
+                ];
+            }
+
+            let causesHtml = causes.map(c => `
+                <div class="ai-diagnosis-cause">
+                    <span class="ai-diagnosis-cause-prob">${c.prob}</span>
+                    <span class="ai-diagnosis-cause-text">${c.text}</span>
+                </div>
+            `).join('');
+
+            let stepsHtml = steps.map((s, i) => `
+                <div class="recommended-step">
+                    <span class="step-number">${i + 1}</span>
+                    <div class="step-content">
+                        <div class="step-action">${s.action}</div>
+                        <div class="step-detail">${s.detail}</div>
+                    </div>
+                    ${s.quick ? `<button class="step-quick-action" onclick="handleQuickAction('${s.quick}')">${s.quick}</button>` : ''}
+                </div>
+            `).join('');
+
+            return `
+                <div class="ai-diagnosis-section">
+                    <div class="ai-diagnosis-header">
+                        <span class="ai-diagnosis-icon">🤖</span>
+                        <span class="ai-diagnosis-title">AI-Assisted Diagnosis</span>
+                        <span class="ai-diagnosis-badge">Terawave AI</span>
+                    </div>
+                    <div class="ai-diagnosis-content">
+                        <div class="ai-diagnosis-analysis">${analysisText}</div>
+                        <div style="font-weight: 500; color: var(--text-primary); margin-bottom: 0.5rem; font-size: 0.75rem;">Probable Causes:</div>
+                        ${causesHtml}
+                    </div>
+                </div>
+                <div class="recommended-steps-section">
+                    <div class="recommended-steps-header">
+                        <span class="recommended-steps-icon">📋</span>
+                        <span class="recommended-steps-title">Recommended Next Steps</span>
+                    </div>
+                    ${stepsHtml}
+                </div>
+            `;
+        }
+
+        function checkAdjacentChannels(failedChannels) {
+            if (failedChannels.length < 2) return false;
+            const ids = failedChannels.map(([id]) => parseInt(id)).sort((a, b) => a - b);
+            for (let i = 0; i < ids.length - 1; i++) {
+                if (ids[i + 1] - ids[i] === 1) return true;
+            }
+            return false;
+        }
+
+        function handleQuickAction(action) {
+            switch(action) {
+                case 'View Pin Diagram':
+                    showScanToast('Opening Document', 'Loading pin diagram reference...', 'success');
+                    break;
+                case 'Start Check':
+                    showScanToast('Continuity Check', 'Connect multimeter to test port', 'success');
+                    break;
+                case 'Create NCR':
+                    showScanToast('NCR Draft Created', 'Non-conformance report initialized with test data', 'success');
+                    break;
+                case 'View WI':
+                    showScanToast('Opening Document', 'Loading WI-RF-042...', 'success');
+                    break;
+                case 'Quick Retest':
+                    showScanToast('Quick Retest', 'Running failed channels only...', 'success');
+                    setTimeout(() => retryTest(), 1000);
+                    break;
+                case 'View Routing Guide':
+                    showScanToast('Opening Document', 'Loading cable routing guide...', 'success');
+                    break;
+                default:
+                    showScanToast('Action', action, 'success');
             }
         }
 
@@ -2416,6 +2935,13 @@
 
         function retryTest() {
             hideErrorRecovery();
+
+            // Hide the results panel during retry
+            const panel = document.getElementById('testResultsPanel');
+            if (panel) {
+                panel.style.display = 'none';
+                panel.classList.remove('visible');
+            }
 
             // Reset test results
             testRequirements.channels.forEach(ch => {
