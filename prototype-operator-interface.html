@@ -1168,8 +1168,9 @@
 
         .test-detail-row {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem 1rem;
             padding: 0.5rem 0.75rem;
             background: var(--bg-card);
             border-radius: 6px;
@@ -1192,14 +1193,12 @@
         .test-detail-label {
             font-weight: 500;
             color: var(--text-primary);
-            min-width: 70px;
         }
 
         .test-detail-threshold {
             font-family: monospace;
             font-size: 0.75rem;
             color: var(--text-muted);
-            white-space: nowrap;
         }
 
         .test-detail-threshold::before {
@@ -1211,7 +1210,6 @@
         .test-detail-measured {
             font-family: monospace;
             font-weight: 600;
-            white-space: nowrap;
         }
 
         .test-detail-measured.pass {
@@ -1227,7 +1225,6 @@
             font-size: 0.7rem;
             padding: 0.15rem 0.4rem;
             border-radius: 3px;
-            white-space: nowrap;
         }
 
         .test-detail-delta.pass {
@@ -1241,11 +1238,8 @@
         }
 
         .test-detail-status {
-            text-align: right;
             font-weight: 600;
             font-size: 0.7rem;
-            margin-left: auto;
-            white-space: nowrap;
         }
 
         .test-detail-status.pass {
@@ -2295,9 +2289,6 @@
                 // Update scan status
                 updateScanStatus();
 
-                // Show toast
-                showScanToast(`${req.name} verified`, scanValue, 'success');
-
                 // Move focus to next unscanned field
                 focusNextScanField(partId);
             } else {
@@ -2400,8 +2391,6 @@
             const instruction = document.getElementById('torqueInstruction');
             instruction.textContent = `Ready: Torque ${req.fastener} now`;
             instruction.classList.add('armed');
-
-            showScanToast(`${req.fastener} armed`, `Target: ${req.target} ± ${req.tolerance} N-m`, 'success');
         }
 
         function receiveTorqueReading(torqueId, actualValue) {
@@ -2447,11 +2436,8 @@
                 instruction.classList.remove('armed');
             }
 
-            // Show toast and handle failure
-            if (pass) {
-                showScanToast(`${req.fastener} torque verified`, `${actualValue.toFixed(2)} N-m`, 'success');
-            } else {
-                showScanToast(`${req.fastener} OUT OF SPEC`, `${actualValue.toFixed(2)} N-m (req: ${req.target} ± ${req.tolerance})`, 'error');
+            // Handle failure
+            if (!pass) {
                 showTorqueFailure(torqueId, actualValue);
                 updateSimulateButtons(); // Keep buttons visible for retry
             }
@@ -2629,9 +2615,9 @@
 
             channels.forEach((ch, index) => {
                 setTimeout(() => {
-                    // Simulate test result (90% pass rate for demo)
-                    const pass = Math.random() > 0.1;
-                    const value = pass ? (Math.random() * 0.3 + 0.1).toFixed(2) : (Math.random() * 0.5 + 0.6).toFixed(2);
+                    // Always pass for normal test
+                    const pass = true;
+                    const value = (Math.random() * 0.3 + 0.1).toFixed(2);
 
                     testResults[ch.id] = { status: 'complete', value: `${value} dB`, pass };
 
@@ -2716,7 +2702,6 @@
                 badge.textContent = 'PASS';
                 badge.classList.add('complete');
                 document.getElementById('testProgressText').textContent = 'All channels passed ✓';
-                showScanToast('Test Complete', 'All channels within specification', 'success');
                 updateSimulateButtons();
                 checkAllVerificationsComplete();
             } else {
@@ -2752,9 +2737,6 @@
             // Render each channel's detailed results
             testRequirements.channels.forEach(ch => {
                 const result = testResults[ch.id];
-                const measured = parseFloat(result.value);
-                const delta = measured - threshold;
-                const deltaStr = delta >= 0 ? `+${delta.toFixed(2)}` : delta.toFixed(2);
                 const isPass = result.pass;
 
                 html += `
@@ -2762,7 +2744,6 @@
                         <span class="test-detail-label">${ch.name}</span>
                         <span class="test-detail-threshold">< ${threshold} dB</span>
                         <span class="test-detail-measured ${isPass ? 'pass' : 'fail'}">${result.value}</span>
-                        <span class="test-detail-delta ${isPass ? 'pass' : 'fail'}">${deltaStr} dB</span>
                         <span class="test-detail-status ${isPass ? 'pass' : 'fail'}">${isPass ? 'PASS' : 'FAIL'}</span>
                     </div>
                 `;
@@ -2963,15 +2944,15 @@
             });
 
             document.getElementById('testProgressFill').style.width = '0%';
-            document.getElementById('testProgressText').textContent = 'Ready to retry...';
+            document.getElementById('testProgressText').textContent = 'Ready - select test to run';
 
             const badge = document.getElementById('testStatusBadge');
             badge.textContent = 'Connected';
             badge.classList.remove('failed');
             badge.classList.add('complete');
 
-            // Auto-run after brief delay
-            setTimeout(() => runTest(), 500);
+            // Show test buttons again
+            updateSimulateButtons();
         }
 
         // Error Recovery
@@ -3059,7 +3040,6 @@
 
             // Auto-arm for retry
             armTorqueFastener(torqueId);
-            showScanToast('Ready to Retry', `${req.fastener} - apply torque again`, 'success');
         }
 
         function disableCompleteStep() {
@@ -3166,11 +3146,36 @@
                 title: 'Install RF Panel Mounting Brackets',
                 desc: 'Secure the RF panel mounting brackets to the chassis using the provided hardware.',
                 procedures: [
-                    'Locate bracket mounting holes on chassis',
-                    'Align RF panel bracket with mounting holes',
-                    'Insert M4 bolts through bracket',
-                    'Hand-tighten all 4 bolts first',
-                    'Torque to 3.5 N-m in cross pattern'
+                    {
+                        title: 'Locate bracket mounting holes on chassis',
+                        details: 'Identify the four M4 threaded mounting holes on the chassis rear panel. Holes are marked with laser-etched indicators "RF-1" through "RF-4". Verify threads are clean and free of debris using compressed air if necessary.',
+                        caution: 'Do not use metal tools to clean threads - risk of cross-threading.',
+                        reference: 'DWG-RF-2847 Rev C, Section 3.2'
+                    },
+                    {
+                        title: 'Align RF panel bracket with mounting holes',
+                        details: 'Position the bracket with the serial number label facing outward (toward operator). The bracket has asymmetric hole spacing - the wider gap (32mm) goes toward the top. Use alignment pins in holes RF-1 and RF-3 first to ensure proper positioning.',
+                        caution: 'Bracket orientation is critical for RF shielding effectiveness.',
+                        reference: 'WI-ASM-0042, Figure 4'
+                    },
+                    {
+                        title: 'Insert M4 bolts through bracket',
+                        details: 'Use M4x12mm socket head cap screws (P/N 47-0082). Insert bolts through bracket clearance holes into chassis threads. Bolts should turn freely by hand for at least 3 full rotations before resistance - if not, back out and check for cross-threading.',
+                        caution: 'Never force a bolt that does not turn freely.',
+                        reference: 'Fastener Spec FS-0082'
+                    },
+                    {
+                        title: 'Hand-tighten all 4 bolts first',
+                        details: 'Bring all four bolts to finger-tight before applying torque to any single bolt. This ensures the bracket remains properly aligned and prevents binding. Verify bracket sits flush against chassis mounting surface with no visible gaps.',
+                        caution: 'Gap > 0.5mm indicates misalignment - do not proceed.',
+                        reference: null
+                    },
+                    {
+                        title: 'Torque to 3.5 N-m in cross pattern',
+                        details: 'Using calibrated torque wrench (Cal ID required), torque bolts in sequence: RF-1 → RF-4 → RF-2 → RF-3 (diagonal cross pattern). Apply torque smoothly until wrench clicks. Do not re-torque after click. Mark each bolt head with torque seal after verification.',
+                        caution: 'Over-torque damages threads. If wrench does not click at 3.5 N-m, stop and escalate.',
+                        reference: 'Torque Spec TS-RF-001'
+                    }
                 ],
                 parts: [
                     { id: 1, type: 'sn', name: 'RF Panel Bracket', qty: 1, bin: 'A-1' },
@@ -3183,11 +3188,36 @@
                 title: 'Route RF Cables Through Chassis',
                 desc: 'Route all RF cables through the designated cable channels in the chassis.',
                 procedures: [
-                    'Identify cable entry points A1, A2, B1',
-                    'Feed primary RF cable through channel A1',
-                    'Feed secondary RF cable through channel A2',
-                    'Secure cables with tie wraps at 6" intervals',
-                    'Verify no cable pinch points'
+                    {
+                        title: 'Identify cable entry points A1, A2, B1',
+                        details: 'Locate the three labeled cable entry grommets on the chassis left side panel. A1 is top-rear (primary RF), A2 is center-rear (secondary RF), B1 is bottom-front (control/power). Each grommet has a split design allowing cable insertion without disconnecting ends.',
+                        caution: 'Do not remove grommets - they provide EMI shielding.',
+                        reference: 'DWG-CHAS-1205, Sheet 2'
+                    },
+                    {
+                        title: 'Feed primary RF cable through channel A1',
+                        details: 'Insert the cable with red band marking (primary RF, P/N CBL-RF-001) through grommet A1. Route along the upper cable tray, maintaining minimum 2" clearance from power cables. Cable should follow the natural bend radius - do not force sharp turns. Total routed length should be 18" ± 0.5".',
+                        caution: 'Minimum bend radius is 4x cable diameter (1.2"). Tighter bends cause signal loss.',
+                        reference: 'Cable Routing Guide CRG-2024'
+                    },
+                    {
+                        title: 'Feed secondary RF cable through channel A2',
+                        details: 'Insert the cable with blue band marking (secondary RF, P/N CBL-RF-002) through grommet A2. Route parallel to primary cable but maintain minimum 1" separation to prevent crosstalk. Use the lower cable tray channel. Connector end should reach RF panel with 2" of service slack.',
+                        caution: 'RF cables must not cross power cables at acute angles.',
+                        reference: 'Cable Routing Guide CRG-2024'
+                    },
+                    {
+                        title: 'Secure cables with tie wraps at 6" intervals',
+                        details: 'Install nylon cable ties (P/N TW-4.8-200) at designated tie points (marked with △ symbols along cable tray). Tighten until tie wrap clicks twice, then cut flush with tie wrap gun. Cables should be secure but able to rotate slightly within the tie - overtightening damages cable jacket.',
+                        caution: 'Leave 1/8" gap between tie wrap and cable jacket.',
+                        reference: 'WI-CBL-0018'
+                    },
+                    {
+                        title: 'Verify no cable pinch points',
+                        details: 'Perform full visual inspection along entire cable route. Check: (1) No cables trapped under brackets or panels, (2) All grommets fully seated, (3) No cable-on-cable contact without protective sleeving, (4) Service loop at each connector end, (5) No cables in hinge/moving component paths. Document inspection on traveler.',
+                        caution: 'Pinch points cause intermittent failures that are difficult to diagnose.',
+                        reference: 'QC Checklist QC-CBL-01'
+                    }
                 ],
                 parts: [
                     { id: 1, type: 'lot', name: 'RF Cable Assembly', qty: 2, bin: 'A-2' },
@@ -3200,11 +3230,36 @@
                 title: 'Connect Antenna Array',
                 desc: 'Connect the main antenna array to the RF panel using the precision connector tool.',
                 procedures: [
-                    'Position antenna array using alignment jig',
-                    'Install shielding gasket on connector interface',
-                    'Connect RF connectors (4x) — star pattern',
-                    'Torque all connections to 2.5 N-m',
-                    'Verify connection with continuity check'
+                    {
+                        title: 'Position antenna array using alignment jig',
+                        details: 'Install alignment jig (Tool ID: JIG-ANT-04) onto RF panel mounting posts. Carefully lower antenna array onto jig alignment pins - array should drop into position with no lateral force required. Verify all four alignment indicators show green (pins fully engaged). Array serial number should face upward.',
+                        caution: 'Forcing alignment damages precision connector pins. If resistance felt, lift and reposition.',
+                        reference: 'Tool Setup Guide TSG-JIG-04'
+                    },
+                    {
+                        title: 'Install shielding gasket on connector interface',
+                        details: 'Remove protective film from EMI shielding gasket (P/N GSK-EMI-22). Inspect gasket for tears, contamination, or compression damage - reject if any defects found. Align gasket with connector interface using the three positioning tabs. Press firmly around entire perimeter until gasket seats into retention groove.',
+                        caution: 'Gasket is single-use. Do not reposition after initial placement.',
+                        reference: 'Material Spec MS-GSK-022'
+                    },
+                    {
+                        title: 'Connect RF connectors (4x) — star pattern',
+                        details: 'Using precision connector tool, engage connectors in star pattern sequence: J1 (top) → J3 (bottom) → J2 (left) → J4 (right). For each connector: (1) Align keyway with slot, (2) Push straight in until resistance, (3) Rotate coupling nut 1/4 turn clockwise, (4) Verify visual indicator shows "locked" (green band visible). Do not use fingers - connector tool provides proper force angle.',
+                        caution: 'Cross-threading destroys connector. Never rotate connector body, only coupling nut.',
+                        reference: 'Connector Procedure CP-RF-SMA-01'
+                    },
+                    {
+                        title: 'Torque all connections to 2.5 N-m',
+                        details: 'Using RF connector torque wrench (Cal ID required, 0.5-5 N-m range), torque each coupling nut in same star pattern sequence. Position wrench perpendicular to connector axis. Apply smooth, steady pressure until click. Record actual torque value from digital display for each connector on traveler. Acceptable range: 2.4-2.6 N-m.',
+                        caution: 'Under-torque causes intermittent contact. Over-torque damages connector dielectric.',
+                        reference: 'Torque Spec TS-RF-SMA'
+                    },
+                    {
+                        title: 'Verify connection with continuity check',
+                        details: 'Connect continuity tester to array test port (TP-1). Run quick-check sequence (15 sec). All four channels should show < 0.3 dB insertion loss at this stage. If any channel shows > 0.3 dB, do not proceed - check connector seating before re-torque. Log quick-check results. Remove alignment jig after verification.',
+                        caution: 'Full RF test performed at Step 5 - this is continuity verification only.',
+                        reference: 'Test Procedure TP-CONT-01'
+                    }
                 ],
                 parts: [
                     { id: 1, type: 'sn', name: 'Antenna Array', qty: 1, bin: 'A-3' },
@@ -3223,11 +3278,36 @@
                 title: 'Torque All RF Connections',
                 desc: 'Apply specified torque to all RF connections using calibrated torque wrench.',
                 procedures: [
-                    'Verify torque wrench calibration sticker',
-                    'Set torque wrench to 2.5 N-m',
-                    'Torque connector J1 until click',
-                    'Torque connectors J2, J3, J4 in sequence',
-                    'Apply torque seal marking to each connector'
+                    {
+                        title: 'Verify torque wrench calibration sticker',
+                        details: 'Locate calibration sticker on torque wrench handle. Verify: (1) Cal date within 12 months, (2) Cal ID matches tool checkout log, (3) Range includes 2.5 N-m target, (4) No visible damage to wrench. If any issue found, return wrench to tool crib and obtain calibrated replacement.',
+                        caution: 'Using out-of-cal tools is a quality escape. All affected units require re-inspection.',
+                        reference: 'Cal Procedure CAL-TW-001'
+                    },
+                    {
+                        title: 'Set torque wrench to 2.5 N-m',
+                        details: 'Unlock adjustment ring at wrench base by pulling outward. Rotate handle until scale reads 2.5 N-m (main scale: 2, vernier: 0.5). Lock adjustment ring by pushing inward - verify it clicks into locked position. Confirm setting by reading both scales. For digital wrenches, use mode button to set target and enable audio alert.',
+                        caution: 'Never adjust torque wrench while under load.',
+                        reference: 'Wrench Manual WM-PRO-25'
+                    },
+                    {
+                        title: 'Torque connector J1 until click',
+                        details: 'Position wrench socket squarely on J1 coupling nut. Apply force perpendicular to connector axis - angled force gives false readings. Pull smoothly and steadily (no jerking) until wrench clicks. Stop immediately at click - do not continue pulling. The click indicates target torque achieved.',
+                        caution: 'Pulling past click damages wrench calibration and may over-torque connector.',
+                        reference: null
+                    },
+                    {
+                        title: 'Torque connectors J2, J3, J4 in sequence',
+                        details: 'Repeat torque procedure for remaining connectors in numerical sequence (J2, J3, J4). Between each connector, allow wrench mechanism to fully reset (2 sec). If any connector does not click at expected torque, stop and investigate - possible cross-thread or damaged connector. Document any anomalies.',
+                        caution: 'Sequence matters for consistent stress distribution.',
+                        reference: 'Torque Spec TS-RF-001'
+                    },
+                    {
+                        title: 'Apply torque seal marking to each connector',
+                        details: 'Using torque seal paint (orange, P/N TS-ORG-02), apply a thin line from coupling nut across connector body and onto panel. Line should be approximately 1/8" wide and extend at least 1/4" onto each surface. This provides visual evidence of any connector rotation after torque. Allow 5 min dry time before handling.',
+                        caution: 'Torque seal is inspection evidence. Missing seal requires re-torque verification.',
+                        reference: 'WI-TS-001'
+                    }
                 ],
                 parts: [
                     { id: 1, type: 'bulk', name: 'Torque Seal Paint', qty: 1, bin: 'D-1' }
@@ -3239,11 +3319,36 @@
                 title: 'RF Continuity Test',
                 desc: 'Perform continuity test on all RF connections to verify proper assembly.',
                 procedures: [
-                    'Connect test equipment to port T1',
-                    'Run automated continuity sequence',
-                    'Verify all 4 channels show green',
-                    'Record test results in system',
-                    'Disconnect test equipment'
+                    {
+                        title: 'Connect test equipment to port T1',
+                        details: 'Power on Keysight N9020B spectrum analyzer (15 min warm-up if cold). Connect test cable assembly (P/N TCA-RF-01) from analyzer RF-IN port to unit test port T1. Hand-tighten connector plus 1/8 turn with connector wrench. Verify cable calibration date on tag. Set analyzer to preset "RF-CONT-TEST-01" from saved states menu.',
+                        caution: 'Test cable has limited flex life (500 cycles). Inspect for kinks before each use.',
+                        reference: 'Test Equipment Setup TES-N9020B'
+                    },
+                    {
+                        title: 'Run automated continuity sequence',
+                        details: 'On analyzer, press [Measure] → [Channel Scanner] → [Start Sequence]. Test runs approximately 45 seconds, measuring insertion loss on each of the 4 channels. Progress bar shows completion status. Do not disconnect cables or disturb unit during test. Analyzer will beep on completion.',
+                        caution: 'Test interruption requires full restart - partial results are not valid.',
+                        reference: 'Test Procedure TP-RF-CONT-02'
+                    },
+                    {
+                        title: 'Verify all 4 channels show green',
+                        details: 'Review results screen. Each channel displays: measured insertion loss (dB), specification limit (< 0.5 dB), and PASS/FAIL indicator. All four channels must show green PASS status. Acceptable measured values: 0.05 - 0.45 dB. Values near upper limit (> 0.40 dB) should be noted for monitoring - may indicate marginal connection.',
+                        caution: 'Any red FAIL requires troubleshooting before proceeding. See failure recovery procedure.',
+                        reference: 'Acceptance Criteria AC-RF-001'
+                    },
+                    {
+                        title: 'Record test results in system',
+                        details: 'Press [Save] → [To USB] to export results file. Connect USB to workstation. Open Terawave MES client and navigate to current work order. Select "Record Test Data" and import results file. System auto-populates channel values. Verify imported values match analyzer display. Add operator comments if any anomalies observed. Submit record.',
+                        caution: 'Test records are quality evidence. Falsification is termination offense.',
+                        reference: 'MES User Guide MES-UG-4.2'
+                    },
+                    {
+                        title: 'Disconnect test equipment',
+                        details: 'Remove test cable from unit port T1 - support connector body while turning coupling nut to prevent cable strain. Install protective cap on T1 port (finger-tight). Coil test cable loosely (6" minimum diameter) and return to designated storage. Log test completion in equipment usage log. Unit is ready for final inspection.',
+                        caution: 'Uncapped ports collect debris and moisture. Always install caps immediately.',
+                        reference: null
+                    }
                 ],
                 parts: [],
                 tools: ['RF Continuity Tester', 'Test Cable Assembly'],
@@ -3495,7 +3600,7 @@
                 procedureList.innerHTML = steps[currentStep - 1].procedures.map((proc, i) => `
                     <div class="procedure-item">
                         <div class="procedure-num">${i + 1}</div>
-                        <span>${proc}</span>
+                        <span>${typeof proc === 'object' ? proc.title : proc}</span>
                     </div>
                 `).join('');
 
@@ -3578,7 +3683,7 @@
             procedureList.innerHTML = steps[0].procedures.map((proc, i) => `
                 <div class="procedure-item">
                     <div class="procedure-num">${i + 1}</div>
-                    <span>${proc}</span>
+                    <span>${typeof proc === 'object' ? proc.title : proc}</span>
                 </div>
             `).join('');
 
@@ -3642,28 +3747,72 @@
         function viewDetailedProcedure() {
             const step = steps[currentStep - 1];
             const overlay = document.createElement('div');
-            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 1rem;';
             overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
             const popup = document.createElement('div');
-            popup.style.cssText = 'background: #1e293b; border-radius: 12px; padding: 1.5rem; max-width: 600px; max-height: 80vh; overflow-y: auto;';
+            popup.style.cssText = 'background: #1e293b; border-radius: 12px; padding: 1.5rem; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto;';
 
-            popup.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <span style="color: #fff; font-weight: 600; font-size: 1.1rem;">Step ${currentStep}: ${step.title}</span>
-                    <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: none; border: none; color: #888; font-size: 1.2rem; cursor: pointer;">✕</button>
-                </div>
-                <p style="color: #94a3b8; margin-bottom: 1.25rem; line-height: 1.5;">${step.desc}</p>
-                <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.5rem;">Detailed Procedure</div>
-                ${step.procedures.map((proc, i) => `
-                    <div style="display: flex; gap: 0.75rem; margin-bottom: 0.75rem; padding: 0.75rem; background: #0f172a; border-radius: 8px;">
-                        <div style="width: 24px; height: 24px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; flex-shrink: 0;">${i + 1}</div>
-                        <div>
-                            <div style="color: #f8fafc; margin-bottom: 0.25rem;">${proc}</div>
-                            <div style="color: #64748b; font-size: 0.85rem;">Ensure proper technique and verify before proceeding.</div>
+            const proceduresHtml = step.procedures.map((proc, i) => {
+                const isObject = typeof proc === 'object';
+                const title = isObject ? proc.title : proc;
+                const details = isObject ? proc.details : null;
+                const caution = isObject ? proc.caution : null;
+                const reference = isObject ? proc.reference : null;
+
+                return `
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #0f172a; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                        <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+                            <div style="width: 28px; height: 28px; background: #3b82f6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 600; flex-shrink: 0; color: white;">${i + 1}</div>
+                            <div style="flex: 1;">
+                                <div style="color: #f8fafc; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.95rem;">${title}</div>
+                                ${details ? `<div style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.75rem;">${details}</div>` : ''}
+                                ${caution ? `
+                                    <div style="display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.6rem; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 6px; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 1rem;">⚠️</span>
+                                        <div>
+                                            <div style="color: #fbbf24; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; margin-bottom: 0.15rem;">Caution</div>
+                                            <div style="color: #fcd34d; font-size: 0.8rem;">${caution}</div>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${reference ? `
+                                    <div style="display: flex; align-items: center; gap: 0.4rem; color: #64748b; font-size: 0.75rem;">
+                                        <span>📄</span>
+                                        <span>Ref: ${reference}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
                     </div>
-                `).join('')}
+                `;
+            }).join('');
+
+            popup.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <div>
+                        <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.25rem;">Step ${currentStep} of ${steps.length}</div>
+                        <span style="color: #fff; font-weight: 600; font-size: 1.2rem;">${step.title}</span>
+                    </div>
+                    <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: rgba(255,255,255,0.1); border: none; color: #888; font-size: 1rem; cursor: pointer; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">✕</button>
+                </div>
+                <p style="color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.5; font-size: 0.9rem;">${step.desc}</p>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <div style="background: #0f172a; padding: 0.6rem 1rem; border-radius: 6px; flex: 1; min-width: 150px;">
+                        <div style="color: #64748b; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.25rem;">Required Tools</div>
+                        <div style="color: #f8fafc; font-size: 0.85rem;">${step.tools.length > 0 ? step.tools.join(', ') : 'None'}</div>
+                    </div>
+                    <div style="background: #0f172a; padding: 0.6rem 1rem; border-radius: 6px; flex: 1; min-width: 150px;">
+                        <div style="color: #64748b; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.25rem;">Parts Required</div>
+                        <div style="color: #f8fafc; font-size: 0.85rem;">${step.parts.length > 0 ? step.parts.map(p => p.name).join(', ') : 'None'}</div>
+                    </div>
+                </div>
+
+                <div style="color: #64748b; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📋</span> Detailed Procedure
+                </div>
+                ${proceduresHtml}
             `;
 
             overlay.appendChild(popup);
