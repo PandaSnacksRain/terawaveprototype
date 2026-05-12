@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TeraWave Architecture Overview</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #06b6d4;
+            border-bottom: 2px solid #06b6d4;
+            padding-bottom: 0.5rem;
+        }
+        h2 {
+            color: #3b82f6;
+            margin-top: 2rem;
+        }
+        h3 {
+            color: #a855f7;
+            margin-top: 1.5rem;
+        }
+        .mermaid {
+            background: #fff;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .card {
+            background: #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+        .card.critical {
+            border-left-color: #ef4444;
+        }
+        .card.high {
+            border-left-color: #f59e0b;
+        }
+        .card.medium {
+            border-left-color: #22c55e;
+        }
+        .card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #f8fafc;
+        }
+        .card p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        .badge.critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge.high { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .badge.medium { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .badge.low { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background: #334155;
+            color: #f8fafc;
+        }
+        .phase {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #334155;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+        }
+        .phase-num {
+            background: #3b82f6;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .phase-content {
+            flex: 1;
+        }
+        .phase-title {
+            font-weight: 600;
+            color: #f8fafc;
+        }
+        .phase-detail {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        .phase-time {
+            color: #06b6d4;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        .callout {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid #06b6d4;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .callout-title {
+            color: #06b6d4;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+        li {
+            margin: 0.25rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>TeraWave Platform Architecture</h1>
+    <p>High-level system architecture and integration roadmap for production deployment.</p>
+
+    <h2>1. System Architecture</h2>
+
+    <div class="mermaid">
+flowchart TB
+    subgraph clients["CLIENT LAYER"]
+        OPS["Ops Dashboard<br/>(Supervisor)"]
+        MAINT["Maintenance Dashboard<br/>(Technician)"]
+        OP["Operator Interface<br/>(Station)"]
+        MOBILE["Mobile App<br/>(Floor Support)"]
+    end
+
+    subgraph gateway["API GATEWAY"]
+        GW["API Gateway<br/>Auth | Rate Limit | Routing"]
+    end
+
+    subgraph services["SERVICE LAYER"]
+        ANDON["Andon Service<br/>Pull, Triage, Resolve"]
+        NC["NC Service<br/>Create, Disposition, Close"]
+        EQUIP["Equipment Service<br/>Status, Cal, PM Schedule"]
+        WO["Work Order Service<br/>Progress, Hospital, Rejoin"]
+        CREW["Crew Service<br/>Certs, Availability, Assign"]
+        NOTIFY["Notification Service<br/>Alerts, Escalations"]
+    end
+
+    subgraph data["DATA LAYER"]
+        DB[(PostgreSQL<br/>Primary Store)]
+        REDIS[(Redis<br/>Real-time State)]
+        QUEUE[["Message Queue<br/>(RabbitMQ/Kafka)"]]
+    end
+
+    subgraph integrations["INTEGRATION LAYER"]
+        MES["MES Adapter"]
+        ERP["ERP Adapter"]
+        EQMS["Equipment Mgmt<br/>Adapter"]
+        HR["HR/Training<br/>Adapter"]
+    end
+
+    subgraph external["EXTERNAL SYSTEMS"]
+        MES_SYS["MES<br/>(Ignition/Camstar)"]
+        ERP_SYS["ERP<br/>(SAP/Oracle)"]
+        EQMS_SYS["Cal/PM System<br/>(Blue Mtn/Maximo)"]
+        HR_SYS["Training System<br/>(Workday/LMS)"]
+    end
+
+    clients --> GW
+    GW --> services
+    services --> data
+    services --> QUEUE
+    QUEUE --> NOTIFY
+
+    ANDON --> MES
+    WO --> MES
+    WO --> ERP
+    EQUIP --> EQMS
+    CREW --> HR
+    NC --> ERP
+
+    MES --> MES_SYS
+    ERP --> ERP_SYS
+    EQMS --> EQMS_SYS
+    HR --> HR_SYS
+
+    style clients fill:#1e293b,stroke:#3b82f6
+    style gateway fill:#1e293b,stroke:#06b6d4
+    style services fill:#1e293b,stroke:#a855f7
+    style data fill:#1e293b,stroke:#22c55e
+    style integrations fill:#1e293b,stroke:#f59e0b
+    style external fill:#1e293b,stroke:#64748b
+    </div>
+
+    <h2>2. Data Flow: Andon to Resolution</h2>
+
+    <div class="mermaid">
+sequenceDiagram
+    participant OP as Operator
+    participant API as API Gateway
+    participant ANDON as Andon Service
+    participant MES as MES
+    participant NOTIFY as Notifications
+    participant SUP as Supervisor
+    participant NC as NC Service
+    participant MAINT as Maintenance
+
+    OP->>API: Pull Andon (station, issue)
+    API->>ANDON: Create andon ticket
+    ANDON->>MES: Pause station timer
+    ANDON->>NOTIFY: Alert supervisor
+    NOTIFY->>SUP: Push notification + dashboard update
+
+    SUP->>API: Triage (type, severity, responder)
+    API->>ANDON: Update andon
+    ANDON->>NOTIFY: Alert assigned responder
+
+    alt Defect Issue
+        SUP->>API: Create NC
+        API->>NC: Generate NC record
+        NC->>MES: Link to WO/Serial
+    end
+
+    alt Equipment Issue
+        ANDON->>MAINT: Route to maintenance queue
+        MAINT->>API: Diagnose + repair
+        MAINT->>API: Verify + close
+    end
+
+    API->>ANDON: Resolve andon
+    ANDON->>MES: Resume station timer
+    ANDON->>NOTIFY: Resolution confirmed
+    </div>
+
+    <h2>3. Core Data Model</h2>
+
+    <div class="mermaid">
+erDiagram
+    WORK_ORDER ||--o{ ANDON : triggers
+    WORK_ORDER ||--o{ NC : creates
+    WORK_ORDER {
+        string wo_number PK
+        string serial_number
+        string current_station
+        string status
+        timestamp started_at
+    }
+
+    ANDON ||--o| NC : may_create
+    ANDON {
+        string andon_id PK
+        string wo_number FK
+        string station_id FK
+        string issue_type
+        string issue_category
+        string status
+        string assigned_to FK
+        timestamp pulled_at
+        timestamp resolved_at
+    }
+
+    NC ||--o{ NC_DISPOSITION : has
+    NC {
+        string nc_number PK
+        string wo_number FK
+        string serial_number
+        string defect_code
+        string disposition
+        string status
+        timestamp created_at
+    }
+
+    EQUIPMENT ||--o{ MAINTENANCE_TASK : requires
+    EQUIPMENT ||--o{ CALIBRATION : has
+    EQUIPMENT {
+        string equipment_id PK
+        string name
+        string station_id FK
+        string status
+        date next_pm_due
+        date next_cal_due
+    }
+
+    MAINTENANCE_TASK ||--o| ANDON : linked_from
+    MAINTENANCE_TASK {
+        string task_id PK
+        string equipment_id FK
+        string type
+        string status
+        string assigned_to FK
+        date scheduled_date
+    }
+
+    PERSON ||--o{ CERTIFICATION : has
+    PERSON {
+        string person_id PK
+        string name
+        string role
+        string shift
+        string status
+    }
+
+    STATION ||--o{ EQUIPMENT : contains
+    STATION {
+        string station_id PK
+        string name
+        string line
+        string status
+    }
+    </div>
+
+    <h2>4. Integration Priority & Critical Path</h2>
+
+    <div class="callout">
+        <div class="callout-title">Key Insight</div>
+        The critical path is determined by data availability, not code complexity. If data exists and is accessible, integration is straightforward. If data must be captured fresh, scope expands significantly.
+    </div>
+
+    <div class="grid">
+        <div class="card critical">
+            <h4><span class="badge critical">CRITICAL</span>MES Integration</h4>
+            <p><strong>Why:</strong> Work order data, station status, serial tracking - the backbone of everything</p>
+            <p><strong>Data needed:</strong> WO number, serial, current op, station, cycle time</p>
+            <p><strong>Blockers:</strong> API availability, real-time vs batch, data freshness</p>
+            <p><strong>Effort:</strong> 3-6 weeks depending on API maturity</p>
+        </div>
+
+        <div class="card critical">
+            <h4><span class="badge critical">CRITICAL</span>Andon Capture</h4>
+            <p><strong>Why:</strong> If andons aren't captured digitally today, this is ground zero</p>
+            <p><strong>Options:</strong> Physical buttons → PLC → API, or tablet-based pull</p>
+            <p><strong>Blockers:</strong> Hardware install, PLC programming, network</p>
+            <p><strong>Effort:</strong> 2-4 weeks if software only, 8-12 weeks if hardware</p>
+        </div>
+
+        <div class="card high">
+            <h4><span class="badge high">HIGH</span>NC/Quality System</h4>
+            <p><strong>Why:</strong> NC creation, disposition tracking, MRB workflow</p>
+            <p><strong>Options:</strong> Integrate existing system or build NC module</p>
+            <p><strong>Blockers:</strong> Existing system API, or schema design if new</p>
+            <p><strong>Effort:</strong> 2-4 weeks to integrate, 6-8 weeks to build</p>
+        </div>
+
+        <div class="card high">
+            <h4><span class="badge high">HIGH</span>Equipment/Cal System</h4>
+            <p><strong>Why:</strong> PM schedules, calibration status, equipment history</p>
+            <p><strong>Data needed:</strong> Equipment registry, cal dates, PM intervals</p>
+            <p><strong>Blockers:</strong> Data quality, system API access</p>
+            <p><strong>Effort:</strong> 2-4 weeks</p>
+        </div>
+
+        <div class="card medium">
+            <h4><span class="badge medium">MEDIUM</span>HR/Training</h4>
+            <p><strong>Why:</strong> Certifications for responder assignment</p>
+            <p><strong>Data needed:</strong> Person → cert mapping, expiration dates</p>
+            <p><strong>Workaround:</strong> Manual cert table initially</p>
+            <p><strong>Effort:</strong> 1-2 weeks</p>
+        </div>
+
+        <div class="card medium">
+            <h4><span class="badge medium">MEDIUM</span>ERP Integration</h4>
+            <p><strong>Why:</strong> Parts data, WO master, cost tracking</p>
+            <p><strong>Deferrable:</strong> Can start with MES data only</p>
+            <p><strong>Effort:</strong> 2-4 weeks when ready</p>
+        </div>
+    </div>
+
+    <h2>5. Phased Rollout Plan</h2>
+
+    <div class="phase">
+        <div class="phase-num">1</div>
+        <div class="phase-content">
+            <div class="phase-title">Foundation (Weeks 1-6)</div>
+            <div class="phase-detail">
+                Core services, database, auth, MES integration for WO/station data.<br/>
+                <strong>Deliverable:</strong> Ops dashboard with live WO tracking, basic andon capture (tablet-based)
+            </div>
+        </div>
+        <div class="phase-time">6 weeks</div>
+    </div>
+
+    <div class="phase">
+        <div class="phase-num">2</div>
+        <div class="phase-content">
+            <div class="phase-title">Andon Workflow (Weeks 7-10)</div>
+            <div class="phase-detail">
+                Full andon lifecycle: pull → triage → assign → resolve.<br/>
+                NC creation from defect andons. Real-time notifications.<br/>
+                <strong>Deliverable:</strong> Complete supervisor workflow, responder assignment
+            </div>
+        </div>
+        <div class="phase-time">4 weeks</div>
+    </div>
+
+    <div class="phase">
+        <div class="phase-num">3</div>
+        <div class="phase-content">
+            <div class="phase-title">Maintenance Module (Weeks 11-14)</div>
+            <div class="phase-detail">
+                Equipment integration, PM schedules, reactive/preventive/proactive workflows.<br/>
+                Technician dashboard, diagnosis → repair → verify flow.<br/>
+                <strong>Deliverable:</strong> Maintenance dashboard, equipment tracking
+            </div>
+        </div>
+        <div class="phase-time">4 weeks</div>
+    </div>
+
+    <div class="phase">
+        <div class="phase-num">4</div>
+        <div class="phase-content">
+            <div class="phase-title">Hospital & Disposition (Weeks 15-18)</div>
+            <div class="phase-detail">
+                Hospital lane tracking, MRB workflow, disposition routing.<br/>
+                Rejoin-to-line flow, quality gates.<br/>
+                <strong>Deliverable:</strong> Full hospital workflow, NC disposition
+            </div>
+        </div>
+        <div class="phase-time">4 weeks</div>
+    </div>
+
+    <div class="phase">
+        <div class="phase-num">5</div>
+        <div class="phase-content">
+            <div class="phase-title">Analytics & Polish (Weeks 19-22)</div>
+            <div class="phase-detail">
+                Pareto charts, trend analysis, proactive alerts.<br/>
+                Mobile app, performance optimization, edge cases.<br/>
+                <strong>Deliverable:</strong> Production-ready platform
+            </div>
+        </div>
+        <div class="phase-time">4 weeks</div>
+    </div>
+
+    <h2>6. Critical Path Dependencies</h2>
+
+    <div class="mermaid">
+gantt
+    title Critical Path to Production
+    dateFormat  YYYY-MM-DD
+    section Foundation
+    MES API Access           :crit, mes, 2026-06-01, 2w
+    Database & Auth          :db, 2026-06-01, 2w
+    Core Services            :after db, 3w
+    section Andon
+    Andon Capture Method     :crit, andon, after mes, 2w
+    Triage Workflow          :after andon, 2w
+    section Integration
+    NC System Integration    :nc, after andon, 3w
+    Equipment System         :equip, after db, 3w
+    section Dashboards
+    Ops Dashboard            :ops, after andon, 2w
+    Maintenance Dashboard    :maint, after equip, 2w
+    section Testing
+    UAT & Pilot              :crit, uat, after ops, 3w
+    </div>
+
+    <h2>7. Key Questions to Answer</h2>
+
+    <div class="section">
+        <h3>Before Starting</h3>
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>Why It Matters</th>
+                <th>If Yes</th>
+                <th>If No</th>
+            </tr>
+            <tr>
+                <td>Are andons captured digitally today?</td>
+                <td>Determines if we build capture layer</td>
+                <td>Integrate existing system</td>
+                <td>Add 6-8 weeks for capture method</td>
+            </tr>
+            <tr>
+                <td>Does MES have a real-time API?</td>
+                <td>Live WO/station data is foundational</td>
+                <td>Standard integration</td>
+                <td>Need polling or change data capture</td>
+            </tr>
+            <tr>
+                <td>Is there an existing NC system?</td>
+                <td>Build vs integrate decision</td>
+                <td>API integration, keep existing workflow</td>
+                <td>Build NC module (adds scope)</td>
+            </tr>
+            <tr>
+                <td>Is equipment/cal data in one system?</td>
+                <td>PM scheduling, cal tracking</td>
+                <td>Single integration point</td>
+                <td>May need data consolidation first</td>
+            </tr>
+            <tr>
+                <td>What's the auth model? (SSO?)</td>
+                <td>User management, role-based access</td>
+                <td>Integrate with existing IdP</td>
+                <td>Build user management</td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>8. Tech Stack Recommendation</h2>
+
+    <div class="grid">
+        <div class="card">
+            <h4>Frontend</h4>
+            <p><strong>React + TypeScript</strong> - Component reuse across dashboards</p>
+            <p><strong>TanStack Query</strong> - Data fetching, caching, real-time</p>
+            <p><strong>Tailwind CSS</strong> - Matches prototype styling approach</p>
+        </div>
+        <div class="card">
+            <h4>Backend</h4>
+            <p><strong>Node.js/Express or Python/FastAPI</strong> - Fast development</p>
+            <p><strong>PostgreSQL</strong> - Relational data, JSONB for flexibility</p>
+            <p><strong>Redis</strong> - Real-time state, pub/sub for notifications</p>
+        </div>
+        <div class="card">
+            <h4>Infrastructure</h4>
+            <p><strong>Kubernetes</strong> - Container orchestration (likely existing)</p>
+            <p><strong>API Gateway</strong> - Kong or AWS API Gateway</p>
+            <p><strong>Message Queue</strong> - RabbitMQ or Kafka for async</p>
+        </div>
+        <div class="card">
+            <h4>Integration</h4>
+            <p><strong>Adapter Pattern</strong> - Abstract external system specifics</p>
+            <p><strong>Event-Driven</strong> - Loose coupling, audit trail</p>
+            <p><strong>Idempotent APIs</strong> - Handle retries gracefully</p>
+        </div>
+    </div>
+
+    <h2>9. Risk Factors</h2>
+
+    <div class="grid">
+        <div class="card critical">
+            <h4>Data Availability</h4>
+            <p>If source systems don't expose the data we need, scope explodes. Validate API access early.</p>
+        </div>
+        <div class="card high">
+            <h4>Change Management</h4>
+            <p>New workflows = new habits. Supervisor buy-in and training are as important as code.</p>
+        </div>
+        <div class="card high">
+            <h4>Real-Time Requirements</h4>
+            <p>Andons need sub-second visibility. If MES only does batch updates, we need a workaround.</p>
+        </div>
+        <div class="card medium">
+            <h4>Scope Creep</h4>
+            <p>Prototypes show the ideal. Production needs error handling, edge cases, offline mode.</p>
+        </div>
+    </div>
+
+    <div class="callout" style="margin-top: 2rem;">
+        <div class="callout-title">Bottom Line</div>
+        <p><strong>Best case (data exists, APIs available):</strong> 4-5 months with 3-4 engineers</p>
+        <p><strong>Realistic case (some integration work):</strong> 6-7 months with 3-4 engineers</p>
+        <p><strong>Worst case (building capture layer + NC system):</strong> 9-12 months</p>
+        <p style="margin-top: 1rem;">The prototypes cut 2-3 months off any timeline by eliminating requirements ambiguity.</p>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: { useMaxWidth: true, htmlLabels: true, curve: 'basis' },
+            sequence: { useMaxWidth: true },
+            gantt: { useMaxWidth: true }
+        });
+    </script>
+</body>
+</html>
