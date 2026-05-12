@@ -930,6 +930,96 @@
             margin-top: 0.25rem;
         }
 
+        /* Reschedule Modal */
+        .reschedule-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .reschedule-modal.active {
+            display: flex;
+        }
+
+        .reschedule-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .reschedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .reschedule-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .reschedule-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .reschedule-close:hover {
+            color: var(--text-primary);
+        }
+
+        .reschedule-body label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .reschedule-body input[type="date"] {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .reschedule-body textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .reschedule-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
         /* Center Panel - Details */
         .detail-panel {
             background: var(--bg-dark);
@@ -1563,13 +1653,10 @@
                         <span class="maintenance-type reactive">REACTIVE</span>
                     </div>
                     <div class="queue-card-meta">
-                        <span class="due-date overdue">⚠ Andon Open 2h 34m</span>
+                        <span class="due-date overdue">🚨 ANDON-4521 Open 2h 34m</span>
                         <span class="station-location">Station 3</span>
                     </div>
-                    <div class="andon-link-badge">
-                        <span>🚨</span> Linked to ANDON-4521
-                    </div>
-                    <div class="queue-card-status in-progress" id="status-torque-001">🔧 In Progress</div>
+                    <div class="queue-card-status pending" id="status-torque-001">⏳ Pending</div>
                 </div>
 
                 <!-- Reactive -->
@@ -1582,17 +1669,14 @@
                         <span class="maintenance-type reactive">REACTIVE</span>
                     </div>
                     <div class="queue-card-meta">
-                        <span class="due-date overdue">⚠ Andon Open 45m</span>
+                        <span class="due-date overdue">🚨 ANDON-4528 Open 45m</span>
                         <span class="station-location">Station 5</span>
-                    </div>
-                    <div class="andon-link-badge">
-                        <span>🚨</span> Linked to ANDON-4528
                     </div>
                     <div class="queue-card-status pending" id="status-welder-003">⏳ Pending</div>
                 </div>
 
                 <!-- Proactive - Scheduled from Ops Dashboard -->
-                <div class="queue-card proactive" onclick="selectEquipment('welder-007')" data-type="proactive" data-id="welder-007">
+                <div class="queue-card proactive" onclick="selectEquipment('welder-007')" data-type="proactive" data-id="welder-007" data-due-date="2026-05-12">
                     <div class="queue-card-header">
                         <div>
                             <div class="equipment-name">Ultrasonic Welder UW-1188</div>
@@ -1607,11 +1691,9 @@
                     <div class="trend-indicator" id="trend-welder-007">
                         <span>📈</span> Cal drift: 3 consecutive readings near limit
                     </div>
-                    <div class="queue-card-status scheduled" id="status-welder-007">📅 Scheduled</div>
-                    <div class="queue-card-assignee" id="assignee-welder-007">👤 Nina Garcia</div>
                 </div>
 
-                <div class="queue-card proactive" onclick="selectEquipment('press-003')" data-type="proactive" data-id="press-003">
+                <div class="queue-card proactive" onclick="selectEquipment('press-003')" data-type="proactive" data-id="press-003" data-due-date="2026-05-14">
                     <div class="queue-card-header">
                         <div>
                             <div class="equipment-name">Hydraulic Press HP-215</div>
@@ -1626,12 +1708,10 @@
                     <div class="trend-indicator" id="trend-press-003">
                         <span>🔄</span> 9,200 / 10,000 cycle limit reached
                     </div>
-                    <div class="queue-card-status scheduled" id="status-press-003">📅 Scheduled</div>
-                    <div class="queue-card-assignee" id="assignee-press-003">👤 Nina Garcia</div>
                 </div>
 
                 <!-- Preventive - Overdue -->
-                <div class="queue-card preventive overdue" onclick="selectEquipment('scope-002')" data-type="preventive" data-id="scope-002">
+                <div class="queue-card preventive overdue" onclick="selectEquipment('scope-002')" data-type="preventive" data-id="scope-002" data-due-date="2026-05-08">
                     <div class="queue-card-header">
                         <div>
                             <div class="equipment-name">Digital Microscope DM-445</div>
@@ -1640,14 +1720,13 @@
                         <span class="maintenance-type preventive">PREVENTIVE</span>
                     </div>
                     <div class="queue-card-meta">
-                        <span class="due-date overdue">⚠ Overdue 3 days</span>
+                        <span class="due-date overdue" id="due-scope-002">⚠ Overdue 3 days</span>
                         <span class="station-location">QC Area</span>
                     </div>
-                    <div class="queue-card-status pending" id="status-scope-002">⏳ Pending</div>
                 </div>
 
                 <!-- Preventive - Due Soon -->
-                <div class="queue-card preventive" onclick="selectEquipment('press-001')" data-type="preventive" data-id="press-001">
+                <div class="queue-card preventive" onclick="selectEquipment('press-001')" data-type="preventive" data-id="press-001" data-due-date="2026-05-12">
                     <div class="queue-card-header">
                         <div>
                             <div class="equipment-name">Hydraulic Press HP-200</div>
@@ -1656,14 +1735,13 @@
                         <span class="maintenance-type preventive">PREVENTIVE</span>
                     </div>
                     <div class="queue-card-meta">
-                        <span class="due-date due-soon">📅 Due Tomorrow</span>
+                        <span class="due-date due-soon" id="due-press-001">📅 Due Tomorrow</span>
                         <span class="station-location">Station 2A</span>
                     </div>
-                    <div class="queue-card-status pending" id="status-press-001">⏳ Pending</div>
                 </div>
 
                 <!-- More Preventive -->
-                <div class="queue-card preventive" onclick="selectEquipment('meter-004')" data-type="preventive" data-id="meter-004">
+                <div class="queue-card preventive" onclick="selectEquipment('meter-004')" data-type="preventive" data-id="meter-004" data-due-date="2026-05-15">
                     <div class="queue-card-header">
                         <div>
                             <div class="equipment-name">Multimeter MM-7721</div>
@@ -1672,13 +1750,12 @@
                         <span class="maintenance-type preventive">PREVENTIVE</span>
                     </div>
                     <div class="queue-card-meta">
-                        <span class="due-date">📅 Due May 15</span>
+                        <span class="due-date" id="due-meter-004">📅 Due May 15</span>
                         <span class="station-location">Station 4</span>
                     </div>
-                    <div class="queue-card-status pending" id="status-meter-004">⏳ Pending</div>
                 </div>
 
-                <div class="queue-card preventive" onclick="selectEquipment('caliper-006')" data-type="preventive" data-id="caliper-006">
+                <div class="queue-card preventive" onclick="selectEquipment('caliper-006')" data-type="preventive" data-id="caliper-006" data-due-date="2026-05-16">
                     <div class="queue-card-header">
                         <div>
                             <div class="equipment-name">Digital Caliper DC-1150</div>
@@ -1687,10 +1764,9 @@
                         <span class="maintenance-type preventive">PREVENTIVE</span>
                     </div>
                     <div class="queue-card-meta">
-                        <span class="due-date">📅 Due May 16</span>
+                        <span class="due-date" id="due-caliper-006">📅 Due May 16</span>
                         <span class="station-location">Station 1</span>
                     </div>
-                    <div class="queue-card-status pending" id="status-caliper-006">⏳ Pending</div>
                 </div>
 
                             </div>
@@ -1708,6 +1784,7 @@
                     </div>
                 </div>
                 <div class="detail-actions" id="detailActions">
+                    <button class="action-btn secondary" id="rescheduleBtn" onclick="openReschedule()" style="display: none;">📆 Reschedule</button>
                     <div class="reassign-container">
                         <button class="action-btn secondary" onclick="toggleReassign()">↻ Reassign</button>
                         <div class="reassign-dropdown" id="reassignDropdown">
@@ -1832,8 +1909,19 @@
                     <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.25rem;">Operator Note:</div>
                     <div id="andonOperatorNote" style="font-size: 0.9rem; font-style: italic; color: var(--text-secondary);">"Torque wrench clicking but not holding torque..."</div>
                 </div>
-                <!-- Workflow Steps -->
-                <div class="andon-workflow" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3);">
+
+                <!-- Equipment Selection for Reactive -->
+                <div id="equipmentSelectionSection" class="andon-workflow" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3);">
+                    <div style="margin-bottom: 0.5rem;">
+                        <label style="font-size: 0.8rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">Which equipment has the issue? <span style="color: var(--accent-red);">*</span></label>
+                        <select id="andonEquipmentSelect" onchange="selectAndonEquipment()" style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.85rem;">
+                            <option value="">Select equipment at this station...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Workflow Steps (hidden until equipment selected) -->
+                <div class="andon-workflow" id="andonWorkflowSteps" style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(239, 68, 68, 0.3); display: none;">
 
                     <!-- Step 1: Diagnosis -->
                     <div class="workflow-step" id="stepDiagnosis">
@@ -1931,7 +2019,7 @@
                 </div>
             </div>
 
-            <div class="detail-grid">
+            <div class="detail-grid" id="equipmentDetailGrid">
                 <div class="detail-card">
                     <div class="detail-card-title">📋 Equipment Info</div>
                     <div class="detail-row">
@@ -1988,7 +2076,7 @@
         </div>
 
         <!-- Right Panel - History -->
-        <div class="history-panel">
+        <div class="history-panel" id="equipmentHistoryPanel">
             <div class="history-header">
                 <div class="history-title">Equipment History</div>
             </div>
@@ -1999,6 +2087,37 @@
 
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Reschedule Modal -->
+    <div class="reschedule-modal" id="rescheduleModal" onclick="closeReschedule(event)">
+        <div class="reschedule-content" onclick="event.stopPropagation()">
+            <div class="reschedule-header">
+                <div class="reschedule-title">📆 Reschedule Task</div>
+                <button class="reschedule-close" onclick="closeReschedule()">&times;</button>
+            </div>
+            <div class="reschedule-body">
+                <div id="rescheduleEquipmentName" style="font-weight: 500; margin-bottom: 1rem;"></div>
+                <label>Reason <span style="color: var(--accent-red);">*</span></label>
+                <select id="rescheduleReason" style="width: 100%; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-dark); color: var(--text-primary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    <option value="">Select reason...</option>
+                    <option value="parts">Parts not available</option>
+                    <option value="priority">Higher priority task</option>
+                    <option value="production">Equipment in use (production conflict)</option>
+                    <option value="tech">Technician unavailable</option>
+                    <option value="engineering">Awaiting engineering input</option>
+                    <option value="other">Other</option>
+                </select>
+                <label>New Date <span style="color: var(--accent-red);">*</span></label>
+                <input type="date" id="rescheduleDate">
+                <label>Additional Comments (optional)</label>
+                <textarea id="rescheduleComments" placeholder="Any additional details..."></textarea>
+            </div>
+            <div class="reschedule-actions">
+                <button class="action-btn secondary" onclick="closeReschedule()">Cancel</button>
+                <button class="action-btn primary" onclick="confirmReschedule()">Reschedule</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Work History Modal -->
     <div class="modal-overlay" id="historyModal" onclick="closeHistoryModal(event)">
@@ -2084,7 +2203,7 @@
                 id: 'EQ-TW-001',
                 location: 'Station 3 - RF Assembly',
                 type: 'reactive',
-                status: 'In Progress',
+                status: 'Pending',
                 manufacturer: 'Snap-on Industrial',
                 model: 'QDRIVER4-250',
                 serial: 'SN-TW-2847-X',
@@ -2105,7 +2224,7 @@
                     issueType: 'Calibration Required',
                     woAffected: 'WO-2024-0847',
                     operatorNote: 'Torque wrench clicking but not holding torque. Tried recalibrating per SOP but still getting inconsistent readings.',
-                    diagnosis: 'Internal ratchet mechanism worn. Needs adjustment per SOP-EQ-TW-002.'
+                    diagnosis: ''
                 },
                 service: {
                     lastPM: '2026-02-15',
@@ -2119,7 +2238,6 @@
                     { name: 'Equipment Return to Service Checklist', id: 'SOP-EQ-GEN-010', rev: '1.5' }
                 ],
                 history: [
-                    { date: 'Today, 11:15 AM', action: 'Maintenance Started', tech: 'Nina Garcia', type: 'repair', notes: 'Andon reported torque readings out of spec. Beginning verification.' },
                     { date: 'Feb 15, 2026', action: 'Calibration - Pass', tech: 'External: Tektronix', type: 'calibration', notes: 'Full calibration per ISO 6789. All checkpoints within ±2%.' },
                     { date: 'Nov 10, 2025', action: 'Preventive Inspection', tech: 'Tom Bradley', type: 'inspection', notes: 'Visual inspection, battery check, cleaned contacts.' },
                     { date: 'Aug 15, 2025', action: 'Calibration - Pass', tech: 'External: Tektronix', type: 'calibration' },
@@ -2539,8 +2657,20 @@
                 statusBadge.style.color = 'var(--accent-amber)';
             }
 
+            // Show/hide reschedule button (only for proactive and preventive, not reactive)
+            const rescheduleBtn = document.getElementById('rescheduleBtn');
+            if ((eq.type === 'proactive' || eq.type === 'preventive') && !eq.completed) {
+                rescheduleBtn.style.display = 'inline-flex';
+            } else {
+                rescheduleBtn.style.display = 'none';
+            }
+
             // Show/hide andon section
             const andonSection = document.getElementById('andonSection');
+            const equipmentDetailGrid = document.getElementById('equipmentDetailGrid');
+            const equipmentHistoryPanel = document.getElementById('equipmentHistoryPanel');
+            const equipmentSelectionSection = document.getElementById('equipmentSelectionSection');
+            const andonWorkflowSteps = document.getElementById('andonWorkflowSteps');
 
             if (eq.andon) {
                 andonSection.style.display = 'block';
@@ -2553,6 +2683,23 @@
 
                 // Operator note
                 document.getElementById('andonOperatorNote').textContent = `"${eq.andon.operatorNote}"`;
+
+                // Populate equipment dropdown for this station
+                populateAndonEquipmentDropdown(eq.andon.station);
+
+                // Check if equipment has been selected for this andon
+                if (eq.andon.selectedEquipment) {
+                    equipmentSelectionSection.style.display = 'none';
+                    andonWorkflowSteps.style.display = 'block';
+                    equipmentDetailGrid.style.display = 'grid';
+                    equipmentHistoryPanel.style.display = 'block';
+                    document.getElementById('andonEquipmentSelect').value = eq.andon.selectedEquipment;
+                } else {
+                    equipmentSelectionSection.style.display = 'block';
+                    andonWorkflowSteps.style.display = 'none';
+                    equipmentDetailGrid.style.display = 'none';
+                    equipmentHistoryPanel.style.display = 'none';
+                }
 
                 // Diagnosis
                 const diagnosisDisplay = document.getElementById('diagnosisDisplay');
@@ -2625,6 +2772,9 @@
                 }
             } else {
                 andonSection.style.display = 'none';
+                // For non-reactive items, always show equipment info and history
+                equipmentDetailGrid.style.display = 'grid';
+                equipmentHistoryPanel.style.display = 'block';
             }
 
             // Show/hide preventive section
@@ -2768,6 +2918,77 @@
 
         function formatLabel(key) {
             return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+
+        // Equipment at each station for reactive andons
+        const stationEquipment = {
+            'Station 3 - RF Assembly': [
+                { id: 'torque-001', name: 'Torque Wrench TW-0042', type: 'Torque Tool' },
+                { id: 'soldering-001', name: 'Soldering Station SS-398', type: 'Soldering' },
+                { id: 'scope-001', name: 'Oscilloscope OS-200', type: 'Test Equipment' }
+            ],
+            'Station 2B - Harness Assembly': [
+                { id: 'welder-007', name: 'Ultrasonic Welder UW-1188', type: 'Welding' },
+                { id: 'crimper-001', name: 'Wire Crimper WC-100', type: 'Hand Tool' }
+            ],
+            'Station 4A - Structural Assembly': [
+                { id: 'press-003', name: 'Hydraulic Press HP-215', type: 'Press' },
+                { id: 'rivet-001', name: 'Rivet Gun RG-500', type: 'Fastening' }
+            ],
+            'Station 5 - Final Test': [
+                { id: 'scope-002', name: 'Digital Microscope DM-445', type: 'Inspection' },
+                { id: 'caliper-001', name: 'Digital Caliper DC-019', type: 'Measurement' }
+            ]
+        };
+
+        function populateAndonEquipmentDropdown(station) {
+            const select = document.getElementById('andonEquipmentSelect');
+            select.innerHTML = '<option value="">Select equipment at this station...</option>';
+
+            const equipment = stationEquipment[station] || [];
+            equipment.forEach(eq => {
+                const option = document.createElement('option');
+                option.value = eq.id;
+                option.textContent = `${eq.name} (${eq.type})`;
+                select.appendChild(option);
+            });
+
+            // Also add "Other" option
+            const otherOption = document.createElement('option');
+            otherOption.value = 'other';
+            otherOption.textContent = 'Other equipment not listed';
+            select.appendChild(otherOption);
+        }
+
+        function selectAndonEquipment() {
+            const select = document.getElementById('andonEquipmentSelect');
+            const selectedValue = select.value;
+
+            if (!selectedValue) return;
+
+            const eq = equipmentData[currentEquipmentId];
+            if (eq && eq.andon) {
+                eq.andon.selectedEquipment = selectedValue;
+
+                // Reset diagnosis when equipment is first selected (fresh start)
+                if (!eq.andon.equipmentConfirmed) {
+                    eq.andon.equipmentConfirmed = true;
+                    eq.andon.diagnosis = '';
+                    eq.andon.workflowStep = 'diagnosis';
+                    eq.andon.maintenanceAction = null;
+                    eq.andon.maintenanceDetails = null;
+                    eq.andon.resolved = false;
+                }
+
+                // Show workflow steps and equipment info
+                document.getElementById('equipmentSelectionSection').style.display = 'none';
+                document.getElementById('andonWorkflowSteps').style.display = 'block';
+                document.getElementById('equipmentDetailGrid').style.display = 'grid';
+                document.getElementById('equipmentHistoryPanel').style.display = 'block';
+
+                // Re-render to show fresh diagnosis step
+                renderEquipmentDetails(currentEquipmentId);
+            }
         }
 
         function saveDiagnosis() {
@@ -3148,11 +3369,95 @@
                     if (card.dataset.type === 'preventive') return 5;
                     return 6;
                 };
-                return getPriority(a) - getPriority(b);
+
+                const priorityA = getPriority(a);
+                const priorityB = getPriority(b);
+
+                // If same priority tier, sort by date
+                if (priorityA === priorityB) {
+                    const dateA = a.dataset.dueDate ? new Date(a.dataset.dueDate) : new Date('9999-12-31');
+                    const dateB = b.dataset.dueDate ? new Date(b.dataset.dueDate) : new Date('9999-12-31');
+                    return dateA - dateB;
+                }
+
+                return priorityA - priorityB;
             });
 
             // Re-append in sorted order
             cards.forEach(card => queueList.appendChild(card));
+        }
+
+        // Reschedule functionality
+        function openReschedule() {
+            const eq = equipmentData[currentEquipmentId];
+            if (eq) {
+                document.getElementById('rescheduleEquipmentName').textContent = eq.name;
+            }
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('rescheduleDate').value = tomorrow.toISOString().split('T')[0];
+            document.getElementById('rescheduleReason').value = '';
+            document.getElementById('rescheduleComments').value = '';
+            document.getElementById('rescheduleModal').classList.add('active');
+        }
+
+        function closeReschedule(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('rescheduleModal').classList.remove('active');
+        }
+
+        function confirmReschedule() {
+            const newDate = document.getElementById('rescheduleDate').value;
+            const reason = document.getElementById('rescheduleReason').value;
+            const comments = document.getElementById('rescheduleComments').value.trim();
+
+            if (!reason) {
+                showToast('error', 'Required Field', 'Please select a reason.');
+                return;
+            }
+
+            if (!newDate) {
+                showToast('error', 'Required Field', 'Please select a new date.');
+                return;
+            }
+
+            const eq = equipmentData[currentEquipmentId];
+            // Parse date parts directly to avoid timezone issues
+            const [year, month, day] = newDate.split('-');
+            const dateDisplay = new Date(year, month - 1, day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+            // Update the due date in the queue card
+            const dueEl = document.getElementById(`due-${currentEquipmentId}`);
+            if (dueEl) {
+                dueEl.textContent = `📅 ${dateDisplay}`;
+                dueEl.classList.remove('overdue', 'due-soon');
+            }
+
+            // Update card's data-due-date and styling
+            const card = document.querySelector(`[data-id="${currentEquipmentId}"]`);
+            if (card) {
+                card.dataset.dueDate = newDate;
+                card.classList.remove('overdue');
+            }
+
+            // Update equipment data
+            if (eq) {
+                eq.rescheduledTo = newDate;
+                eq.rescheduleReason = reason;
+                eq.rescheduleComments = comments;
+                // Update service nextPM for display in detail panel
+                if (eq.service) {
+                    eq.service.nextPM = newDate;
+                }
+            }
+
+            // Re-sort queue based on new priority
+            sortQueueByPriority();
+            closeReschedule();
+
+            // Re-render details to show updated date
+            renderEquipmentDetails(currentEquipmentId);
         }
 
         // Initialize on load
