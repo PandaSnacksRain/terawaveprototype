@@ -1167,11 +1167,10 @@
         }
 
         .test-detail-row {
-            display: grid;
-            grid-template-columns: 90px 1fr 80px 70px 60px;
-            gap: 0.5rem;
+            display: flex;
             align-items: center;
-            padding: 0.6rem 0.75rem;
+            gap: 1rem;
+            padding: 0.5rem 0.75rem;
             background: var(--bg-card);
             border-radius: 6px;
             margin-bottom: 0.5rem;
@@ -1193,12 +1192,14 @@
         .test-detail-label {
             font-weight: 500;
             color: var(--text-primary);
+            min-width: 70px;
         }
 
         .test-detail-threshold {
             font-family: monospace;
             font-size: 0.75rem;
             color: var(--text-muted);
+            white-space: nowrap;
         }
 
         .test-detail-threshold::before {
@@ -1210,6 +1211,7 @@
         .test-detail-measured {
             font-family: monospace;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .test-detail-measured.pass {
@@ -1225,6 +1227,7 @@
             font-size: 0.7rem;
             padding: 0.15rem 0.4rem;
             border-radius: 3px;
+            white-space: nowrap;
         }
 
         .test-detail-delta.pass {
@@ -1241,6 +1244,8 @@
             text-align: right;
             font-weight: 600;
             font-size: 0.7rem;
+            margin-left: auto;
+            white-space: nowrap;
         }
 
         .test-detail-status.pass {
