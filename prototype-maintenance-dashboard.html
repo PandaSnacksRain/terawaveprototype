@@ -2876,15 +2876,22 @@
                 trendSection.style.display = 'none';
             }
 
+            // Determine which equipment data to display
+            // For reactive (andon) tickets, use the selected equipment details
+            let displayEquip = eq;
+            if (eq.andon && eq.andon.selectedEquipment && stationEquipmentDetails[eq.andon.selectedEquipment]) {
+                displayEquip = stationEquipmentDetails[eq.andon.selectedEquipment];
+            }
+
             // Update equipment info
-            document.getElementById('eqManufacturer').textContent = eq.manufacturer;
-            document.getElementById('eqModel').textContent = eq.model;
-            document.getElementById('eqSerial').textContent = eq.serial;
+            document.getElementById('eqManufacturer').textContent = displayEquip.manufacturer;
+            document.getElementById('eqModel').textContent = displayEquip.model;
+            document.getElementById('eqSerial').textContent = displayEquip.serial;
 
             // Update specs
             const specsContainer = document.getElementById('eqSpecs');
             specsContainer.innerHTML = '';
-            for (const [key, value] of Object.entries(eq.specs)) {
+            for (const [key, value] of Object.entries(displayEquip.specs || {})) {
                 const row = document.createElement('div');
                 row.className = 'detail-row';
                 row.innerHTML = `<span class="detail-label">${formatLabel(key)}</span><span class="detail-value">${value}</span>`;
@@ -2892,18 +2899,18 @@
             }
 
             // Update service status
-            if (eq.service) {
-                document.getElementById('serviceLast').textContent = eq.service.lastPM;
-                document.getElementById('serviceNext').textContent = eq.service.nextPM;
-                document.getElementById('serviceInterval').textContent = eq.service.pmInterval;
-                document.getElementById('serviceRequiresCal').textContent = eq.service.requiresCal ? 'Yes' : 'No';
-                document.getElementById('serviceRequiresCal').style.color = eq.service.requiresCal ? 'var(--accent-green)' : 'var(--text-muted)';
+            if (displayEquip.service) {
+                document.getElementById('serviceLast').textContent = displayEquip.service.lastPM;
+                document.getElementById('serviceNext').textContent = displayEquip.service.nextPM;
+                document.getElementById('serviceInterval').textContent = displayEquip.service.pmInterval;
+                document.getElementById('serviceRequiresCal').textContent = displayEquip.service.requiresCal ? 'Yes' : 'No';
+                document.getElementById('serviceRequiresCal').style.color = displayEquip.service.requiresCal ? 'var(--accent-green)' : 'var(--text-muted)';
             }
 
             // Update SOPs
             const sopList = document.getElementById('sopList');
             sopList.innerHTML = '';
-            eq.sops.forEach(sop => {
+            (displayEquip.sops || []).forEach(sop => {
                 const sopItem = document.createElement('div');
                 sopItem.className = 'sop-item';
                 sopItem.innerHTML = `
@@ -2922,7 +2929,7 @@
             // Update history
             const historyList = document.getElementById('historyList');
             historyList.innerHTML = '';
-            eq.history.forEach(item => {
+            (displayEquip.history || []).forEach(item => {
                 const historyItem = document.createElement('div');
                 historyItem.className = `history-item ${item.type}`;
                 historyItem.innerHTML = `
@@ -2940,7 +2947,92 @@
             return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
         }
 
-        // Equipment at each station for reactive andons
+        // Equipment at each station for reactive andons (with full details)
+        const stationEquipmentDetails = {
+            'torque-001': {
+                name: 'Torque Wrench TW-0042', type: 'Torque Tool',
+                manufacturer: 'Snap-on Industrial', model: 'QDRIVER4-100', serial: 'SN-TW-0042-A',
+                specs: { range: '5-100 in-lb', accuracy: '±2% CW' },
+                service: { lastPM: '2026-03-10', nextPM: '2026-09-10', pmInterval: '6 months', requiresCal: true },
+                history: [
+                    { date: 'Mar 10, 2026', action: 'Calibration - Pass', tech: 'External: Tektronix', type: 'calibration' },
+                    { date: 'Sep 10, 2025', action: 'Calibration - Pass', tech: 'External: Tektronix', type: 'calibration' }
+                ],
+                sops: [{ name: 'Torque Wrench Calibration', id: 'SOP-EQ-TW-001', rev: '4.2' }]
+            },
+            'soldering-001': {
+                name: 'Soldering Station SS-398', type: 'Soldering',
+                manufacturer: 'Weller', model: 'WX2021', serial: 'SN-SS-398-W',
+                specs: { power: '200W', tempRange: '50-550°C' },
+                service: { lastPM: '2026-04-01', nextPM: '2026-07-01', pmInterval: '3 months', requiresCal: false },
+                history: [
+                    { date: 'Apr 1, 2026', action: 'Tip Replacement', tech: 'Nina Garcia', type: 'repair' },
+                    { date: 'Jan 5, 2026', action: 'Preventive Maintenance', tech: 'Tom Bradley', type: 'inspection' }
+                ],
+                sops: [{ name: 'Soldering Station Maintenance', id: 'SOP-EQ-SS-001', rev: '2.0' }]
+            },
+            'scope-001': {
+                name: 'Oscilloscope OS-200', type: 'Test Equipment',
+                manufacturer: 'Keysight', model: 'DSOX3024T', serial: 'SN-OS-200-K',
+                specs: { bandwidth: '200 MHz', channels: '4' },
+                service: { lastPM: '2026-02-20', nextPM: '2026-08-20', pmInterval: '6 months', requiresCal: true },
+                history: [
+                    { date: 'Feb 20, 2026', action: 'Calibration - Pass', tech: 'External: Keysight', type: 'calibration' }
+                ],
+                sops: [{ name: 'Oscilloscope Calibration Check', id: 'SOP-EQ-OS-001', rev: '1.5' }]
+            },
+            'welder-007': {
+                name: 'Ultrasonic Welder UW-1188', type: 'Welding',
+                manufacturer: 'Branson', model: 'UW-2000X', serial: 'SN-UW-1188-B',
+                specs: { frequency: '20 kHz', power: '2000W' },
+                service: { lastPM: '2026-03-15', nextPM: '2026-09-15', pmInterval: '6 months', requiresCal: true },
+                history: [
+                    { date: 'Mar 15, 2026', action: 'Horn Inspection - Pass', tech: 'Sarah Kim', type: 'inspection' },
+                    { date: 'Dec 1, 2025', action: 'Power Calibration', tech: 'Tom Bradley', type: 'calibration' }
+                ],
+                sops: [{ name: 'Ultrasonic Welder Calibration', id: 'SOP-EQ-UW-001', rev: '3.0' }]
+            },
+            'crimper-001': {
+                name: 'Wire Crimper WC-100', type: 'Hand Tool',
+                manufacturer: 'TE Connectivity', model: 'PIDG-100', serial: 'SN-WC-100-T',
+                specs: { wireRange: '22-10 AWG', crimpType: 'Ratchet' },
+                service: { lastPM: '2026-04-10', nextPM: '2026-10-10', pmInterval: '6 months', requiresCal: false },
+                history: [
+                    { date: 'Apr 10, 2026', action: 'Die Inspection - Pass', tech: 'Nina Garcia', type: 'inspection' }
+                ],
+                sops: [{ name: 'Crimper Inspection', id: 'SOP-EQ-WC-001', rev: '1.2' }]
+            },
+            'press-003': {
+                name: 'Hydraulic Press HP-215', type: 'Press',
+                manufacturer: 'Dake', model: 'B-10', serial: 'SN-HP-215-D',
+                specs: { capacity: '10 ton', stroke: '6 in' },
+                service: { lastPM: '2026-03-01', nextPM: '2026-06-01', pmInterval: '3 months', requiresCal: true },
+                history: [
+                    { date: 'Mar 1, 2026', action: 'Pressure Calibration', tech: 'Tom Bradley', type: 'calibration' },
+                    { date: 'Dec 1, 2025', action: 'Hydraulic Fluid Change', tech: 'Mike Chen', type: 'repair' }
+                ],
+                sops: [{ name: 'Hydraulic Press PM', id: 'SOP-EQ-HP-001', rev: '2.1' }]
+            },
+            'rivet-001': {
+                name: 'Rivet Gun RG-500', type: 'Fastening',
+                manufacturer: 'Chicago Pneumatic', model: 'CP7110', serial: 'SN-RG-500-C',
+                specs: { rivetSize: '3/32-3/16 in', airPressure: '90 PSI' },
+                service: { lastPM: '2026-04-15', nextPM: '2026-07-15', pmInterval: '3 months', requiresCal: false },
+                history: [
+                    { date: 'Apr 15, 2026', action: 'Air Filter Replaced', tech: 'Nina Garcia', type: 'repair' }
+                ],
+                sops: [{ name: 'Pneumatic Tool Maintenance', id: 'SOP-EQ-PT-001', rev: '1.0' }]
+            },
+            'other': {
+                name: 'Other Equipment', type: 'Unspecified',
+                manufacturer: '—', model: '—', serial: '—',
+                specs: {},
+                service: { lastPM: '—', nextPM: '—', pmInterval: '—', requiresCal: false },
+                history: [],
+                sops: []
+            }
+        };
+
         const stationEquipment = {
             'Station 3 - RF Assembly': [
                 { id: 'torque-001', name: 'Torque Wrench TW-0042', type: 'Torque Tool' },
