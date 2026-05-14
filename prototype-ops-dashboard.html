@@ -4231,8 +4231,8 @@
                 <div class="alert-content">
                     <div class="alert-icon">!</div>
                     <div class="alert-text">
-                        <h3>3 Active Andons - Stations 3, 5, 2B</h3>
-                        <p>Station 3: Connector alignment (4m 32s) | Station 5: Cable short (1m 15s) | Station 2B: Cell crack (2m 08s)</p>
+                        <h3>3 Active Andons</h3>
+                        <p>Station 3 (4m 32s) | Station 5 (1m 15s) | Station 2B (2m 08s)</p>
                     </div>
                 </div>
             </div>
@@ -5638,7 +5638,7 @@
             <div class="modal-body">
                 <div id="modalAndonBanner" class="modal-andon-banner" style="display: none;">
                     <span class="andon-icon">!</span>
-                    <span id="modalAndonText">ANDON ACTIVE - Connector alignment issue</span>
+                    <span id="modalAndonText">ANDON ACTIVE</span>
                     <button class="view-andon-btn" id="modalViewAndonBtn" onclick="viewAndonFromStation()">View Details</button>
                 </div>
 
@@ -6749,7 +6749,7 @@
             if (station.status === 'andon') {
                 andonBanner.style.display = 'flex';
                 andonBanner.className = 'modal-andon-banner';
-                document.getElementById('modalAndonText').textContent = `ANDON ACTIVE - ${station.andonReason}`;
+                document.getElementById('modalAndonText').textContent = `ANDON ACTIVE - ${station.name}`;
                 viewAndonBtn.style.display = 'inline-block';
                 currentStationAndonId = station.andonId;
             } else if (station.status === 'at-risk') {
